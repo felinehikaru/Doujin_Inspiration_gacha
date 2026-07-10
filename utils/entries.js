@@ -386,7 +386,7 @@ const ENTRIES = [
 ];
 
 // ========== 过滤敏感词 ==========
-const blockedWords = /怀孕|孕期|生子|带球|揣崽|崽|产子|养娃|育儿|奶爸|奶妈|单亲|孩子|宝宝|幼崽|孕|怀胎|妊|娩|育|哺乳|胎动|坐月子/;
+const blockedWords  = /怀孕|孕期|生子|带球|揣崽|崽|产子|养娃|育儿|奶爸|奶妈|单亲|孩子|宝宝|幼崽|孕|怀胎|妊|娩|育|哺乳|胎动|坐月子/;
 const filtered = ENTRIES.filter(item => !blockedWords.test(item.text + item.desc));
 
 // ========== 导出 ==========

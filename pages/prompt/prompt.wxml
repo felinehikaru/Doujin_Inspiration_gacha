@@ -1,0 +1,56 @@
+<!-- pages/prompt/prompt.wxml -->
+<view class="container">
+
+<!-- 返回按钮 -->
+<view class="back-btn" bindtap="goBack">
+  <text class="back-icon">‹</text>
+  <text>返回</text>
+</view>
+
+<!-- 当前词条展示 -->
+<view class="section">
+  <view class="section-label">📌 当前抽到的词条</view>
+  <view class="result-cards" wx:if="{{results.length}}">
+    <view class="result-card" wx:for="{{results}}" wx:key="index">
+      <text class="result-title">{{item.text}}</text>
+      <text class="result-desc">{{item.desc}}</text>
+    </view>
+  </view>
+  <view class="empty-hint" wx:else>
+    <text>请先在主页抽取词条</text>
+  </view>
+</view>
+
+<!-- 生成的提示词 -->
+<view class="section">
+  <view class="section-label">📋 生成的提示词</view>
+  <view class="prompt-box" wx:if="{{prompt}}">
+    <text selectable="true">{{prompt}}</text>
+  </view>
+  <view class="prompt-empty" wx:else>
+    <text>暂无提示词</text>
+  </view>
+  <view class="prompt-actions">
+    <button class="btn btn-ghost small" bindtap="copyPrompt" wx:if="{{prompt}}">📋 复制</button>
+    <button class="btn btn-ghost small" bindtap="regenerate" wx:if="{{results.length}}">🔄 重新生成</button>
+  </view>
+</view>
+
+<!-- 自定义模板 -->
+<view class="section">
+  <view class="template-setting">
+    <view class="template-setting-header" bindtap="toggleTemplateEditor">
+      <text>📝 自定义提示词模板</text>
+      <text class="template-toggle">{{showTemplateEditor ? '收起' : '展开'}}</text>
+    </view>
+    <view class="template-editor" wx:if="{{showTemplateEditor}}">
+      <textarea class="template-textarea" bindinput="onTemplateInput" value="{{promptTemplate}}" placeholder="提示词模板，使用 {results} 代表词条列表" />
+      <view class="template-actions">
+        <button class="btn btn-ghost small" bindtap="resetTemplate">恢复默认</button>
+        <button class="btn btn-primary small" bindtap="saveTemplate">保存模板</button>
+      </view>
+    </view>
+  </view>
+</view>
+
+</view>
