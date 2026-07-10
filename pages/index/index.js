@@ -1,29 +1,36 @@
 // pages/index/index.js
 
-// ========== 导入本地词条库（备用） ==========
 const localEntries = require('../../utils/entries.js');
 
 Page({
   data: {
     // ----- 抽卡相关 -----
     results: [],
-    prompt: '',
     history: [],
     mode: 'balanced',
     modeName: '类型均衡',
     modeBadge: '各类型各抽一条',
     totalCount: localEntries.length,
     balls: [],
-    showContent: false,        // 开局弹窗确认后显示内容
+    showContent: false,
+    isShaking: false,
 
     // ----- 使用说明弹窗 -----
     showHelpModal: false,
 
-    // ----- 查看所有词条 -----
+    // ----- 查看所有词条（含搜索+筛选） -----
     showEntriesModal: false,
     allEntries: [],
+    searchKeyword: '',
+    filterType: 'all',
+    displayEntries: [],
+    filteredEntriesCount: 0,
 
-    // ----- 上传词条弹窗 -----
+    // ----- 收藏 -----
+    favorites: [],
+    showFavoritesModal: false,
+
+    // ----- 上传词条 -----
     showUploadModal: false,
     uploadText: '',
     uploadType: '',
@@ -34,18 +41,16 @@ Page({
       { value: 'rel', label: '关系类' },
       { value: 'plot', label: '情节类' }
     ],
-    isUploading: false,   // ✅ 这里加了逗号
-    isShaking: false
+    isUploading: false
   },
 
   onLoad() {
     this.showStartModal();
     this.syncEntriesFromCloud();
+    this.loadFavorites();
   },
 
-  // ================================================================
-  //  开局弹窗
-  // ================================================================
+  // ===== 开局弹窗 =====
   showStartModal() {
     wx.showModal({
       title: '欢迎使用',
@@ -67,9 +72,7 @@ Page({
     });
   },
 
-  // ================================================================
-  //  彩球初始化
-  // ================================================================
+  // ===== 彩球初始化 =====
   initBalls() {
     const colors = ['#ff6b6b','#4ecdc4','#45b7d1','#ffe66d','#9b5de5','#f15bb5','#00bbf9','#00f5d4','#ff9f1c','#7bdff2'];
     let balls = [];
@@ -85,17 +88,19 @@ Page({
     this.setData({ balls });
   },
 
-  // ================================================================
-  //  云端词条同步
-  // ================================================================
+  // ===== 云端词条同步 =====
   async syncEntriesFromCloud() {
+    if (!wx.cloud) {
+      console.warn('云开发未初始化，使用本地词条');
+      return;
+    }
     try {
       const res = await wx.cloud.callFunction({
         name: 'syncEntries'
       });
       if (res.result && res.result.success && res.result.data.length > 0) {
         const app = getApp();
-        app.globalData = app.globalData || {};
+        if (!app.globalData) app.globalData = {};
         app.globalData.cloudEntries = res.result.data;
         this.setData({ totalCount: res.result.data.length });
         console.log('云端词条同步成功，共 ' + res.result.data.length + ' 条');
@@ -107,18 +112,14 @@ Page({
     }
   },
 
-  // ================================================================
-  //  获取当前使用的词条库（优先云端）
-  // ================================================================
+  // ===== 获取词条库 =====
   getEntries() {
     const app = getApp();
-    const cloudEntries = app.globalData?.cloudEntries || [];
+    const cloudEntries = (app.globalData && app.globalData.cloudEntries) || [];
     return cloudEntries.length > 0 ? cloudEntries : localEntries;
   },
 
-  // ================================================================
-  //  抽卡核心
-  // ================================================================
+  // ===== 抽卡核心 =====
   draw(mode) {
     const entries = this.getEntries();
     let picked = [];
@@ -149,21 +150,17 @@ Page({
     return picked.slice(0, 3);
   },
 
-  // ================================================================
-  //  执行抽卡（含摇晃动画）
-  // ================================================================
+  // ===== 执行抽卡 =====
   async spin(mode) {
-    // 1. 清空结果，显示加载状态
+    if (this.data.isShaking) return;
+
     this.setData({ results: [] });
     wx.showLoading({ title: '扭蛋中...' });
 
-    // 2. 添加摇晃动画
     this.setData({ isShaking: true });
 
-    // 3. 等待动画时间（0.8秒）
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    // 4. 获取结果
     const results = this.draw(mode);
     if (!results.length) {
       wx.hideLoading();
@@ -172,18 +169,18 @@ Page({
       return;
     }
 
-    // 5. 更新数据，触发胶囊渲染，关闭摇晃
     this.setData({ results, isShaking: false });
 
-    // 6. 更新历史
+    // 更新历史
     let history = this.data.history;
     history.unshift(results.map(item => item.text).join(' + '));
     if (history.length > 10) history = history.slice(0, 10);
     this.setData({ history });
 
-    // 7. 生成提示词
-    const prompt = this.buildPrompt(results);
-    this.setData({ prompt });
+    // 存储结果到全局数据，供提示词页面使用
+    const app = getApp();
+    if (!app.globalData) app.globalData = {};
+    app.globalData.currentResults = results;
 
     wx.hideLoading();
     wx.showToast({ title: '抽取成功！', icon: 'success' });
@@ -192,73 +189,160 @@ Page({
   spinRandom() { this.spin('random'); },
   spinBalanced() { this.spin('balanced'); },
 
-  // ================================================================
-  //  生成提示词
-  // ================================================================
-  buildPrompt(results) {
-    const lines = results.map((item, idx) => `${idx+1}. ${item.text}：${item.desc}`).join('\n');
-    return `你是一个中文同人故事大纲助手。请根据下面抽到的 CP 梗词条生成大纲。\n要求：\n1. 输出中文。\n2. 生成可扩写成约6000字中篇的详细大纲。\n3. 包含：标题方向、核心设定、主角关系、开端、发展、高潮、结局、可写名场面。\n4. 可以补充原创细节，但必须围绕抽到的词条展开。\n\n抽到的词条：\n${lines}\n\n请直接输出大纲内容，不要额外解释。`;
-  },
-
-  // ================================================================
-  //  复制提示词
-  // ================================================================
-  copyPrompt() {
-    wx.setClipboardData({
-      data: this.data.prompt,
-      success: () => wx.showToast({ title: '已复制', icon: 'success' }),
-      fail: () => wx.showToast({ title: '复制失败', icon: 'none' })
+  // ===== 跳转到提示词页面 =====
+  goToPrompt() {
+    const results = this.data.results;
+    if (!results.length) {
+      wx.showToast({ title: '请先抽卡', icon: 'none' });
+      return;
+    }
+    wx.navigateTo({
+      url: '/pages/prompt/prompt'
     });
   },
 
-  // ================================================================
-  //  重新生成
-  // ================================================================
-  regenerate() {
-    if (this.data.results.length) {
-      const prompt = this.buildPrompt(this.data.results);
-      this.setData({ prompt });
-      wx.showToast({ title: '已重新生成', icon: 'success' });
-    }
-  },
-
-  // ================================================================
-  //  清空历史
-  // ================================================================
+  // ===== 清空历史 =====
   clearHistory() {
     this.setData({ history: [] });
     wx.showToast({ title: '已清空', icon: 'success' });
   },
 
-  // ================================================================
-  //  使用说明（自定义弹窗）
-  // ================================================================
+  // ===== 使用说明 =====
   showHelp() {
     this.setData({ showHelpModal: true });
   },
-
   closeHelpModal() {
     this.setData({ showHelpModal: false });
   },
 
-  // ================================================================
-  //  查看所有词条
-  // ================================================================
+  // ===== 词条搜索与筛选 =====
+  onSearchInput(e) {
+    const keyword = e.detail.value.trim().toLowerCase();
+    this.setData({ searchKeyword: keyword });
+    this.filterEntries();
+  },
+  setFilter(e) {
+    const type = e.currentTarget.dataset.type;
+    this.setData({ filterType: type });
+    this.filterEntries();
+  },
+  filterEntries() {
+    const entries = this.getEntries();
+    const keyword = this.data.searchKeyword.toLowerCase();
+    const filterType = this.data.filterType;
+    let filtered = entries;
+    if (filterType !== 'all') {
+      filtered = filtered.filter(item => item.type === filterType);
+    }
+    if (keyword) {
+      filtered = filtered.filter(item =>
+        item.text.toLowerCase().includes(keyword) ||
+        item.desc.toLowerCase().includes(keyword)
+      );
+    }
+    this.setData({
+      displayEntries: filtered,
+      filteredEntriesCount: filtered.length
+    });
+  },
   showEntriesList() {
     const entries = this.getEntries();
     this.setData({
       allEntries: entries,
-      showEntriesModal: true
+      showEntriesModal: true,
+      searchKeyword: '',
+      filterType: 'all'
     });
+    this.filterEntries();
   },
-
   closeEntriesModal() {
     this.setData({ showEntriesModal: false });
   },
 
-  // ================================================================
-  //  上传词条
-  // ================================================================
+  // ===== 收藏 =====
+  loadFavorites() {
+    try {
+      const favorites = wx.getStorageSync('favorites') || [];
+      this.setData({ favorites });
+    } catch (e) {
+      this.setData({ favorites: [] });
+    }
+  },
+  saveFavorites() {
+    try {
+      wx.setStorageSync('favorites', this.data.favorites);
+    } catch (e) {
+      console.warn('保存收藏失败', e);
+    }
+  },
+  collectCurrent() {
+    if (!this.data.results.length) {
+      wx.showToast({ title: '请先抽卡', icon: 'none' });
+      return;
+    }
+    const combination = this.data.results.map(item => item.text).join(' + ');
+    const favorites = this.data.favorites;
+    if (favorites.includes(combination)) {
+      wx.showToast({ title: '已收藏过', icon: 'none' });
+      return;
+    }
+    favorites.push(combination);
+    this.setData({ favorites });
+    this.saveFavorites();
+    wx.showToast({ title: '收藏成功！', icon: 'success' });
+  },
+  showFavorites() {
+    this.setData({ showFavoritesModal: true });
+  },
+  closeFavoritesModal() {
+    this.setData({ showFavoritesModal: false });
+  },
+  useFavorite(e) {
+    const index = e.currentTarget.dataset.index;
+    const combination = this.data.favorites[index];
+    const names = combination.split(' + ');
+    const entries = this.getEntries();
+    const results = names.map(name => {
+      const found = entries.find(item => item.text === name);
+      return found || { text: name, type: 'unknown', desc: '词条已不存在' };
+    });
+    this.setData({ results });
+    const app = getApp();
+    if (!app.globalData) app.globalData = {};
+    app.globalData.currentResults = results;
+    let history = this.data.history;
+    history.unshift(combination);
+    if (history.length > 10) history = history.slice(0, 10);
+    this.setData({ history });
+    this.closeFavoritesModal();
+    wx.showToast({ title: '已加载收藏组合', icon: 'success' });
+  },
+  deleteFavorite(e) {
+    const index = e.currentTarget.dataset.index;
+    const favorites = this.data.favorites;
+    favorites.splice(index, 1);
+    this.setData({ favorites });
+    this.saveFavorites();
+    wx.showToast({ title: '已删除', icon: 'success' });
+  },
+
+  // ===== 分享 =====
+  onShareAppMessage() {
+    const results = this.data.results;
+    if (!results.length) {
+      return {
+        title: '🎰 同人梗扭蛋机 - 来抽个灵感吧！',
+        path: '/pages/index/index'
+      };
+    }
+    const title = results.map(item => item.text).join(' + ');
+    return {
+      title: `🎰 我抽到了：${title}`,
+      path: '/pages/index/index'
+    };
+  },
+
+  // ===== 上传词条 =====
   showUploadModal() {
     this.setData({
       showUploadModal: true,
@@ -268,21 +352,15 @@ Page({
       uploadDesc: ''
     });
   },
-
   closeUploadModal() {
     this.setData({ showUploadModal: false });
   },
-
-  stopPropagation() {},
-
   onTextInput(e) {
     this.setData({ uploadText: e.detail.value });
   },
-
   onDescInput(e) {
     this.setData({ uploadDesc: e.detail.value });
   },
-
   onTypeChange(e) {
     const idx = e.detail.value;
     const option = this.data.typeOptions[idx];
@@ -291,7 +369,6 @@ Page({
       uploadTypeLabel: option.label
     });
   },
-
   async submitEntry() {
     const { uploadText, uploadType, uploadDesc } = this.data;
 
