@@ -34,8 +34,8 @@ Page({
       { value: 'rel', label: '关系类' },
       { value: 'plot', label: '情节类' }
     ],
-    isUploading: false
-    isShaking: false,
+    isUploading: false,   // ✅ 这里加了逗号
+    isShaking: false
   },
 
   onLoad() {
@@ -150,25 +150,38 @@ Page({
   },
 
   // ================================================================
-  //  执行抽卡
+  //  执行抽卡（含摇晃动画）
   // ================================================================
   async spin(mode) {
+    // 1. 清空结果，显示加载状态
+    this.setData({ results: [] });
     wx.showLoading({ title: '扭蛋中...' });
+
+    // 2. 添加摇晃动画
+    this.setData({ isShaking: true });
+
+    // 3. 等待动画时间（0.8秒）
     await new Promise(resolve => setTimeout(resolve, 800));
 
+    // 4. 获取结果
     const results = this.draw(mode);
     if (!results.length) {
       wx.hideLoading();
-      wx.showToast({ title: '词条不足，请添加', icon: 'none' });
+      this.setData({ isShaking: false });
+      wx.showToast({ title: '词条不足', icon: 'none' });
       return;
     }
-    this.setData({ results });
 
+    // 5. 更新数据，触发胶囊渲染，关闭摇晃
+    this.setData({ results, isShaking: false });
+
+    // 6. 更新历史
     let history = this.data.history;
     history.unshift(results.map(item => item.text).join(' + '));
     if (history.length > 10) history = history.slice(0, 10);
     this.setData({ history });
 
+    // 7. 生成提示词
     const prompt = this.buildPrompt(results);
     this.setData({ prompt });
 
@@ -330,43 +343,3 @@ Page({
     }
   }
 });
-async spin(mode) {
-  // 1. 清空结果，显示加载状态
-  this.setData({ results: [] });
-  wx.showLoading({ title: '扭蛋中...' });
-
-  // 2. 添加摇晃动画
-  const machine = this.selectComponent ? null : null;
-  // 由于无法直接操作DOM，我们通过数据绑定添加类
-  // 在 wxml 中已经绑定了 gacha-machine，我们添加一个 data 字段控制
-  // 但为了简单，我们通过 setData 控制一个变量
-  this.setData({ isShaking: true });
-
-  // 3. 等待动画时间（0.8秒）
-  await new Promise(resolve => setTimeout(resolve, 800));
-
-  // 4. 获取结果
-  const results = this.draw(mode);
-  if (!results.length) {
-    wx.hideLoading();
-    this.setData({ isShaking: false });
-    wx.showToast({ title: '词条不足', icon: 'none' });
-    return;
-  }
-
-  // 5. 更新数据，触发胶囊渲染
-  this.setData({ results, isShaking: false });
-
-  // 6. 更新历史
-  let history = this.data.history;
-  history.unshift(results.map(item => item.text).join(' + '));
-  if (history.length > 10) history = history.slice(0, 10);
-  this.setData({ history });
-
-  // 7. 生成提示词
-  const prompt = this.buildPrompt(results);
-  this.setData({ prompt });
-
-  wx.hideLoading();
-  wx.showToast({ title: '抽取成功！', icon: 'success' });
-}
