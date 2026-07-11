@@ -1,8 +1,14 @@
+// app.js
 App({
   globalData: {
-    currentResults: []   // 存储当前抽卡结果，供提示词页面使用
+    cloudEntries: []
   },
   onLaunch() {
-    console.log('同人梗扭蛋机启动');
+    // 初始化云开发
+    wx.cloud.init({
+      env: 'cloud1-d7go4jnlae0f8acc5',  // 替换为实际环境ID
+      traceUser: true
+    });
+    console.log('云开发初始化成功');
   }
 });
