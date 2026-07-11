@@ -89,28 +89,32 @@ Page({
   },
 
   // ===== 云端词条同步 =====
-  async syncEntriesFromCloud() {
-    if (!wx.cloud) {
-      console.warn('云开发未初始化，使用本地词条');
-      return;
+async syncEntriesFromCloud() {
+  if (!wx.cloud) {
+    console.warn('云开发未初始化，使用本地词条');
+    return;
+  }
+  try {
+    wx.showLoading({ title: '同步词条中...' });
+    const res = await wx.cloud.callFunction({
+      name: 'syncEntries'
+    });
+    wx.hideLoading();
+    if (res.result && res.result.success && res.result.data.length > 0) {
+      const app = getApp();
+      if (!app.globalData) app.globalData = {};
+      app.globalData.cloudEntries = res.result.data;
+      this.setData({ totalCount: res.result.data.length });
+      wx.showToast({ title: '词条已同步', icon: 'success' });
+      console.log('云端词条同步成功，共 ' + res.result.data.length + ' 条');
+    } else {
+      console.log('云端暂无数据，使用本地词条');
     }
-    try {
-      const res = await wx.cloud.callFunction({
-        name: 'syncEntries'
-      });
-      if (res.result && res.result.success && res.result.data.length > 0) {
-        const app = getApp();
-        if (!app.globalData) app.globalData = {};
-        app.globalData.cloudEntries = res.result.data;
-        this.setData({ totalCount: res.result.data.length });
-        console.log('云端词条同步成功，共 ' + res.result.data.length + ' 条');
-      } else {
-        console.log('云端暂无数据，使用本地词条');
-      }
-    } catch (err) {
-      console.warn('云端同步失败，使用本地词条', err);
-    }
-  },
+  } catch (err) {
+    wx.hideLoading();
+    console.warn('云端同步失败，使用本地词条', err);
+  }
+},
 
   // ===== 获取词条库 =====
   getEntries() {
@@ -371,7 +375,8 @@ Page({
   },
   async submitEntry() {
     const { uploadText, uploadType, uploadDesc } = this.data;
-
+    console.log('准备调用 submitEntry 云函数');
+  
     if (!uploadText.trim()) {
       wx.showToast({ title: '请输入词条名', icon: 'none' });
       return;
@@ -384,10 +389,10 @@ Page({
       wx.showToast({ title: '请输入描述', icon: 'none' });
       return;
     }
-
+  
     this.setData({ isUploading: true });
     wx.showLoading({ title: '提交中...' });
-
+  
     try {
       const res = await wx.cloud.callFunction({
         name: 'submitEntry',
@@ -397,10 +402,12 @@ Page({
           desc: uploadDesc.trim()
         }
       });
-
+  
+      console.log('云函数调用成功，返回结果：', res);  // ← 新增：打印成功结果
+  
       wx.hideLoading();
       this.setData({ isUploading: false });
-
+  
       if (res.result.success) {
         wx.showModal({
           title: '提交成功',
@@ -413,10 +420,10 @@ Page({
         wx.showToast({ title: res.result.message || '提交失败', icon: 'none' });
       }
     } catch (err) {
+      console.error('云函数调用失败：', err);  // 已存在，保持
       wx.hideLoading();
       this.setData({ isUploading: false });
-      wx.showToast({ title: '网络异常，请稍后重试', icon: 'none' });
-      console.error('提交词条失败:', err);
+      wx.showToast({ title: '提交失败：' + (err.errMsg || err.message || '未知错误'), icon: 'none' });
     }
   }
 });
