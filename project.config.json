@@ -23,8 +23,7 @@
     "swc": false,
     "disableSWC": true,
     "ignoreDevUnusedFiles": false,
-    "ignoreUploadUnusedFiles": false,
-    "cloudfunctionRoot": "cloudfunctions/"
+    "ignoreUploadUnusedFiles": false
   },
   "compileType": "miniprogram",
   "simulatorPluginLibVersion": {},
@@ -33,7 +32,8 @@
     "include": []
   },
   "appid": "wxb4e7e5a3d49dc5c6",
+  "cloudfunctionRoot": "cloudfunctions",
   "editorSetting": {},
   "libVersion": "3.16.2",
-  "cloudfunctionTemplateRoot": "cloudfunctionTemplate/"
+  "cloudfunctionTemplateRoot": "ccloudfunctionTemplateRoot"
 }
