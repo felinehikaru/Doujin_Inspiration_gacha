@@ -1,30 +1,105 @@
-const cloud = require('wx-server-sdk');
-cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
-const db = cloud.database();
-const ADMIN_OPENIDS = ['你的OpenID'];
+const cloud=require('wx-server-sdk');
 
-exports.main = async (event, context) => {
-  const { entryId, action } = event;
-  if (!ADMIN_OPENIDS.includes(cloud.getWXContext().OPENID)) {
-    return { success: false, message: '权限不足' };
+cloud.init({
+  env:cloud.DYNAMIC_CURRENT_ENV
+});
+
+const db=cloud.database();
+
+exports.main=async(event,context)=>{
+  const {
+    entryId,
+    action
+  }=event;
+
+  if(!entryId||!action){
+    return{
+      success:false,
+      message:'参数错误'
+    };
   }
-  try {
-    const pending = await db.collection('pending_entries').doc(entryId).get();
-    if (!pending.data || pending.data.status !== 'pending') {
-      return { success: false, message: '词条不存在或已处理' };
+
+  try{
+    const entryRes=await db.collection('pending_entries')
+      .doc(entryId)
+      .get();
+
+    const entry=entryRes.data;
+
+    if(!entry){
+      return{
+        success:false,
+        message:'词条不存在'
+      };
     }
-    if (action === 'approve') {
-      const { text, type, desc } = pending.data;
-      await db.collection('entries').add({ data: { text, type, desc, source: 'user', approveTime: new Date() } });
-      await db.collection('pending_entries').doc(entryId).update({ data: { status: 'approved' } });
-      return { success: true, message: '审核通过' };
-    } else if (action === 'reject') {
-      await db.collection('pending_entries').doc(entryId).update({ data: { status: 'rejected' } });
-      return { success: true, message: '已拒绝' };
-    } else {
-      return { success: false, message: '无效操作' };
+
+    if(action==='approve'){
+
+      const exist=await db.collection('entries')
+        .where({
+          text:entry.text
+        })
+        .get();
+
+      if(!exist.data.length){
+
+        await db.collection('entries')
+          .add({
+            data:{
+              text:entry.text,
+              desc:entry.desc,
+              category:entry.category,
+              tags:entry.tags||[],
+              createTime:new Date(),
+              source:'user',
+              status:'approved'
+            }
+          });
+      }
+
+      await db.collection('pending_entries')
+        .doc(entryId)
+        .update({
+          data:{
+            status:'approved',
+            approveTime:new Date()
+          }
+        });
+
+      return{
+        success:true,
+        message:'审核通过'
+      };
     }
-  } catch (err) {
-    return { success: false, message: err.message };
+
+    if(action==='reject'){
+
+      await db.collection('pending_entries')
+        .doc(entryId)
+        .update({
+          data:{
+            status:'rejected',
+            rejectTime:new Date()
+          }
+        });
+
+      return{
+        success:true,
+        message:'已拒绝'
+      };
+    }
+
+    return{
+      success:false,
+      message:'未知操作'
+    };
+
+  }catch(err){
+
+    return{
+      success:false,
+      message:err.message
+    };
+
   }
 };

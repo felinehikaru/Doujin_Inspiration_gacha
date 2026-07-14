@@ -1,27 +1,57 @@
 <view class="container">
-  <view class="header">
-    <text class="title">📋 词条审核</text>
-    <text class="count">待审核：{{pendingList.length}} 条</text>
-  </view>
-  
-  <view wx:if="{{!isAdmin}}" class="empty">
-    <text>暂无管理员权限</text>
+
+<view class="header">
+  <text class="title">📋 词条审核</text>
+  <text class="count">待审核：{{pendingList.length}} 条</text>
+</view>
+
+<view wx:for="{{pendingList}}" wx:key="_id" class="entry-card">
+
+  <view class="entry-info">
+    <text class="entry-text">{{item.text}}</text>
+    <text class="entry-category">
+      分类：{{item.category}}
+    </text>
   </view>
 
-  <view wx:for="{{pendingList}}" wx:key="_id" class="entry-card">
-    <view class="entry-info">
-      <text class="entry-text">{{item.text}}</text>
-      <text class="entry-type">{{item.type === 'bg' ? '背景' : item.type === 'rel' ? '关系' : '情节'}}</text>
-    </view>
-    <text class="entry-desc">{{item.desc}}</text>
-    <text class="entry-submitter">提交者：{{item.submitterOpenid}}</text>
-    <view class="entry-actions">
-      <button class="btn-approve" bindtap="approveEntry" data-id="{{item._id}}">✅ 通过</button>
-      <button class="btn-reject" bindtap="rejectEntry" data-id="{{item._id}}">❌ 拒绝</button>
-    </view>
+  <text class="entry-desc">
+    {{item.desc}}
+  </text>
+
+  <view class="entry-tags" wx:if="{{item.tags && item.tags.length}}">
+    <text class="tag" wx:for="{{item.tags}}" wx:key="index">
+      #{{item}}
+    </text>
   </view>
 
-  <view wx:if="{{pendingList.length === 0 && isAdmin}}" class="empty">
-    <text>🎉 暂无待审核词条</text>
+  <text class="entry-time" wx:if="{{item.submitTime}}">
+    提交时间：{{item.submitTime}}
+  </text>
+
+  <view class="entry-actions">
+
+    <button
+      class="btn-approve"
+      bindtap="approveEntry"
+      data-id="{{item._id}}"
+      disabled="{{loading}}">
+      ✅ 通过
+    </button>
+
+    <button
+      class="btn-reject"
+      bindtap="rejectEntry"
+      data-id="{{item._id}}"
+      disabled="{{loading}}">
+      ❌ 拒绝
+    </button>
+
   </view>
+
+</view>
+
+<view wx:if="{{pendingList.length===0}}" class="empty">
+  <text>🎉 暂无待审核词条</text>
+</view>
+
 </view>

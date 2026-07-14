@@ -1,0 +1,55 @@
+<!-- pages/history/history.wxml -->
+
+<view class="container">
+
+<view class="header">
+  <text class="title">📜 历史记录</text>
+  <text class="count">共{{history.length}}条</text>
+</view>
+
+<view class="history-list">
+
+<view 
+  class="history-card"
+  wx:for="{{history}}"
+  wx:key="index">
+
+  <text class="history-index">
+    第{{index+1}}次
+  </text>
+
+  <text class="history-text">
+    {{item}}
+  </text>
+
+</view>
+
+<view 
+  wx:if="{{!history.length}}"
+  class="empty">
+
+  <text>
+    暂无历史记录
+  </text>
+
+</view>
+
+</view>
+
+<button 
+  class="clear-btn"
+  bindtap="clearHistory">
+
+  🗑️ 清空历史记录
+
+</button>
+
+<button 
+  class="back-btn"
+  bindtap="goBack">
+
+  返回
+
+</button>
+
+</view>

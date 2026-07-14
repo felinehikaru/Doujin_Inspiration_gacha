@@ -1,7 +1,9 @@
 {
-  "pages": [
+  "pages":[
     "pages/index/index",
-    "pages/prompt/prompt"
+    "pages/prompt/prompt",
+    "pages/admin/admin",
+    "pages/history/history"
   ],
   "window": {
     "navigationBarTitleText": "同人梗扭蛋机",

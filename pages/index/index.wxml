@@ -1,196 +1,226 @@
-<!-- pages/index/index.wxml -->
-
-<!-- 页面内容（开局弹窗确认后才显示） -->
 <view class="container" wx:if="{{showContent}}">
 
-<!-- 帮助按钮（左上角） -->
-<view class="help-btn" bindtap="showHelp">
-  <text class="help-icon">?</text>
-</view>
-
-<!-- 标题 -->
-<view class="title">
-  <text class="title-text">🎰 同人梗扭蛋机</text>
-  <text class="subtitle">抽三个CP梗，生成AI提示词</text>
-</view>
-
-<!-- 扭蛋机图形区 -->
-<view class="gacha-area">
-  <view class="gacha-machine {{isShaking ? 'shaking' : ''}}" id="machine">
-    <view class="dome">
-      <view class="dome-count">📚 已收录 {{totalCount}} 个词条</view>
-      <view class="ball" wx:for="{{balls}}" wx:key="index" style="left:{{item.x}}%;top:{{item.y}}%;width:{{item.size}}rpx;height:{{item.size}}rpx;background:{{item.color}};"></view>
-    </view>
-    <view class="body">
-      <view class="brand">CP 梗扭蛋机</view>
-      <view class="knob"></view>
-      <view class="slot"></view>
-    </view>
+  <view class="help-btn" bindtap="showHelp">
+    <text class="help-icon">?</text>
   </view>
-  <view class="dropped" wx:if="{{results.length}}">
-    <view class="capsule-item" wx:for="{{results}}" wx:key="index">
-      <view class="capsule" style="background:{{item.color || '#7b3ee6'}};">{{item.icon || '🎲'}}</view>
-      <view class="chip">
-        <text class="chip-label">第{{index+1}}抽</text>
-        <text class="chip-text">{{item.text}}</text>
+
+  <view class="title">
+    <text class="title-text">🎰 同人梗扭蛋机</text>
+    <text class="subtitle">随机组合词条，获得创作灵感</text>
+  </view>
+
+  <view class="gacha-area">
+    <view class="gacha-machine {{isShaking?'shaking':''}}">
+      <view class="dome">
+        <view class="dome-count">📚 已收录 {{totalCount}} 个词条</view>
+        <view class="ball" wx:for="{{balls}}" wx:key="index" style="left:{{item.x}}%;top:{{item.y}}%;width:{{item.size}}rpx;height:{{item.size}}rpx;background:{{item.color}};"></view>
+      </view>
+      <view class="body">
+        <view class="brand">CP梗扭蛋机</view>
+        <view class="knob"></view>
+        <view class="slot"></view>
+      </view>
+    </view>
+
+    <view class="dropped" wx:if="{{results.length}}">
+      <view class="capsule-item" wx:for="{{results}}" wx:key="index">
+        <view class="capsule">{{item.icon||'🎲'}}</view>
+        <view class="chip">
+          <text class="chip-label">第{{index+1}}抽</text>
+          <text class="chip-text">{{item.text}}</text>
+        </view>
       </view>
     </view>
   </view>
+
+  <view class="controls">
+    <view class="mode-hint">👇 选择模式开始抽取</view>
+    <view class="btn-group">
+      <button class="btn btn-random" bindtap="spinRandom">🎲 完全随机</button>
+      <button class="btn btn-balanced" bindtap="spinBalanced">⚖️ 分类均衡</button>
+    </view>
+
+    <view class="btn-row">
+      <button class="btn btn-ghost" bindtap="clearCurrentResult">🗑️ 清空当前</button>
+      <button class="btn btn-upload" bindtap="showUploadModal">📤 上传词条</button>
+      <button class="btn btn-view" bindtap="showEntriesList">📖 所有词条</button>
+    </view>
+
+    <view class="btn-row">
+      <button class="btn btn-prompt" bindtap="goToPrompt">📝 提示词相关</button>
+    </view>
+  </view>
+
+  <view class="mode-display">
+    <text>当前模式：</text>
+    <text class="mode-name">{{modeName}}</text>
+    <text class="mode-badge">{{modeBadge}}</text>
+  </view>
+
+  <view class="result-area" wx:if="{{results.length}}">
+    <view class="result-card" wx:for="{{results}}" wx:key="index">
+      <text class="result-title">{{item.text}}</text>
+      <text class="result-desc">{{item.desc}}</text>
+      <text class="result-category">{{item.category}}</text>
+    </view>
+  </view>
+
+  <view class="empty" wx:else>
+    <text>还没有抽取结果，开始抽取获得灵感</text>
+  </view>
+
+  <view class="collect-area" wx:if="{{results.length}}">
+    <button class="btn btn-collect" bindtap="collectCurrent">❤️ 收藏组合</button>
+  </view>
+
+  <view class="record-entry">
+
+<view 
+class="record-btn history-btn"
+bindtap="openHistory">
+📜 历史记录
 </view>
 
-<!-- 控制区 -->
-<view class="controls">
-  <view class="mode-hint">👇 选模式，点抽卡</view>
-  <view class="btn-group">
-    <button class="btn btn-random" bindtap="spinRandom">🎲 完全随机</button>
-    <button class="btn btn-balanced" bindtap="spinBalanced">⚖️ 类型均衡</button>
-  </view>
-  <view class="btn-row">
-    <button class="btn btn-ghost" bindtap="clearHistory">🗑️ 清空记录</button>
-    <button class="btn btn-upload" bindtap="showUploadModal">📤 上传词条</button>
-    <button class="btn btn-view" bindtap="showEntriesList">📖 所有词条</button>
-  </view>
-  <!-- 新增：跳转提示词页面 -->
-  <view class="btn-row" style="margin-top:8rpx;">
-    <button class="btn btn-prompt" bindtap="goToPrompt">📝 提示词相关</button>
-  </view>
-</view>
-
-<!-- 当前模式 -->
-<view class="mode-display">
-  <text>当前模式：</text>
-  <text class="mode-name">{{modeName}}</text>
-  <text class="mode-badge">{{modeBadge}}</text>
-</view>
-
-<!-- 抽卡结果 -->
-<view class="result-area" wx:if="{{results.length}}">
-  <view class="result-card" wx:for="{{results}}" wx:key="index">
-    <text class="result-title">{{item.text}}</text>
-    <text class="result-desc">{{item.desc}}</text>
-  </view>
-</view>
-<view class="empty" wx:else>
-  <text>还没有抽取结果，按下按钮让灵感转起来</text>
-</view>
-
-<!-- 收藏按钮 -->
-<view class="collect-area" wx:if="{{results.length}}">
-  <button class="btn btn-collect" bindtap="collectCurrent">❤️ 收藏这个组合</button>
-</view>
-
-<!-- 分享按钮 -->
-<view class="share-area" wx:if="{{results.length}}">
-  <button class="btn btn-share" open-type="share">📤 分享结果</button>
-</view>
-
-<!-- 历史记录 -->
-<view class="history-area">
-  <view class="section-label">
-    📜 历史记录
-    <text class="label-action" bindtap="showFavorites">⭐ 查看收藏</text>
-  </view>
-  <view class="history-list">
-    <text class="history-item" wx:for="{{history}}" wx:key="index">{{item}}</text>
-    <text class="history-empty" wx:if="{{!history.length}}">暂无记录</text>
-  </view>
+<view 
+class="record-btn favorite-btn"
+bindtap="showFavorites">
+⭐ 查看收藏
 </view>
 
 </view>
 
-<!-- ===== 使用说明自定义弹窗 ===== -->
-<view class="help-modal" wx:if="{{showHelpModal}}" bindtap="closeHelpModal">
-<view class="help-modal-content" catchtap>
-  <view class="help-modal-title">🎯 使用说明</view>
-  <view class="help-modal-body">
-    <text class="help-line">1. 完全随机：从所有词条里随机抽取三个</text>
-    <text class="help-line">2. 类型均衡：分别从“背景”“关系”和“事件”</text>
-    <text class="help-line">   里各随机抽取一个</text>
-    <text class="help-line">3. 抽卡后点击「提示词相关」进入提示词页面</text>
-    <text class="help-line">4. 在提示词页面可自定义模板并生成提示词</text>
-    <text class="help-line">5. 历史记录保存最近10次抽卡结果</text>
-    <text class="help-line" style="margin-top:12rpx;color:#7b3ee6;font-weight:600;">💡 提示：词条库包含背景、关系、情节三大类，共 {{totalCount}} 条</text>
-  </view>
-  <view class="help-modal-footer">
-    <button class="btn btn-ghost" bindtap="closeHelpModal">知道了</button>
-  </view>
-</view>
-</view>
 
-<!-- ===== 词条列表弹窗 ===== -->
-<view class="entries-modal" wx:if="{{showEntriesModal}}" bindtap="closeEntriesModal">
-<view class="entries-modal-content" catchtap>
-  <view class="entries-modal-title">📖 全部词条（{{filteredEntriesCount}}条）</view>
-  <view class="entries-search">
-    <input class="entries-search-input" placeholder="🔍 搜索词条..." bindinput="onSearchInput" value="{{searchKeyword}}" />
+  <!--帮助弹窗-->
+  <view class="help-modal" wx:if="{{showHelpModal}}" bindtap="closeHelpModal">
+    <view class="help-modal-content" catchtap="stopClose">
+
+      <view class="help-modal-title">🎯 使用说明</view>
+
+      <text class="help-line">1. 完全随机：随机抽取三个词条</text>
+      <text class="help-line">2. 分类均衡：不同分类组合</text>
+      <text class="help-line">3. 抽取结果可以生成提示词</text>
+      <text class="help-line">4. 支持收藏喜欢的组合</text>
+
+      <button class="btn btn-ghost" bindtap="closeHelpModal">知道了</button>
+
+    </view>
   </view>
-  <view class="entries-filter">
-    <view class="filter-btn {{filterType === 'all' ? 'active' : ''}}" bindtap="setFilter" data-type="all">全部</view>
-    <view class="filter-btn {{filterType === 'bg' ? 'active' : ''}}" bindtap="setFilter" data-type="bg">背景</view>
-    <view class="filter-btn {{filterType === 'rel' ? 'active' : ''}}" bindtap="setFilter" data-type="rel">关系</view>
-    <view class="filter-btn {{filterType === 'plot' ? 'active' : ''}}" bindtap="setFilter" data-type="plot">情节</view>
-  </view>
-  <scroll-view class="entries-scroll" scroll-y="true">
-    <view class="entry-item" wx:for="{{displayEntries}}" wx:key="index">
-      <view class="entry-header">
-        <text class="entry-name">{{item.text}}</text>
-        <text class="entry-type">{{item.type === 'bg' ? '背景' : item.type === 'rel' ? '关系' : '情节'}}</text>
+
+
+  <!--词条列表-->
+  <view class="entries-modal" wx:if="{{showEntriesModal}}" bindtap="closeEntriesModal">
+
+    <view class="entries-modal-content" catchtap="stopClose">
+
+      <view class="entries-modal-title">
+        📖 全部词条（{{filteredEntriesCount}}条）
       </view>
-      <text class="entry-desc">{{item.desc}}</text>
-    </view>
-    <view class="entries-empty" wx:if="{{!displayEntries.length}}">
-      <text>没有找到匹配的词条</text>
-    </view>
-  </scroll-view>
-  <view class="entries-modal-footer">
-    <button class="btn btn-ghost" bindtap="closeEntriesModal">关闭</button>
-  </view>
-</view>
-</view>
 
-<!-- ===== 收藏列表弹窗 ===== -->
-<view class="favorites-modal" wx:if="{{showFavoritesModal}}" bindtap="closeFavoritesModal">
-<view class="favorites-modal-content" catchtap>
-  <view class="favorites-modal-title">⭐ 我的收藏（{{favorites.length}}）</view>
-  <scroll-view class="favorites-scroll" scroll-y="true">
-    <view class="favorite-item" wx:for="{{favorites}}" wx:key="index">
-      <text class="favorite-text">{{item}}</text>
-      <view class="favorite-actions">
-        <text class="favorite-use" bindtap="useFavorite" data-index="{{index}}">使用</text>
-        <text class="favorite-delete" bindtap="deleteFavorite" data-index="{{index}}">删除</text>
+      <input class="entries-search-input" placeholder="搜索词条" bindinput="onSearchInput" />
+
+      <view class="entries-filter">
+
+        <view class="filter-btn" bindtap="setFilter" data-type="all">全部</view>
+
+        <view class="filter-btn" bindtap="setFilter" data-type="world">世界</view>
+
+        <view class="filter-btn" bindtap="setFilter" data-type="relationship">关系</view>
+
+        <view class="filter-btn" bindtap="setFilter" data-type="character">角色</view>
+
+        <view class="filter-btn" bindtap="setFilter" data-type="conflict">冲突</view>
+
+        <view class="filter-btn" bindtap="setFilter" data-type="scene">场景</view>
+
+        <view class="filter-btn" bindtap="setFilter" data-type="theme">主题</view>
+
       </view>
-    </view>
-    <view class="favorites-empty" wx:if="{{!favorites.length}}">暂无收藏</view>
-  </scroll-view>
-  <view class="favorites-modal-footer">
-    <button class="btn btn-ghost" bindtap="closeFavoritesModal">关闭</button>
-  </view>
-</view>
-</view>
 
-<!-- ===== 上传词条弹窗 ===== -->
-<view class="upload-modal" wx:if="{{showUploadModal}}" bindtap="closeUploadModal">
-<view class="upload-modal-content" catchtap>
-  <view class="upload-modal-title">📤 上传词条</view>
-  <view class="upload-form">
-    <view class="upload-field">
-      <text class="upload-label">词条名 *</text>
-      <input class="upload-input" placeholder="输入词条名称" bindinput="onTextInput" value="{{uploadText}}" />
+
+      <view class="entry-list">
+
+        <view class="entry-card" wx:for="{{displayEntries}}" wx:key="_id">
+
+          <text class="entry-text">{{item.text}}</text>
+
+          <text class="entry-desc">{{item.desc}}</text>
+
+          <text class="entry-category">{{item.category}}</text>
+
+        </view>
+
+      </view>
+
+
+      <button class="btn btn-ghost" bindtap="closeEntriesModal">
+        关闭
+      </button>
+
     </view>
-    <view class="upload-field">
-      <text class="upload-label">类型 *</text>
-      <picker bindchange="onTypeChange" range="{{typeOptions}}" range-key="label">
-        <view class="upload-picker">{{uploadTypeLabel || '请选择类型'}}</view>
+  </view>
+  <!-- 上传词条 -->
+
+  <view class="upload-modal" wx:if="{{showUploadModal}}">
+
+    <view class="upload-content">
+
+      <view class="upload-title">
+        📤 上传新词条
+      </view>
+
+
+      <input class="upload-input" placeholder="输入词条名称" value="{{uploadText}}" bindinput="onTextInput" />
+
+      <textarea class="upload-textarea" placeholder="输入词条描述" value="{{uploadDesc}}" bindinput="onDescInput" />
+
+      <picker mode="selector" range="{{categoryOptions}}" range-key="label" bindchange="onCategoryChange">
+
+        <view class="upload-picker">
+          {{uploadCategory || '选择分类'}}
+        </view>
+
       </picker>
+
+      <input class="upload-input" placeholder="输入标签，用逗号分隔" value="{{uploadTags}}" bindinput="onTagsInput" />
+
+      <view class="upload-actions">
+
+        <button class="upload-cancel" bindtap="closeUploadModal">
+          取消
+        </button>
+
+
+        <button class="upload-submit" bindtap="submitEntry" loading="{{isUploading}}">
+          提交
+        </button>
+
+      </view>
+
     </view>
-    <view class="upload-field">
-      <text class="upload-label">描述 *</text>
-      <textarea class="upload-textarea" placeholder="输入词条描述（100字以内）" bindinput="onDescInput" value="{{uploadDesc}}" maxlength="100" />
-    </view>
-    <view class="upload-actions">
-      <button class="btn btn-ghost small" bindtap="closeUploadModal">取消</button>
-      <button class="btn btn-upload-submit" bindtap="submitEntry" disabled="{{isUploading}}">提交审核</button>
-    </view>
+
   </view>
 </view>
+
+<!--收藏弹窗-->
+
+<view class="favorites-modal" wx:if="{{showFavoritesModal}}">
+
+  <view class="favorites-content">
+
+    <view class="favorites-title">
+      ⭐ 我的收藏
+    </view>
+
+    <view class="favorites-item" wx:for="{{favorites}}" wx:key="index">
+
+      {{item}}
+
+    </view>
+
+    <button class="btn btn-ghost" bindtap="closeFavoritesModal">
+      关闭
+    </button>
+
+  </view>
+
 </view>

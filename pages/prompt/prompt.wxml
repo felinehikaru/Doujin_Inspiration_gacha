@@ -24,32 +24,62 @@
 <!-- 生成的提示词 -->
 <view class="section">
   <view class="section-label">📋 生成的提示词</view>
+
   <view class="prompt-box" wx:if="{{prompt}}">
     <text selectable="true">{{prompt}}</text>
   </view>
+
   <view class="prompt-empty" wx:else>
     <text>暂无提示词</text>
   </view>
+
   <view class="prompt-actions">
-    <button class="btn btn-ghost small" bindtap="copyPrompt" wx:if="{{prompt}}">📋 复制</button>
-    <button class="btn btn-ghost small" bindtap="regenerate" wx:if="{{results.length}}">🔄 重新生成</button>
+    <button class="btn btn-ghost small" bindtap="copyPrompt" wx:if="{{prompt}}">
+      📋 复制
+    </button>
   </view>
 </view>
 
-<!-- 自定义模板 -->
+<!-- 模板入口 -->
 <view class="section">
-  <view class="template-setting">
-    <view class="template-setting-header" bindtap="toggleTemplateEditor">
-      <text>📝 自定义提示词模板</text>
-      <text class="template-toggle">{{showTemplateEditor ? '收起' : '展开'}}</text>
+  <view class="template-entry">
+    <text>📝 模板编辑器</text>
+<button class="btn btn-ghost small" bindtap="openTemplateEditor">
+  打开编辑
+</button>
+  </view>
+</view>
+
+
+<!-- 模板编辑弹窗 -->
+<view class="modal-mask" wx:if="{{showTemplateModal}}">
+  <view class="modal-box">
+
+    <view class="modal-title">
+      📝 编辑提示词模板
     </view>
-    <view class="template-editor" wx:if="{{showTemplateEditor}}">
-      <textarea class="template-textarea" bindinput="onTemplateInput" value="{{promptTemplate}}" placeholder="提示词模板，使用 {results} 代表词条列表" />
-      <view class="template-actions">
-        <button class="btn btn-ghost small" bindtap="resetTemplate">恢复默认</button>
-        <button class="btn btn-primary small" bindtap="saveTemplate">保存模板</button>
-      </view>
+
+    <textarea
+      class="template-textarea"
+      value="{{promptTemplate}}"
+      bindinput="onTemplateInput"
+      placeholder="请输入模板内容"
+    ></textarea>
+
+    <view class="template-actions">
+      <button class="btn btn-ghost small" bindtap="resetTemplate">
+        恢复默认
+      </button>
+
+      <button class="btn btn-primary small" bindtap="saveTemplate">
+        保存模板
+      </button>
     </view>
+
+    <button class="btn btn-ghost small close-btn" bindtap="closeTemplateEditor">
+      关闭
+    </button>
+
   </view>
 </view>
 
