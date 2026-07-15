@@ -1,0 +1,111 @@
+page{
+  background:linear-gradient(180deg,#f6a6b7,#9b6de3);
+  min-height:100vh;
+}
+
+.container{
+  padding:30rpx;
+}
+
+.title{
+  text-align:center;
+  margin-bottom:40rpx;
+}
+
+.title-text{
+  display:block;
+  font-size:42rpx;
+  font-weight:bold;
+  color:#fff;
+}
+
+.subtitle{
+  display:block;
+  margin-top:12rpx;
+  font-size:26rpx;
+  color:#fff;
+}
+
+.favorite-list{
+  display:flex;
+  flex-direction:column;
+  gap:24rpx;
+}
+
+.favorite-card{
+  background:rgba(255,255,255,0.9);
+  border-radius:24rpx;
+  padding:28rpx;
+  box-shadow:0 8rpx 20rpx rgba(0,0,0,0.12);
+}
+
+.favorite-number{
+  font-size:26rpx;
+  color:#8a5bc7;
+  margin-bottom:16rpx;
+}
+
+.favorite-text{
+  font-size:32rpx;
+  color:#444;
+  line-height:1.6;
+  word-break:break-all;
+}
+
+.favorite-actions{
+  margin-top:20rpx;
+  display:flex;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+  gap:16rpx;
+}
+
+.copy-btn,
+.prompt-btn,
+.delete-btn{
+  color:#fff;
+  border-radius:30rpx;
+  font-size:24rpx;
+  padding:0 24rpx;
+}
+
+.copy-btn{
+  background:#7b8ee8;
+}
+
+.prompt-btn{
+  background:#9b6de3;
+}
+
+.delete-btn{
+  background:#e96b7a;
+}
+
+.delete-btn{
+  background:#e96b7a;
+  color:#fff;
+  border-radius:30rpx;
+  font-size:26rpx;
+  padding:0 32rpx;
+}
+
+.empty{
+  text-align:center;
+  color:#fff;
+  font-size:30rpx;
+  margin-top:200rpx;
+}
+
+@media screen and (max-width:360px){
+  .container{
+    padding:20rpx;
+  }
+
+  .favorite-text{
+    font-size:28rpx;
+  }
+
+  .title-text{
+    font-size:36rpx;
+  }
+}

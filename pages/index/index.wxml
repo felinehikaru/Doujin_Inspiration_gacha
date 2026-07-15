@@ -37,7 +37,7 @@
     <view class="mode-hint">👇 选择模式开始抽取</view>
     <view class="btn-group">
       <button class="btn btn-random" bindtap="spinRandom">🎲 完全随机</button>
-      <button class="btn btn-balanced" bindtap="spinBalanced">⚖️ 分类均衡</button>
+      <button class="btn btn-balanced" bindtap="spinBalanced">⚖️ 营养均衡</button>
     </view>
 
     <view class="btn-row">
@@ -61,7 +61,6 @@
     <view class="result-card" wx:for="{{results}}" wx:key="index">
       <text class="result-title">{{item.text}}</text>
       <text class="result-desc">{{item.desc}}</text>
-      <text class="result-category">{{item.category}}</text>
     </view>
   </view>
 
@@ -81,9 +80,7 @@ bindtap="openHistory">
 📜 历史记录
 </view>
 
-<view 
-class="record-btn favorite-btn"
-bindtap="showFavorites">
+<view class="label-action" bindtap="goFavorites">
 ⭐ 查看收藏
 </view>
 

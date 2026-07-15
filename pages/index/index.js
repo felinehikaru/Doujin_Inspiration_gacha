@@ -63,7 +63,7 @@ Page({
   showStartModal() {
     wx.showModal({
       title: '欢迎使用',
-      content: '💡扭蛋机提供最简单的AI大纲生成提示词功能,\n\n并非鼓励认同AI写作，\n\n仅作为个人娱乐和灵感碰撞的辅助功能，\n\n请各位同人创作者秉持初心，享受创作',
+      content: '💡 扭蛋机提供简单的提示词辅助功能。\n\n仅用于个人娱乐和灵感碰撞。\n\n不代表鼓励或认同AI代替创作。\n\n请同人创作者保持初心，享受创作过程。',
       confirmText: '进入',
       cancelText: '退出',
       success: res => {
@@ -107,77 +107,54 @@ Page({
 
   async syncEntriesFromCloud() {
     if (!wx.cloud) return;
-
     try {
       const res = await wx.cloud.callFunction({
         name: 'syncEntries'
       });
-
       if (res.result && res.result.success && res.result.data.length) {
-
         const app = getApp();
-
         if (!app.globalData) {
           app.globalData = {};
         }
-
         app.globalData.cloudEntries = res.result.data;
-
         this.setData({
           totalCount: res.result.data.length
         });
-
       }
 
     } catch (e) {
-
       console.warn(
         '云端同步失败',
         e
       );
-
     }
   },
 
   getEntries() {
-
     const app = getApp();
-
     const cloudEntries =
       app.globalData && app.globalData.cloudEntries ?
-      app.globalData.cloudEntries :
-      [];
-
+      app.globalData.cloudEntries : [];
     return cloudEntries.length ?
       cloudEntries :
       localEntries;
-
   },
 
   draw(mode) {
-
     const entries = this.getEntries();
-
     let pool = [...entries];
-
     let result = [];
-
     if (mode === 'random') {
-
       while (result.length < 3 && pool.length) {
-
         const index = Math.floor(
           Math.random() * pool.length
         );
-
         result.push(
           pool.splice(index, 1)[0]
         );
-
       }
 
     } else {
-
       const categories = [
         ...new Set(
           pool.map(
@@ -187,37 +164,26 @@ Page({
       ];
 
       while (result.length < 3 && categories.length) {
-
         const typeIndex = Math.floor(
           Math.random() * categories.length
         );
-
         const category =
           categories.splice(typeIndex, 1)[0];
-
         const candidates =
           pool.filter(
             item => item.category === category
           );
-
         if (candidates.length) {
-
           const index = Math.floor(
             Math.random() * candidates.length
           );
-
           const item = candidates[index];
-
           result.push(item);
-
           pool = pool.filter(
             i => i !== item
           );
-
         }
-
       }
-
     }
 
     return result;
@@ -262,21 +228,15 @@ Page({
   },
 
   spinRandom() {
-
     this.spin('random');
-
   },
 
   spinBalanced() {
-
     this.spin('balanced');
-
   },
 
   saveHistory(results) {
-
     if (!results.length) return;
-
     let history =
       wx.getStorageSync('history') || [];
 
@@ -337,61 +297,62 @@ Page({
     });
   },
 
-  showEntriesList(){
-    const entries=this.getEntries();
+  showEntriesList() {
+    const entries = this.getEntries();
     this.setData({
-    showEntriesModal:true,
-    allEntries:entries,
-    displayEntries:entries,
-    filteredEntriesCount:entries.length
+      showEntriesModal: true,
+      allEntries: entries,
+      displayEntries: entries,
+      filteredEntriesCount: entries.length
     });
-    },
+  },
 
-    closeEntriesModal(){
-      this.setData({
-      showEntriesModal:false });
-      },
-      onSearchInput(e){
-        const keyword=e.detail.value;
-        const list=this.data.allEntries.filter(
-        item=>{
-        return item.text.includes(keyword)||
-        item.desc.includes(keyword);        
-        }
-        );
-        
-        this.setData({      
-        searchKeyword:keyword,        
-        displayEntries:list,        
-        filteredEntriesCount:list.length        
-        });        
-        },
+  closeEntriesModal() {
+    this.setData({
+      showEntriesModal: false
+    });
+  },
+  onSearchInput(e) {
+    const keyword = e.detail.value;
+    const list = this.data.allEntries.filter(
+      item => {
+        return item.text.includes(keyword) ||
+          item.desc.includes(keyword);
+      }
+    );
 
-        setFilter(e){
+    this.setData({
+      searchKeyword: keyword,
+      displayEntries: list,
+      filteredEntriesCount: list.length
+    });
+  },
 
-          const type=e.currentTarget.dataset.type;
-          
-          let list=this.data.allEntries;
-          
-          if(type!=='all'){
-          
-          list=list.filter(
-          item=>item.category===type
-          );
-          
-          }
-          
-          this.setData({
-          
-          filterType:type,
-          
-          displayEntries:list,
-          
-          filteredEntriesCount:list.length
-          
-          });
-          
-          },
+  setFilter(e) {
+
+    const type = e.currentTarget.dataset.type;
+
+    let list = this.data.allEntries;
+
+    if (type !== 'all') {
+
+      list = list.filter(
+        item => item.category === type
+      );
+
+    }
+
+    this.setData({
+
+      filterType: type,
+
+      displayEntries: list,
+
+      filteredEntriesCount: list.length
+
+    });
+
+  },
 
   goToPrompt() {
 
@@ -432,58 +393,55 @@ Page({
 
   },
 
-  collectCurrent() {
+  collectCurrent(){
 
-    if (!this.data.results.length) {
-
+    if(!this.data.results.length){
       wx.showToast({
-        title: '暂无词条',
-        icon: 'none'
+        title:'暂无词条',
+        icon:'none'
       });
-
       return;
-
     }
-
-    const text = this.data.results.map(
-      item => item.text
+  
+    const text=this.data.results.map(
+      item=>item.text
     ).join(' + ');
-
-    const favorites = this.data.favorites;
-
-    if (!favorites.includes(text)) {
-
+  
+    const favorites=this.data.favorites;
+  
+    if(!favorites.includes(text)){
+  
       favorites.unshift(text);
-
+  
       this.setData({
         favorites
       });
-
+  
       this.saveFavorites();
-
+  
       wx.showToast({
-        title: '收藏成功',
-        icon: 'success'
+        title:'收藏成功',
+        icon:'success'
       });
-
-    } else {
-
+  
+    }else{
+  
       wx.showToast({
-        title: '已收藏',
-        icon: 'none'
+        title:'已收藏',
+        icon:'none'
       });
-
+  
     }
-
+  
   },
 
-  showFavorites(){
+  showFavorites() {
 
     this.setData({
-    showFavoritesModal:true
+      showFavoritesModal: true
     });
-    
-    },
+
+  },
 
   closeFavoritesModal() {
 
@@ -590,8 +548,7 @@ Page({
             uploadTags
             .split(/[,，]/)
             .map(i => i.trim())
-            .filter(Boolean) :
-            []
+            .filter(Boolean) : []
         }
 
       });
@@ -640,6 +597,14 @@ Page({
       title: '🎰 同人梗扭蛋机',
       path: '/pages/index/index'
     };
+
+  },
+
+  goFavorites() {
+
+    wx.navigateTo({
+      url: '/pages/favorites/favorites'
+    });
 
   }
 

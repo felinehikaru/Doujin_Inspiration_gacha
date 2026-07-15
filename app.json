@@ -3,7 +3,8 @@
     "pages/index/index",
     "pages/prompt/prompt",
     "pages/admin/admin",
-    "pages/history/history"
+    "pages/history/history",
+    "pages/favorites/favorites"
   ],
   "window": {
     "navigationBarTitleText": "同人梗扭蛋机",
