@@ -26,7 +26,7 @@ Page({
   clearHistory(){
     wx.showModal({
       title:'确认删除',
-      content:'历史记录仅仅记录在本地，确认删除无法找回',
+      content:'历史记录仅记录在本地，确认删除无法找回',
       confirmText:'确认删除',
       cancelText:'取消',
       success:res=>{
