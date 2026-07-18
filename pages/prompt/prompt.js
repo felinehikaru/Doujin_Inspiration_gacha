@@ -147,7 +147,7 @@ Page({
 
 
     wx.setClipboardData({
-      data:this.data.prompt,
+      data:this.data.promptTemplate,
 
       success(){
         wx.showToast({

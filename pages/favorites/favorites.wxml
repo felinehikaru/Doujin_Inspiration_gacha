@@ -34,7 +34,7 @@
         class="prompt-btn"
         bindtap="createPrompt"
         data-index="{{index}}">
-        生成提示词
+        提示词模板
       </button>
 
       <button
