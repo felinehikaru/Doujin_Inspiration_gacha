@@ -5,7 +5,7 @@ Page({
     results: [],
     history: [],
     mode: 'balanced',
-    modeName: '类型均衡',
+    modeName: '营养均衡',
     modeBadge: '随机抽取3个分类，各抽1条',
     totalCount: localEntries.length,
     balls: [],
@@ -51,6 +51,12 @@ Page({
         label: '主题氛围'
       }
     ]
+  },
+
+  goAdmin(){
+    wx.navigateTo({
+      url:"/pages/admin/admin"
+    })
   },
 
   onLoad() {
@@ -606,6 +612,22 @@ Page({
       url: '/pages/favorites/favorites'
     });
 
-  }
+  },
+
+  /* const db=wx.cloud.database();
+
+  async loadUserEntries(){
+
+    const res=await db
+    .collection('user_entries')
+    .get();
+   
+   
+    wx.setStorageSync(
+      'userEntries',
+      res.data
+    ); 
+   
+   }*/
 
 });

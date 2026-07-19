@@ -84,6 +84,10 @@ bindtap="openHistory">
 ⭐ 查看收藏
 </view>
 
+<button bindtap="goAdmin">
+  进入管理员审核
+</button>
+
 </view>
 
 
