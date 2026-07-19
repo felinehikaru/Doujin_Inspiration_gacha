@@ -35,7 +35,7 @@ exports.main=async(event,context)=>{
 
     if(action==='approve'){
 
-      const exist=await db.collection('entries')
+      const exist=await db.collection('user_entries')
         .where({
           text:entry.text
         })
@@ -43,18 +43,16 @@ exports.main=async(event,context)=>{
 
       if(!exist.data.length){
 
-        await db.collection('entries')
-          .add({
-            data:{
-              text:entry.text,
-              desc:entry.desc,
-              category:entry.category,
-              tags:entry.tags||[],
-              createTime:new Date(),
-              source:'user',
-              status:'approved'
-            }
-          });
+        await db.collection('user_entries')
+        .add({
+          data:{
+            text:entry.text,
+            category:entry.category,
+            desc:entry.desc,
+            tags:entry.tags || [],
+            createTime:new Date()
+          }
+        });
       }
 
       await db.collection('pending_entries')

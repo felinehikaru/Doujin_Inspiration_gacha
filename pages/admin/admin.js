@@ -9,28 +9,35 @@ Page({
   },
 
   async loadPending(){
+
     try{
+  
       const res=await wx.cloud.callFunction({
         name:'getPendingEntries'
       });
-
+  
+  
+      console.log("getPendingEntries返回:",res);
+  
+  
       if(res.result.success){
+  
+        console.log("词条数量:",res.result.data.length);
+  
+  
         this.setData({
           pendingList:res.result.data
         });
-      }else{
-        wx.showToast({
-          title:'加载失败',
-          icon:'none'
-        });
+  
       }
-
+  
+  
     }catch(err){
-      wx.showToast({
-        title:'加载失败',
-        icon:'none'
-      });
+  
+      console.error("加载失败:",err);
+  
     }
+  
   },
 
   async approveEntry(e){
