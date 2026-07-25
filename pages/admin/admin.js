@@ -9,28 +9,20 @@ Page({
   },
 
   async loadPending(){
-
     try{
-  
       const res=await wx.cloud.callFunction({
         name:'getPendingEntries'
       });
   
-  
       console.log("getPendingEntries返回:",res);
   
-  
       if(res.result.success){
-  
         console.log("词条数量:",res.result.data.length);
-  
   
         this.setData({
           pendingList:res.result.data
         });
-  
       }
-  
   
     }catch(err){
   

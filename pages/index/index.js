@@ -2,6 +2,8 @@ const localEntries = require('../../utils/entries.js');
 
 Page({
   data: {
+    role: "visitor",
+    isRegister: false,
     results: [],
     history: [],
     mode: 'balanced',
@@ -53,18 +55,19 @@ Page({
     ]
   },
 
-  goAdmin(){
+  goAdmin() {
     wx.navigateTo({
-      url:"/pages/admin/admin"
+      url: "/pages/admin/admin"
     })
   },
 
   onLoad() {
+    this.checkRole();
     this.showStartModal();
     this.syncEntriesFromCloud();
     this.loadFavorites();
     this.loadHistory();
-  },
+   },
 
   showStartModal() {
     wx.showModal({
@@ -138,12 +141,13 @@ Page({
 
   getEntries() {
     const app = getApp();
-    const cloudEntries =
-      app.globalData && app.globalData.cloudEntries ?
-      app.globalData.cloudEntries : [];
-    return cloudEntries.length ?
-      cloudEntries :
-      localEntries;
+    const cloudEntries = app.globalData?.cloudEntries;
+    console.log("云端词条:", cloudEntries, "类型:", Array.isArray(cloudEntries));
+    if (Array.isArray(cloudEntries) && cloudEntries.length) {
+      return cloudEntries;
+    }
+    console.log("使用本地词库:", localEntries, Array.isArray(localEntries));
+    return Array.isArray(localEntries) ? localEntries : [];
   },
 
   draw(mode) {
@@ -399,46 +403,46 @@ Page({
 
   },
 
-  collectCurrent(){
+  collectCurrent() {
 
-    if(!this.data.results.length){
+    if (!this.data.results.length) {
       wx.showToast({
-        title:'暂无词条',
-        icon:'none'
+        title: '暂无词条',
+        icon: 'none'
       });
       return;
     }
-  
-    const text=this.data.results.map(
-      item=>item.text
+
+    const text = this.data.results.map(
+      item => item.text
     ).join(' + ');
-  
-    const favorites=this.data.favorites;
-  
-    if(!favorites.includes(text)){
-  
+
+    const favorites = this.data.favorites;
+
+    if (!favorites.includes(text)) {
+
       favorites.unshift(text);
-  
+
       this.setData({
         favorites
       });
-  
+
       this.saveFavorites();
-  
+
       wx.showToast({
-        title:'收藏成功',
-        icon:'success'
+        title: '收藏成功',
+        icon: 'success'
       });
-  
-    }else{
-  
+
+    } else {
+
       wx.showToast({
-        title:'已收藏',
-        icon:'none'
+        title: '已收藏',
+        icon: 'none'
       });
-  
+
     }
-  
+
   },
 
   showFavorites() {
@@ -614,20 +618,78 @@ Page({
 
   },
 
-  /* const db=wx.cloud.database();
+  async checkRole(){
+    try{
+      const res = await wx.cloud.callFunction({
+        name:"checkRole"
+      });
+   
+      if(res.result.success){
+        this.setData({
+          role:res.result.role,
+          isRegister:
+          res.result.role!=="visitor"
+        });
+      }
+   
+    }catch(err){
+      console.log("身份检测失败",err);
+    }
+   },
 
-  async loadUserEntries(){
+   async registerUser() {
+    wx.showModal({
+      title: "注册说明",
+      content: "为减轻云空间和维护压力，游客可使用基础功能，免费注册后可使用全部功能",
+      confirmText: "注册",
+      success: async (res) => {
+        if (res.confirm) {
+          const result = await wx.cloud.callFunction({
+            name: "registerUser"
+          });
+          if (result.result.success) {
+            wx.showToast({
+              title: "注册成功",
+              icon: "success"
+            });
+            this.checkRole();
+          }
+        }
+      }
+    })},
+async registerUser() {
+    wx.showModal({
+      title: "注册说明",
+      content: "为减轻云空间和维护压力，游客可使用基础功能，免费注册后可使用全部功能",
+      confirmText: "注册",
+      success: async (res) => {
+        if (res.confirm) {
+          const result = await wx.cloud.callFunction({
+            name: "registerUser"
+          });
+          if (result.result.success) {
+            wx.showToast({
+              title: "注册成功",
+              icon: "success"
+            });
+            this.checkRole();
+          }
+        }
+      }
+    });
+  }
 
-    const res=await db
-    .collection('user_entries')
-    .get();
-   
-   
-    wx.setStorageSync(
-      'userEntries',
-      res.data
-    ); 
-   
-   }*/
+  /*  查询自己的openid
+  async getOpenid(){
+
+      const res = await wx.cloud.callFunction({
+        name:'getOpenid'
+      });
+    
+      console.log(
+        "我的openid:",
+        res.result.openid
+      ); */
+
 
 });

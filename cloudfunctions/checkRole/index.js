@@ -1,3 +1,4 @@
+console.log("当前openid:",openid);
 const cloud=require('wx-server-sdk');
 
 cloud.init({
@@ -6,23 +7,15 @@ cloud.init({
 
 const db=cloud.database();
 
-
 exports.main=async(event,context)=>{
-
  const openid=cloud.getWXContext().OPENID;
 
- console.log("当前openid:",openid);
-
-
  if(!openid){
-
    return {
     success:false,
     message:"没有获取到openid"
    };
-
  }
-
 
  const res=await db.collection('users')
  .where({
@@ -30,20 +23,16 @@ exports.main=async(event,context)=>{
  })
  .get();
 
-
  if(res.data.length===0){
-
    return {
     success:true,
     role:"visitor"
    };
-
  }
 
-
  return {
-    success:true,
-    role:res.data[0].role
+   success:true,
+   role:res.data[0].role
  };
-
+ 
 };
