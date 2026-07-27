@@ -1,27 +1,32 @@
-const cloud=require('wx-server-sdk');
+const cloud = require('wx-server-sdk');
 
 cloud.init({
-  env:cloud.DYNAMIC_CURRENT_ENV
+  env: cloud.DYNAMIC_CURRENT_ENV
 });
 
-const db=cloud.database();
+const db = cloud.database();
 
-exports.main=async(event,context)=>{
-  try{
-    const result=await db.collection('entries')
-  .orderBy('createTime','desc')
-  .limit(1000)
-  .get();
+exports.main = async (event, context) => {
+  try {
+    const official = await db.collection('entries')
+      .limit(1000)
+      .get();
 
-    return{
-      success:true,
-      data:result.data
+    const user = await db.collection('user_entries')
+      .limit(1000)
+      .get();
+
+    return {
+      success: true,
+      data: [
+        ...official.data,
+        ...user.data
+      ]
     };
-
-  }catch(err){
-    return{
-      success:false,
-      message:err.message
+  } catch (err) {
+    return {
+      success: false,
+      message: err.message
     };
   }
 };

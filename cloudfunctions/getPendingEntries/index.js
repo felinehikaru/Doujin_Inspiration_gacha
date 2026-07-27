@@ -9,9 +9,6 @@ const db=cloud.database();
 exports.main=async(event,context)=>{
   try{
     const result=await db.collection('pending_entries')
-      .where({
-        status:'pending'
-      })
       .orderBy('submitTime','desc')
       .get();
 

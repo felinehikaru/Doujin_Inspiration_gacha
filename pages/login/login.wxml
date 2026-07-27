@@ -1,0 +1,18 @@
+<view class="login-container">
+
+<view class="login-title">
+  🎰 同人梗扭蛋机
+</view>
+
+<view class="login-subtitle">
+  登录 / 注册
+</view>
+
+<button 
+  bindtap="login"
+  type="primary"
+>
+  微信登录
+</button>
+
+</view>

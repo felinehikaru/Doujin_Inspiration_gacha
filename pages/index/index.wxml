@@ -9,11 +9,16 @@
     <text class="subtitle">随机组合词条，获得创作灵感</text>
   </view>
 
-  <button 
- wx:if="{{role==='visitor'}}"
- bindtap="registerUser">
- 注册
+  <button
+ bindtap="goLogin"
+>
+ 登录 / 注册
 </button>
+
+<view>
+ 当前身份：
+ {{role}}
+</view>
 
   <view class="gacha-area">
     <view class="gacha-machine {{isShaking?'shaking':''}}">
