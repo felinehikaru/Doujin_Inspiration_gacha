@@ -6,21 +6,21 @@ cloud.init({
 
 const db = cloud.database();
 
-exports.main = async (event, context) => {
+exports.main = async () => {
   try {
-    const official = await db.collection('entries')
+    const officialRes = await db.collection('entries')
       .limit(1000)
       .get();
 
-    const user = await db.collection('user_entries')
+    const userRes = await db.collection('user_entries')
       .limit(1000)
       .get();
 
     return {
       success: true,
       data: [
-        ...official.data,
-        ...user.data
+        ...officialRes.data,
+        ...userRes.data
       ]
     };
   } catch (err) {

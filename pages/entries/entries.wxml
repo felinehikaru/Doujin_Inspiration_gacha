@@ -1,0 +1,34 @@
+<view class="container">
+  <view class="title">📚 词条中心</view>
+
+  <!-- 四身份统一入口 -->
+  <button class="btn" bindtap="openUpload">📤 投稿新词条</button>
+  <button class="btn" bindtap="loadEntries">📖 查看全部词条</button>
+
+  <!-- 管理员和维护者 -->
+  <button wx:if="{{role==='admin'||role==='maintainer'}}" class="btn" bindtap="goAudit">🛠 词条审核</button>
+
+  <view wx:if="{{showList}}">
+    <input placeholder="搜索词条" bindinput="onSearch" />
+    <view wx:for="{{displayEntries}}" wx:key="_id" class="entry-card">
+      <text>{{item.text}}</text>
+      <text>{{item.desc}}</text>
+      <text>分类：{{item.category}}</text>
+    </view>
+  </view>
+
+  <!-- 投稿弹窗 -->
+  <view wx:if="{{showUpload}}" class="modal">
+    <view class="modal-box">
+      <text>📤 投稿新词条</text>
+      <input placeholder="词条名称" bindinput="onTextInput" />
+      <textarea placeholder="词条描述" bindinput="onDescInput" />
+      <picker range="{{categoryOptions}}" range-key="label" bindchange="onCategoryChange">
+        <view>{{uploadCategory||"选择分类"}}</view>
+      </picker>
+      <input placeholder="标签" bindinput="onTagsInput" />
+      <button bindtap="submitEntry">提交审核</button>
+      <button bindtap="closeUpload">取消</button>
+    </view>
+  </view>
+</view>

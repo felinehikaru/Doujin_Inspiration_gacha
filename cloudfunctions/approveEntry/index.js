@@ -10,10 +10,10 @@ exports.main = async (event, context) => {
   try {
     const openid = cloud.getWXContext().OPENID;
 
-    //权限检查
+    // 权限检查
     const user = await db.collection('users')
       .where({
-        openid
+        openid: openid
       })
       .get();
 
@@ -35,6 +35,16 @@ exports.main = async (event, context) => {
 
     const entry = res.data;
 
+    if (!entry) {
+      return {
+        success: false,
+        message: "词条不存在"
+      };
+    }
+
+    console.log("审核操作:", action, "词条:", entry.text, "管理员:", openid);
+
+    //审核通过
     if (action === "approve") {
       await db.collection('user_entries')
         .add({
@@ -45,7 +55,7 @@ exports.main = async (event, context) => {
             desc: entry.desc,
             tags: entry.tags || [],
             openid: entry.openid,
-            createTime: new Date(),
+            createTime: entry.submitTime || new Date(),
             source: "user",
             extend: {},
             meta: {}
@@ -62,6 +72,7 @@ exports.main = async (event, context) => {
       };
     }
 
+    //拒绝
     if (action === "reject") {
       await db.collection('pending_entries')
         .doc(entryId)
@@ -78,6 +89,7 @@ exports.main = async (event, context) => {
       message: "未知操作"
     };
   } catch (err) {
+    console.error(err);
     return {
       success: false,
       message: err.message

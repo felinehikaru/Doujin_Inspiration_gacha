@@ -1,0 +1,56 @@
+<view class="container">
+  <!-- 顶部 -->
+  <view class="title">
+    <text class="title-text">📚 词条查看 / 上传</text>
+  </view>
+
+  <!-- 分类筛选 -->
+  <view class="filter-area">
+    <view class="filter-btn" bindtap="setFilter" data-type="all">全部</view>
+    <view class="filter-btn" bindtap="setFilter" data-type="world">世界</view>
+    <view class="filter-btn" bindtap="setFilter" data-type="relationship">关系</view>
+    <view class="filter-btn" bindtap="setFilter" data-type="character">角色</view>
+    <view class="filter-btn" bindtap="setFilter" data-type="conflict">冲突</view>
+    <view class="filter-btn" bindtap="setFilter" data-type="scene">场景</view>
+    <view class="filter-btn" bindtap="setFilter" data-type="theme">主题</view>
+  </view>
+
+  <!-- 搜索 -->
+  <input class="search" placeholder="搜索词条" bindinput="onSearchInput" />
+
+  <!-- 功能按钮 -->
+  <view class="action-row">
+    <button class="btn" bindtap="openUpload">📤 投稿词条</button>
+    <button wx:if="{{role==='admin'||role==='maintainer'}}" class="btn" bindtap="goAdmin">🛠️ 审核词条</button>
+  </view>
+
+  <!-- 数量 -->
+  <view class="count">当前显示：{{filteredEntriesCount}}条</view>
+
+  <!-- 词条列表 -->
+  <view class="entry-list">
+    <view class="entry-card" wx:for="{{displayEntries}}" wx:key="_id">
+      <text class="entry-title">{{item.text}}</text>
+      <text class="entry-desc">{{item.desc}}</text>
+      <text class="entry-category">分类：{{item.category}}</text>
+      <text wx:if="{{item.tags.length}}" class="entry-tags">标签：{{item.tags.join('、')}}</text>
+    </view>
+  </view>
+
+  <!-- 投稿弹窗 -->
+  <view class="upload-mask" wx:if="{{showUpload}}">
+    <view class="upload-box">
+      <text class="upload-title">📤 投稿新词条</text>
+      <input placeholder="词条名称" bindinput="onTextInput" />
+      <textarea placeholder="词条描述" bindinput="onDescInput"></textarea>
+      <picker mode="selector" range="{{categoryOptions}}" range-key="label" bindchange="onCategoryChange">
+        <view class="picker">{{uploadCategory || "选择分类"}}</view>
+      </picker>
+      <input placeholder="标签，用逗号分隔" bindinput="onTagsInput" />
+      <view class="upload-buttons">
+        <button bindtap="closeUpload">取消</button>
+        <button loading="{{isUploading}}" bindtap="submitEntry">提交</button>
+      </view>
+    </view>
+  </view>
+</view>

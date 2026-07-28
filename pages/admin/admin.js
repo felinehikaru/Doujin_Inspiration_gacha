@@ -4,9 +4,9 @@ Page({
     loading:false
   },
 
-  onLoad(){
+  onShow(){
     this.loadPending();
-  },
+   },
 
   async loadPending(){
     try{
