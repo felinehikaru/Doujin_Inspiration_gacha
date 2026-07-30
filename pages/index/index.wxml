@@ -11,14 +11,12 @@
     <text class="subtitle">随机组合词条，获得创作灵感</text>
   </view>
 
-  <!-- 登录入口 -->
-  <button 
-  wx:if="{{role==='visitor'}}"
-  bindtap="goLogin">
-  登录 / 注册
+<!-- 登录入口 -->
+<button bindtap="goLogin">
+登录 / 注册
 </button>
 
-<view class="role-info">
+<view>
 当前身份：{{role}}
 </view>
 

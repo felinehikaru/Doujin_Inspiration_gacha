@@ -173,24 +173,26 @@ Page({
   // 点击后加载
   // =====================
   async loadEntries() {
-    const db = wx.cloud.database();
-
+    const app = getApp();
+  
     try {
-      const official = await db.collection("entries").get();
-      const user = await db.collection("user_entries").get();
-
-      const list = [
-        ...official.data,
-        ...user.data
-      ];
-
+      let list = [];
+  
+      // 优先使用首页同步后的云端词库
+      if (app.globalData.cloudEntries && app.globalData.cloudEntries.length) {
+        list = app.globalData.cloudEntries;
+      } else {
+        // 没同步则使用本地词库
+        list = app.globalData.localEntries || [];
+      }
+  
       this.setData({
         showList: true,
         entries: list,
         displayEntries: list
       });
     } catch (e) {
-      console.error(e);
+      console.error("加载词条失败", e);
     }
   },
 
