@@ -23,11 +23,12 @@ Page({
   },
 
   onLoad() {
-    this.checkRole();
     this.showStartModal();
-    this.loadFavorites();
     this.loadHistory();
     this.initNetworkAndEntries();
+    this.checkRole().then(()=>{
+      this.loadFavorites();
+    });
   },
 
   // =========================
@@ -401,8 +402,28 @@ goToPrompt() {
 // =========================
 // 收藏
 // =========================
-loadFavorites() {
+async loadFavorites() {
+  // 登录用户读取云端
+  if (this.data.role !== "visitor") {
+    try {
+      const res = await wx.cloud.callFunction({
+        name: "getFavorites"
+      });
+
+      if (res.result && res.result.success) {
+        this.setData({
+          favorites: res.result.data || []
+        });
+        return;
+      }
+    } catch (err) {
+      console.log("云端收藏读取失败", err);
+    }
+  }
+
+  // 游客读取本地
   const favorites = wx.getStorageSync("favorites") || [];
+
   this.setData({
     favorites
   });
@@ -412,7 +433,31 @@ saveFavorites() {
   wx.setStorageSync("favorites", this.data.favorites);
 },
 
-collectCurrent() {
+async collectCurrent() {
+  // =====================
+  // 游客禁止收藏
+  // =====================
+  if (this.data.role === "visitor") {
+    wx.showModal({
+      title: "需要登录",
+      content: "为减轻云端压力，收藏功能需要登录后使用，登录后收藏内容将保存至云端，更换设备也可以查看。",
+      confirmText: "去登录",
+      cancelText: "取消",
+
+      success:res=>{
+        if(res.confirm){
+          wx.navigateTo({
+            url:"/pages/login/login"
+          });
+        }
+      }
+     });
+     return;
+    }
+
+  // =====================
+  // 没有抽卡结果
+  // =====================
   if (!this.data.results.length) {
     wx.showToast({
       title: "暂无词条",
@@ -421,26 +466,46 @@ collectCurrent() {
     return;
   }
 
-  const text = this.data.results.map(item => item.text).join(" + ");
-  let favorites = this.data.favorites;
+  const text = this.data.results
+    .map(item => item.text)
+    .join(" + ");
 
-  if (!favorites.includes(text)) {
-    favorites.unshift(text);
-    this.setData({
-      favorites
+  // =====================
+  // 注册用户
+  // 云端收藏
+  // =====================
+  try {
+    const res = await wx.cloud.callFunction({
+      name: "saveFavorite",
+      data: {
+        text: text,
+        entries: this.data.results
+      }
     });
-    this.saveFavorites();
+
+    if (res.result && res.result.success) {
+      wx.showToast({
+        title: "收藏成功",
+        icon: "success"
+      });
+
+      this.loadFavorites();
+    } else {
+      wx.showToast({
+        title: res.result.message || "收藏失败",
+        icon: "none"
+      });
+    }
+  } catch (err) {
+    console.log("收藏失败", err);
     wx.showToast({
-      title: "收藏成功",
-      icon: "success"
-    });
-  } else {
-    wx.showToast({
-      title: "已收藏",
+      title: "收藏失败",
       icon: "none"
     });
   }
 },
+
+  
 
 showFavorites() {
   this.setData({

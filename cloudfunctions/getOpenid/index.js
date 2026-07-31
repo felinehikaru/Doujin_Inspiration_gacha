@@ -13,12 +13,38 @@ cloud.init({
 });
 
 
-exports.main=async(event,context)=>{
+exports.main = async () => {
+  const wxContext = cloud.getWXContext();
+  const openid = wxContext.OPENID;
 
- const wxContext=cloud.getWXContext();
+  console.log("当前openid:", openid);
 
- return {
-   openid:wxContext.OPENID
- };
+  if (!openid) {
+    return {
+      success: false,
+      message: "没有获取到openid"
+    };
+  }
 
+  const res = await db.collection('users')
+    .where({
+      openid: openid
+    })
+    .get();
+
+  console.log("用户查询:", res.data);
+
+  if (res.data.length === 0) {
+    return {
+      success: true,
+      role: "visitor",
+      isRegister: false
+    };
+  }
+
+  return {
+    success: true,
+    role: res.data[0].role,
+    isRegister: true
+  };
 };

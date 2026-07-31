@@ -35,10 +35,20 @@ Page({
           title: "登录成功",
           icon: "success"
         });
+
         setTimeout(() => {
+          const pages = getCurrentPages();
+          const prevPage = pages[pages.length - 2];
+          if (prevPage && prevPage.checkRole) {
+            prevPage.checkRole();
+            prevPage.loadFavorites();
+          }
+
           wx.navigateBack();
+
         }, 1000);
       }
+
     } catch (e) {
       console.log(e);
     }
