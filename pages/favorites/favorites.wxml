@@ -5,16 +5,11 @@
   </view>
 
   <view class="favorite-list">
-    <view 
-      class="empty"
-      wx:if="{{!favorites.length}}">
+    <view class="empty" wx:if="{{!favorites.length}}">
       <text>暂无收藏组合</text>
     </view>
 
-    <view
-      class="favorite-card"
-      wx:for="{{favorites}}"
-      wx:key="_id">
+    <view class="favorite-card" wx:for="{{favorites}}" wx:key="_id">
 
       <view class="favorite-text">
         <!-- 云端收藏 -->
@@ -29,24 +24,15 @@
       </view>
 
       <view class="favorite-actions">
-        <button
-          class="copy-btn"
-          data-index="{{index}}"
-          bindtap="copyFavorite">
+        <button class="copy-btn" data-index="{{index}}" bindtap="copyFavorite">
           复制
         </button>
 
-        <button
-          class="prompt-btn"
-          data-index="{{index}}"
-          bindtap="createPrompt">
+        <button class="prompt-btn" data-index="{{index}}" bindtap="createPrompt">
           提示词模板
         </button>
 
-        <button
-          class="delete-btn"
-          data-index="{{index}}"
-          bindtap="deleteFavorite">
+        <button class="delete-btn" data-index="{{index}}" bindtap="deleteFavorite">
           删除
         </button>
       </view>

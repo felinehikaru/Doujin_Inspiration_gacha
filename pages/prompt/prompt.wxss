@@ -1,137 +1,101 @@
-.container{
-
-  min-height:100vh;
-
-  padding:40rpx;
-
-  background:#f7f5ff;
-
-  box-sizing:border-box;
-
+.container {
+  padding: 30rpx;
 }
 
-
-.header-card{
-
-  background:white;
-
-  border-radius:24rpx;
-
-  padding:35rpx;
-
-  margin-bottom:30rpx;
-
-  box-shadow:0 6rpx 20rpx rgba(0,0,0,0.06);
-
+.title {
+  text-align: center;
+  margin-bottom: 40rpx;
 }
 
-
-.title{
-
-  display:block;
-
-  font-size:38rpx;
-
-  font-weight:bold;
-
-  color:#4b3c78;
-
+.title-text {
+  font-size: 42rpx;
+  font-weight: bold;
+  display: block;
 }
 
-
-.subtitle{
-
-  display:block;
-
-  margin-top:15rpx;
-
-  font-size:28rpx;
-
-  color:#888;
-
+.subtitle {
+  color: #888;
+  font-size: 26rpx;
 }
 
-
-
-.template-card{
-
-  background:white;
-
-  border-radius:24rpx;
-
-  padding:25rpx;
-
-  box-shadow:0 6rpx 20rpx rgba(0,0,0,0.05);
-
+.main-btn {
+  margin: 20rpx 0;
+  border-radius: 20rpx;
 }
 
-
-.template-input{
-
-  width:100%;
-
-  min-height:300rpx;
-
-  font-size:30rpx;
-
-  line-height:1.7;
-
-  color:#333;
-
+.search {
+  margin: 30rpx 0;
+  border: 1rpx solid #ddd;
+  padding: 20rpx;
+  border-radius: 15rpx;
 }
 
-
-
-.edit-tip{
-
-  display:block;
-
-  text-align:center;
-
-  margin-top:25rpx;
-
-  font-size:26rpx;
-
-  color:#999;
-
+.category-box {
+  margin-bottom: 40rpx;
 }
 
-
-
-.copy-btn{
-
-  margin-top:40rpx;
-
-  width:70%;
-
-  border-radius:50rpx;
-
-  background:#7b68ee;
-
-  color:white;
-
-  font-size:32rpx;
-
+.category-title {
+  font-size: 34rpx;
+  font-weight: bold;
+  margin-bottom: 20rpx;
 }
 
+.entry-card {
+  background: #fff;
+  padding: 25rpx;
+  margin-bottom: 20rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 5rpx 15rpx #ddd;
+}
 
+.entry-name {
+  display: block;
+  font-size: 32rpx;
+  font-weight: bold;
+}
 
-.notice-card{
+.entry-desc {
+  display: block;
+  margin-top: 15rpx;
+  color: #666;
+}
 
-  margin-top:50rpx;
+.entry-tag {
+  display: block;
+  margin-top: 15rpx;
+  color: #999;
+}
 
-  padding:25rpx;
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, .5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  background:#fff;
+.modal-box {
+  width: 80%;
+  background: white;
+  padding: 40rpx;
+  border-radius: 25rpx;
+}
 
-  border-radius:20rpx;
+.modal-box input,
+.modal-box textarea {
+  border: 1rpx solid #ddd;
+  margin: 20rpx 0;
+  padding: 20rpx;
+  border-radius: 15rpx;
+}
 
-  text-align:center;
-
-  color:#888;
-
-  font-size:25rpx;
-
-  line-height:1.8;
-
+.picker {
+  border: 1rpx solid #ddd;
+  padding: 20rpx;
+  border-radius: 15rpx;
+  margin: 20rpx 0;
 }

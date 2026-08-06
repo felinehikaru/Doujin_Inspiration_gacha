@@ -1,34 +1,153 @@
 <view class="container">
-  <view class="title">📚 词条中心</view>
+  <!-- 标题 -->
+  <view class="title">
+    <text class="title-text">📚 词条中心</text>
+    <text class="subtitle">浏览与投稿创作灵感</text>
+  </view>
 
-  <!-- 四身份统一入口 -->
-  <button class="btn" bindtap="openUpload">📤 投稿新词条</button>
-  <button class="btn" bindtap="loadEntries">📖 查看全部词条</button>
+  <!-- 功能按钮 -->
+  <button class="main-btn" bindtap="openUpload">
+    📤 投稿新词条
+  </button>
 
-  <!-- 管理员和维护者 -->
-  <button wx:if="{{role==='admin'||role==='maintainer'}}" class="btn" bindtap="goAudit">🛠 词条审核</button>
+  <button class="main-btn" bindtap="loadEntries">
+    📖 查看全部词条
+  </button>
 
-  <view wx:if="{{showList}}">
-    <input placeholder="搜索词条" bindinput="onSearch" />
-    <view wx:for="{{displayEntries}}" wx:key="_id" class="entry-card">
-      <text>{{item.text}}</text>
-      <text>{{item.desc}}</text>
-      <text>分类：{{item.category}}</text>
+  <button
+    wx:if="{{role==='admin'||role==='maintainer'}}"
+    class="main-btn"
+    bindtap="goAudit"
+  >
+    🛠 词条审核
+  </button>
+
+  <!-- 浏览区域 -->
+  <view wx:if="{{showList}}" class="entry-area">
+    <!-- 搜索 -->
+    <input
+      class="search"
+      placeholder="搜索词条"
+      bindinput="onSearch"
+    />
+
+    <!-- 搜索结果 -->
+    <view wx:if="{{isSearching}}">
+      <view
+        wx:for="{{searchGroups}}"
+        wx:key="category"
+        class="search-group"
+      >
+        <view class="category-title">
+          {{item.title}}
+        </view>
+
+        <view
+          wx:for="{{item.list}}"
+          wx:key="_id"
+          class="entry-card"
+        >
+          <text class="entry-name">
+            {{item.text}}
+          </text>
+          <text class="entry-desc">
+            {{item.desc}}
+          </text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 正常浏览 -->
+    <view wx:else>
+      <!-- 六分类标签 -->
+      <view class="tabs">
+        <view
+          wx:for="{{categoryList}}"
+          wx:key="category"
+          class="tab {{currentCategory===item.category?'active':''}}"
+          data-category="{{item.category}}"
+          bindtap="changeCategory"
+        >
+          {{item.title}}
+        </view>
+      </view>
+
+      <!-- 当前分类 -->
+      <view class="entry-list">
+        <view
+          wx:if="{{!currentList.length}}"
+          class="empty-tip"
+        >
+          暂无词条
+        </view>
+
+        <view
+          wx:for="{{currentList}}"
+          wx:key="_id"
+          class="entry-card"
+        >
+          <text class="entry-name">
+            {{item.text}}
+          </text>
+          <text class="entry-desc">
+            {{item.desc}}
+          </text>
+        </view>
+      </view>
     </view>
   </view>
 
   <!-- 投稿弹窗 -->
   <view wx:if="{{showUpload}}" class="modal">
     <view class="modal-box">
-      <text>📤 投稿新词条</text>
-      <input placeholder="词条名称" bindinput="onTextInput" />
-      <textarea placeholder="词条描述" bindinput="onDescInput" />
-      <picker range="{{categoryOptions}}" range-key="label" bindchange="onCategoryChange">
-        <view>{{uploadCategory||"选择分类"}}</view>
+      <text class="modal-title">
+        📤 投稿新词条
+      </text>
+
+      <input
+        class="upload-input"
+        placeholder="词条名称"
+        maxlength="30"
+        bindinput="onTextInput"
+      />
+
+      <textarea
+        class="upload-textarea"
+        placeholder="词条描述"
+        maxlength="300"
+        bindinput="onDescInput"
+      />
+
+      <picker
+        mode="selector"
+        range="{{categoryOptions}}"
+        range-key="label"
+        bindchange="onCategoryChange"
+      >
+        <view class="picker">
+          {{uploadCategoryLabel||"请选择分类"}}
+        </view>
       </picker>
-      <input placeholder="标签" bindinput="onTagsInput" />
-      <button bindtap="submitEntry">提交审核</button>
-      <button bindtap="closeUpload">取消</button>
+
+      <input
+        class="upload-input"
+        placeholder="标签（逗号分隔）"
+        bindinput="onTagsInput"
+      />
+
+      <button
+        class="submit-btn"
+        bindtap="submitEntry"
+      >
+        提交审核
+      </button>
+
+      <button
+        class="cancel-btn"
+        bindtap="closeUpload"
+      >
+        取消
+      </button>
     </view>
   </view>
 </view>

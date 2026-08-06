@@ -1,27 +1,61 @@
 Page({
   data: {
-    // 用户角色
-    // visitor
-    // user
-    // admin
-    // maintainer
     role: "visitor",
-
-    // 页面状态
+    // 是否显示列表
     showList: false,
 
-    // 词条
+    // 全部词条
     entries: [],
-    displayEntries: [],
 
+    // 六分类固定数据
+    categoryList: [
+      {
+        category: "world",
+        title: "世界背景",
+        list: []
+      },
+      {
+        category: "relationship",
+        title: "关系设定",
+        list: []
+      },
+      {
+        category: "character",
+        title: "角色身份",
+        list: []
+      },
+      {
+        category: "conflict",
+        title: "冲突矛盾",
+        list: []
+      },
+      {
+        category: "scene",
+        title: "特殊场景",
+        list: []
+      },
+      {
+        category: "theme",
+        title: "主题氛围",
+        list: []
+      }
+    ],
+
+    // 当前分类
+    currentCategory: "world",
+    currentList: [],
+
+    // 搜索
     keyword: "",
+    isSearching: false,
+    searchGroups: [],
 
     // 投稿
     showUpload: false,
-
     uploadText: "",
     uploadDesc: "",
     uploadCategory: "",
+    uploadCategoryLabel: "",
     uploadTags: "",
 
     categoryOptions: [
@@ -57,7 +91,7 @@ Page({
   },
 
   // =====================
-  // 获取身份
+  // 身份
   // =====================
   async checkRole() {
     try {
@@ -65,26 +99,26 @@ Page({
         name: "checkRole"
       });
 
-      if (res.result.success) {
+      if (res.result && res.result.success) {
         this.setData({
           role: res.result.role
         });
       }
     } catch (e) {
-      console.error(e);
+      console.log("身份检测失败", e);
     }
   },
 
   // =====================
-  // 投稿入口
+  // 投稿
   // =====================
   openUpload() {
     if (this.data.role === "visitor") {
       wx.showModal({
         title: "需要登录",
-        content: "为了减轻后台维护负担，请先登录注册后再投稿",
+        content: "注册登录后才可以投稿词条",
         confirmText: "去登录",
-        success: (res) => {
+        success: res => {
           if (res.confirm) {
             wx.navigateTo({
               url: "/pages/login/login"
@@ -125,14 +159,14 @@ Page({
   },
 
   onCategoryChange(e) {
+    const item = this.data.categoryOptions[e.detail.value];
+
     this.setData({
-      uploadCategory: this.data.categoryOptions[e.detail.value].value
+      uploadCategory: item.value,
+      uploadCategoryLabel: item.label
     });
   },
 
-  // =====================
-  // 提交投稿
-  // =====================
   async submitEntry() {
     const d = this.data;
 
@@ -144,78 +178,138 @@ Page({
       return;
     }
 
-    const res = await wx.cloud.callFunction({
-      name: "submitEntry",
-      data: {
-        text: d.uploadText,
-        desc: d.uploadDesc,
-        category: d.uploadCategory,
-        tags: d.uploadTags ? d.uploadTags.split(/[,，]/) : []
-      }
-    });
+    try {
+      const res = await wx.cloud.callFunction({
+        name: "submitEntry",
+        data: {
+          text: d.uploadText,
+          desc: d.uploadDesc,
+          category: d.uploadCategory,
+          tags: d.uploadTags ? d.uploadTags.split(/[,，]/) : []
+        }
+      });
 
-    if (res.result.success) {
-      wx.showToast({
-        title: "已提交审核",
-        icon: "success"
-      });
-      this.closeUpload();
-    } else {
-      wx.showToast({
-        title: res.result.message,
-        icon: "none"
-      });
+      if (res.result && res.result.success) {
+        wx.showToast({
+          title: "提交成功",
+          icon: "success"
+        });
+        this.closeUpload();
+      }
+    } catch (e) {
+      console.log("投稿失败", e);
     }
   },
 
   // =====================
-  // 查看全部词条
-  // 点击后加载
+  // 加载词条
   // =====================
   async loadEntries() {
-    const app = getApp();
-  
     try {
-      let list = [];
-  
-      // 优先使用首页同步后的云端词库
-      if (app.globalData.cloudEntries && app.globalData.cloudEntries.length) {
-        list = app.globalData.cloudEntries;
-      } else {
-        // 没同步则使用本地词库
-        list = app.globalData.localEntries || [];
-      }
-  
+      const db = wx.cloud.database();
+
+      const official = await db.collection("entries").get();
+      const user = await db.collection("user_entries").get();
+
+      const list = [
+        ...official.data,
+        ...user.data
+      ];
+
+      const groups = this.formatEntries(list);
+
       this.setData({
-        showList: true,
         entries: list,
-        displayEntries: list
+        categoryList: groups,
+        currentList: groups[0].list || [],
+        currentCategory: "world",
+        showList: true
       });
+
+      console.log("总词条数量", list.length);
+      console.log(
+        "分类统计",
+        groups.map(i => ({
+          category: i.category,
+          count: i.list.length
+        }))
+      );
     } catch (e) {
-      console.error("加载词条失败", e);
+      console.log("加载词条失败", e);
     }
+  },
+
+  // =====================
+  // 分类整理
+  // =====================
+  formatEntries(list) {
+    const base = this.data.categoryList;
+
+    return base.map(group => {
+      return {
+        category: group.category,
+        title: group.title,
+        list: list.filter(item => {
+          return item.category === group.category;
+        })
+      };
+    });
+  },
+
+  // =====================
+  // 切换分类
+  // =====================
+  changeCategory(e) {
+    const category = e.currentTarget.dataset.category;
+    const group = this.data.categoryList.find(
+      item => item.category === category
+    );
+
+    this.setData({
+      currentCategory: category,
+      currentList: group ? group.list : []
+    });
   },
 
   // =====================
   // 搜索
   // =====================
   onSearch(e) {
-    const key = e.detail.value;
-    const list = this.data.entries.filter(item => {
-      return (item.text.includes(key) || item.desc.includes(key));
+    const key = e.detail.value.trim();
+
+    if (!key) {
+      this.setData({
+        isSearching: false,
+        searchGroups: []
+      });
+      return;
+    }
+
+    const result = this.data.entries.filter(item => {
+      const text = item.text || "";
+      const desc = item.desc || "";
+
+      return (
+        text.includes(key) ||
+        desc.includes(key)
+      );
     });
 
     this.setData({
       keyword: key,
-      displayEntries: list
+      isSearching: true,
+      searchGroups: this.formatEntries(result)
     });
   },
 
   // =====================
-  // 审核入口
+  // 审核
   // =====================
   goAudit() {
-    if (this.data.role !== "admin" && this.data.role !== "maintainer") {
+    if (
+      this.data.role !== "admin" &&
+      this.data.role !== "maintainer"
+    ) {
       return;
     }
 
