@@ -1,140 +1,123 @@
-page{
-  background:linear-gradient(180deg,#f6a6b7,#9b6de3);
-  min-height:100vh;
+/* pages/favorites/favorites.wxss */
+
+/* =====================
+ 页面基础
+===================== */
+page {
+  background: #ffffff;
 }
 
-.container{
-  padding:30rpx;
+.container {
+  min-height: 100vh;
+  background: #ffffff;
+  padding: 30rpx;
 }
 
-.title{
-  text-align:center;
-  margin-bottom:40rpx;
+/* =====================
+标题
+===================== */
+.title {
+  text-align: center;
+  margin-bottom: 35rpx;
 }
 
-.title-text{
-  display:block;
-  font-size:42rpx;
-  font-weight:bold;
-  color:#fff;
+.title-text {
+  display: block;
+  font-size: 42rpx;
+  font-weight: 900;
+  color: #333;
 }
 
-.subtitle{
-  display:block;
-  margin-top:12rpx;
-  font-size:26rpx;
-  color:#fff;
+.subtitle {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 26rpx;
+  color: #888;
 }
 
-.favorite-list{
-  display:flex;
-  flex-direction:column;
-  gap:24rpx;
+/* =====================
+收藏列表
+===================== */
+.favorite-list {
+  display: flex;
+  flex-direction: column;
+  gap: 22rpx;
 }
 
-.favorite-card{
-  background:rgba(255,255,255,0.9);
-  border-radius:24rpx;
-  padding:28rpx;
-  box-shadow:0 8rpx 20rpx rgba(0,0,0,0.12);
+/* =====================
+收藏卡片
+===================== */
+.favorite-card {
+  background: #fafafa;
+  border-radius: 22rpx;
+  padding: 24rpx;
+  box-shadow: 0 6rpx 18rpx rgba(0, 0, 0, .08);
 }
 
-.favorite-number{
-  font-size:26rpx;
-  color:#8a5bc7;
-  margin-bottom:16rpx;
+.favorite-text {
+  font-size: 32rpx;
+  color: #333;
+  line-height: 1.5;
 }
 
-.favorite-text{
-  font-size:32rpx;
-  color:#444;
-  line-height:1.6;
-  word-break:break-all;
-}
-
-.favorite-actions{
-  margin-top:20rpx;
-  display:flex;
-  justify-content:flex-end;
-  flex-wrap:wrap;
-  gap:16rpx;
+/* =====================
+操作按钮
+===================== */
+.favorite-actions {
+  margin-top: 20rpx;
+  display: flex;
+  justify-content: flex-end;
+  gap: 14rpx;
 }
 
 .copy-btn,
 .prompt-btn,
-.delete-btn{
-  color:#fff;
-  border-radius:30rpx;
-  font-size:24rpx;
-  padding:0 24rpx;
-}
-
-.copy-btn{
-  background:#7b8ee8;
-}
-
-.prompt-btn{
-  background:#9b6de3;
-}
-
-.delete-btn{
-  background:#e96b7a;
-}
-
-.delete-btn{
-  background:#e96b7a;
-  color:#fff;
-  border-radius:30rpx;
-  font-size:26rpx;
-  padding:0 32rpx;
-}
-
-.empty{
-  text-align:center;
-  color:#fff;
-  font-size:30rpx;
-  margin-top:200rpx;
-}
-
-@media screen and (max-width:360px){
-  .container{
-    padding:20rpx;
-  }
-
-  .favorite-text{
-    font-size:28rpx;
-  }
-
-  .title-text{
-    font-size:36rpx;
-  }
-}
-
-.tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16rpx;
-  margin: 20rpx 0;
-}
-
-.tab {
-  padding: 12rpx 22rpx;
-  background: #f5f5f5;
-  border-radius: 40rpx;
+.delete-btn {
+  height: 60rpx;
+  line-height: 60rpx;
+  padding: 0 28rpx;
+  border-radius: 35rpx;
+  color: #fff;
   font-size: 26rpx;
-}
-
-.tab.active {
-  background: #8b5cf6;
-  color: white;
-}
-
-.search-group {
-  margin-bottom: 30rpx;
-}
-
-.category-title {
-  font-size: 30rpx;
   font-weight: bold;
-  margin: 20rpx 0;
+}
+
+.copy-btn {
+  background: #8fa3bf;
+}
+
+.prompt-btn {
+  background: #b09ac9;
+}
+
+.delete-btn {
+  background: #d98f9b;
+}
+
+/* =====================
+空状态
+===================== */
+.empty {
+  text-align: center;
+  margin-top: 200rpx;
+  color: #999;
+  font-size: 30rpx;
+}
+
+button::after {
+  border: none;
+}
+
+/* 小屏 */
+@media(max-width: 360px) {
+  .favorite-text {
+    font-size: 28rpx;
+  }
+
+  .copy-btn,
+  .prompt-btn,
+  .delete-btn {
+    font-size: 24rpx;
+    padding: 0 20rpx;
+  }
 }

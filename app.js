@@ -1,45 +1,46 @@
 // app.js
 
-const localEntries = require("./utils/entries.js");
+const localOfficialEntries = require("./utils/entries.js");
+const localUserEntries = require("./utils/user_entries.js");
 
 App({
   globalData: {
-    // =========================
-    // 本地词库
-    //
-    // 离线模式使用
-    // 来源:
-    // 1. wxStorage缓存
-    // 2. 初始entries.js
-    // =========================
-    localEntries: [],
+    // =====================
+    // 用户
+    // =====================
+    user: null,
+    role: "visitor",
+    isRegister: false,
 
-    // =========================
+    // =====================
+    // 官方词库
+    // 离线使用
+    // =====================
+    localOfficialEntries: [],
+
+    // =====================
+    // 用户词库
+    // 离线使用
+    // =====================
+    localUserEntries: [],
+
+    // =====================
     // 云端词库
-    //
-    // 在线抽卡使用
-    //
-    // entries
-    // +
-    // user_entries
-    // =========================
-    cloudEntries: [],
+    // 在线使用
+    // =====================
+    cloudOfficialEntries: [],
+    cloudUserEntries: [],
 
-    // =========================
-    // 词库版本
-    // =========================
+    // =====================
+    // 版本
+    // =====================
     entryVersion: 0,
 
-    // =========================
-    // 网络状态
-    // =========================
+    // 网络
     online: false
   },
 
   onLaunch() {
-    // =========================
-    // 初始化云开发
-    // =========================
     wx.cloud.init({
       env: "cloud1-d7go4jnlae0f8acc5",
       traceUser: true
@@ -47,76 +48,104 @@ App({
 
     console.log("云开发初始化成功");
 
-    // =========================
-    // 初始化本地词库
-    // =========================
     this.initLocalEntries();
-
-    // =========================
-    // 网络检测
-    // =========================
     this.checkNetwork();
   },
 
-  // =========================
-  // 初始化本地词库
-  //
-  // 优先读取缓存
-  // 没有则使用entries.js
-  // =========================
+  // =====================
+  // 初始化本地缓存
+  // =====================
   initLocalEntries() {
-    const cache = wx.getStorageSync("localEntries");
+    // 官方缓存
+    let official = wx.getStorageSync("localOfficialEntries");
 
-    if (Array.isArray(cache) && cache.length) {
-      this.globalData.localEntries = cache;
-      console.log("读取本地缓存词库:", cache.length);
+    if (Array.isArray(official) && official.length) {
+      this.globalData.localOfficialEntries = official;
+
+      console.log("读取官方缓存:", official.length);
     } else {
-      this.globalData.localEntries = localEntries;
-      wx.setStorageSync("localEntries", localEntries);
-      console.log("初始化本地词库:", localEntries.length);
+      this.globalData.localOfficialEntries = localOfficialEntries;
+
+      wx.setStorageSync("localOfficialEntries", localOfficialEntries);
+
+      console.log("初始化官方词库:", localOfficialEntries.length);
     }
 
-    // 本地版本
-    const version = wx.getStorageSync("entryVersion") || 0;
-    this.globalData.entryVersion = version;
+    // 用户缓存
+    let users = wx.getStorageSync("localUserEntries");
+
+    if (Array.isArray(users)) {
+      this.globalData.localUserEntries = users;
+
+      console.log("读取用户缓存:", users.length);
+    } else {
+      this.globalData.localUserEntries = localUserEntries;
+
+      wx.setStorageSync("localUserEntries", localUserEntries);
+
+      console.log("初始化用户词库:", localUserEntries.length);
+    }
+
+    this.globalData.entryVersion = wx.getStorageSync("entryVersion") || 0;
   },
 
-  // =========================
+  // =====================
   // 网络检测
-  // =========================
+  // =====================
   checkNetwork() {
     wx.getNetworkType({
-      success: res => {
-        const online = res.networkType !== "none";
-        this.globalData.online = online;
-        console.log(online ? "当前在线" : "当前离线");
+      success: (res) => {
+        this.globalData.online = res.networkType !== "none";
+
+        console.log(
+          this.globalData.online ? "当前在线" : "当前离线"
+        );
       },
+
       fail: () => {
         this.globalData.online = false;
-        console.log("网络检测失败，进入离线模式");
       }
     });
   },
 
-  // =========================
-  // 更新本地词库缓存
-  //
-  // 在线同步成功后调用
-  // =========================
-  updateLocalEntries(entries, version) {
-    if (!Array.isArray(entries) || !entries.length) {
+  // =====================
+  // 更新词库缓存
+  // =====================
+  updateLocalEntries(data) {
+    if (!data) {
       return;
     }
 
-    wx.setStorageSync("localEntries", entries);
+    if (Array.isArray(data.officialEntries)) {
+      wx.setStorageSync("localOfficialEntries", data.officialEntries);
 
-    if (version !== undefined) {
-      wx.setStorageSync("entryVersion", version);
+      this.globalData.localOfficialEntries = data.officialEntries;
     }
 
-    this.globalData.localEntries = entries;
-    this.globalData.entryVersion = version || this.globalData.entryVersion;
+    if (Array.isArray(data.userEntries)) {
+      wx.setStorageSync("localUserEntries", data.userEntries);
 
-    console.log("本地词库已更新:", entries.length, "版本:", this.globalData.entryVersion);
+      this.globalData.localUserEntries = data.userEntries;
+    }
+
+    if (data.version !== undefined) {
+      wx.setStorageSync("entryVersion", data.version);
+
+      this.globalData.entryVersion = data.version;
+    }
+
+    console.log(
+      "词库缓存更新",
+      "官方:",
+      this.globalData.localOfficialEntries.length,
+      "用户:",
+      this.globalData.localUserEntries.length
+    );
+  },
+
+  updateUserStatus(data = {}) {
+    this.globalData.role = data.role || "visitor";
+    this.globalData.isRegister = data.isRegister || false;
+    this.globalData.user = data.user || null;
   }
 });

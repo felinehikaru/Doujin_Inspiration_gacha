@@ -1,13 +1,21 @@
+// pages/entries/entries.js
+
+const app = getApp();
+
 Page({
   data: {
     role: "visitor",
-    // 是否显示列表
     showList: false,
 
+    // =====================
     // 全部词条
+    // =====================
     entries: [],
+    allList: [],
 
-    // 六分类固定数据
+    // =====================
+    // 六分类
+    // =====================
     categoryList: [
       {
         category: "world",
@@ -42,7 +50,7 @@ Page({
     ],
 
     // 当前分类
-    currentCategory: "world",
+    currentCategory: "all",
     currentList: [],
 
     // 搜索
@@ -57,6 +65,10 @@ Page({
     uploadCategory: "",
     uploadCategoryLabel: "",
     uploadTags: "",
+
+    // 相似检测
+    similarEntries: [],
+    showSimilar: false,
 
     categoryOptions: [
       {
@@ -83,7 +95,12 @@ Page({
         value: "theme",
         label: "主题氛围"
       }
-    ]
+    ],
+
+    // 分页
+    pageSize: 30,
+    currentPage: 1,
+    hasMore: false
   },
 
   onLoad() {
@@ -91,7 +108,7 @@ Page({
   },
 
   // =====================
-  // 身份
+  // 身份检测
   // =====================
   async checkRole() {
     try {
@@ -101,7 +118,7 @@ Page({
 
       if (res.result && res.result.success) {
         this.setData({
-          role: res.result.role
+          role: res.result.role || "visitor"
         });
       }
     } catch (e) {
@@ -110,7 +127,7 @@ Page({
   },
 
   // =====================
-  // 投稿
+  // 投稿打开
   // =====================
   openUpload() {
     if (this.data.role === "visitor") {
@@ -118,6 +135,7 @@ Page({
         title: "需要登录",
         content: "注册登录后才可以投稿词条",
         confirmText: "去登录",
+
         success: res => {
           if (res.confirm) {
             wx.navigateTo({
@@ -126,6 +144,7 @@ Page({
           }
         }
       });
+
       return;
     }
 
@@ -136,14 +155,28 @@ Page({
 
   closeUpload() {
     this.setData({
-      showUpload: false
+      showUpload: false,
+      uploadText: "",
+      uploadDesc: "",
+      uploadCategory: "",
+      uploadCategoryLabel: "",
+      uploadTags: "",
+      similarEntries: [],
+      showSimilar: false
     });
   },
 
+  // =====================
+  // 投稿输入
+  // =====================
   onTextInput(e) {
+    const text = e.detail.value;
+
     this.setData({
-      uploadText: e.detail.value
+      uploadText: text
     });
+
+    this.checkSimilar(text);
   },
 
   onDescInput(e) {
@@ -167,6 +200,179 @@ Page({
     });
   },
 
+  // =====================
+  // 相似词条检测
+  // =====================
+  checkSimilar(text) {
+    if (!text) {
+      this.setData({
+        similarEntries: [],
+        showSimilar: false
+      });
+
+      return;
+    }
+
+    const key = text.toLowerCase();
+
+    const result = this.data.entries
+      .filter(item => {
+        const name = (item.text || "").toLowerCase();
+
+        return name.includes(key) || key.includes(name);
+      })
+      .slice(0, 5);
+
+    this.setData({
+      similarEntries: result,
+      showSimilar: result.length > 0
+    });
+  },
+
+  // =====================
+  // 加载全部词条
+  // 新逻辑
+  // =====================
+  loadEntries() {
+    let official = [];
+    let user = [];
+
+    // 在线
+    if (app.globalData.online) {
+      official = app.globalData.cloudOfficialEntries || [];
+      user = app.globalData.cloudUserEntries || [];
+    }
+    // 离线
+    else {
+      official = app.globalData.localOfficialEntries || [];
+      user = app.globalData.localUserEntries || [];
+    }
+
+    const list = [...official, ...user];
+    const groups = this.formatEntries(list);
+
+    this.setData({
+      entries: list,
+      allList: list,
+      categoryList: groups,
+      currentList: list,
+      currentCategory: "all",
+      showList: true,
+      currentPage: 1,
+      hasMore: list.length > this.data.pageSize
+    });
+
+    console.log("词条总数:", list.length);
+    console.log("分类:", groups.map(item => ({
+      category: item.category,
+      count: item.list.length
+    })));
+  },
+
+  // =====================
+  // 分类整理
+  // =====================
+  formatEntries(list) {
+    const result = [
+      {
+        category: "world",
+        title: "世界背景",
+        list: []
+      },
+      {
+        category: "relationship",
+        title: "关系设定",
+        list: []
+      },
+      {
+        category: "character",
+        title: "角色身份",
+        list: []
+      },
+      {
+        category: "conflict",
+        title: "冲突矛盾",
+        list: []
+      },
+      {
+        category: "scene",
+        title: "特殊场景",
+        list: []
+      },
+      {
+        category: "theme",
+        title: "主题氛围",
+        list: []
+      }
+    ];
+
+    list.forEach(item => {
+      const group = result.find(g => g.category === item.category);
+
+      if (group) {
+        group.list.push(item);
+      }
+    });
+
+    return result;
+  },
+
+  // =====================
+  // 分类切换
+  // =====================
+  changeCategory(e) {
+    const category = e.currentTarget.dataset.category;
+    const group = this.data.categoryList.find(item => item.category === category);
+
+    this.setData({
+      currentCategory: category,
+      currentList: group ? group.list : []
+    });
+  },
+
+  // =====================
+  // 查看全部
+  // =====================
+  showAll() {
+    this.setData({
+      currentCategory: "all",
+      currentList: this.data.allList
+    });
+  },
+
+  // =====================
+  // 搜索
+  // =====================
+  onSearch(e) {
+    const key = e.detail.value.trim();
+
+    if (!key) {
+      this.setData({
+        keyword: "",
+        isSearching: false,
+        searchGroups: []
+      });
+
+      return;
+    }
+
+    const result = this.data.entries.filter(item => {
+      const text = item.text || "";
+      const desc = item.desc || "";
+
+      return text.includes(key) || desc.includes(key);
+    });
+
+    this.setData({
+      keyword: key,
+      isSearching: true,
+      searchGroups: this.formatEntries(result)
+    });
+  },
+
+  // =====================
+  // 投稿提交
+  // =====================
   async submitEntry() {
     const d = this.data;
 
@@ -175,6 +381,17 @@ Page({
         title: "请填写完整",
         icon: "none"
       });
+
+      return;
+    }
+
+    if (d.showSimilar) {
+      wx.showModal({
+        title: "存在相似词条",
+        content: "请优先使用已有词条",
+        showCancel: false
+      });
+
       return;
     }
 
@@ -194,6 +411,7 @@ Page({
           title: "提交成功",
           icon: "success"
         });
+
         this.closeUpload();
       }
     } catch (e) {
@@ -202,119 +420,62 @@ Page({
   },
 
   // =====================
-  // 加载词条
+  // 选择相似词条
   // =====================
-  async loadEntries() {
-    try {
-      const db = wx.cloud.database();
+  chooseSimilar(e) {
+    const index = e.currentTarget.dataset.index;
+    const item = this.data.similarEntries[index];
 
-      const official = await db.collection("entries").get();
-      const user = await db.collection("user_entries").get();
-
-      const list = [
-        ...official.data,
-        ...user.data
-      ];
-
-      const groups = this.formatEntries(list);
-
-      this.setData({
-        entries: list,
-        categoryList: groups,
-        currentList: groups[0].list || [],
-        currentCategory: "world",
-        showList: true
-      });
-
-      console.log("总词条数量", list.length);
-      console.log(
-        "分类统计",
-        groups.map(i => ({
-          category: i.category,
-          count: i.list.length
-        }))
-      );
-    } catch (e) {
-      console.log("加载词条失败", e);
-    }
-  },
-
-  // =====================
-  // 分类整理
-  // =====================
-  formatEntries(list) {
-    const base = this.data.categoryList;
-
-    return base.map(group => {
-      return {
-        category: group.category,
-        title: group.title,
-        list: list.filter(item => {
-          return item.category === group.category;
-        })
-      };
+    wx.showModal({
+      title: "已有词条",
+      content: item.text + "\n\n" + item.desc,
+      confirmText: "确定"
     });
   },
 
   // =====================
-  // 切换分类
+  // 分页加载
   // =====================
-  changeCategory(e) {
-    const category = e.currentTarget.dataset.category;
-    const group = this.data.categoryList.find(
-      item => item.category === category
-    );
-
-    this.setData({
-      currentCategory: category,
-      currentList: group ? group.list : []
-    });
-  },
-
-  // =====================
-  // 搜索
-  // =====================
-  onSearch(e) {
-    const key = e.detail.value.trim();
-
-    if (!key) {
-      this.setData({
-        isSearching: false,
-        searchGroups: []
-      });
+  onReachBottom() {
+    if (!this.data.showList) {
       return;
     }
 
-    const result = this.data.entries.filter(item => {
-      const text = item.text || "";
-      const desc = item.desc || "";
+    if (!this.data.hasMore) {
+      return;
+    }
 
-      return (
-        text.includes(key) ||
-        desc.includes(key)
-      );
-    });
+    const page = this.data.currentPage + 1;
+    const start = page * this.data.pageSize;
+    const end = start + this.data.pageSize;
+    const more = this.data.currentList.slice(start, end);
 
     this.setData({
-      keyword: key,
-      isSearching: true,
-      searchGroups: this.formatEntries(result)
+      currentList: this.data.currentList.concat(more),
+      currentPage: page,
+      hasMore: end < this.data.currentList.length
     });
   },
 
   // =====================
-  // 审核
+  // 审核入口
   // =====================
   goAudit() {
-    if (
-      this.data.role !== "admin" &&
-      this.data.role !== "maintainer"
-    ) {
+    if (this.data.role !== "admin" && this.data.role !== "maintainer") {
       return;
     }
 
     wx.navigateTo({
       url: "/pages/admin/admin"
     });
+  },
+
+  // =====================
+  // 页面显示刷新
+  // =====================
+  onShow() {
+    if (this.data.showList) {
+      this.loadEntries();
+    }
   }
 });

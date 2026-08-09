@@ -55,8 +55,8 @@ exports.main = async (event, context) => {
             desc: entry.desc,
             tags: entry.tags || [],
             openid: entry.openid,
+            reviewerOpenid:openid,
             createTime: entry.submitTime || new Date(),
-            source: "user",
             extend: {},
             meta: {}
           }

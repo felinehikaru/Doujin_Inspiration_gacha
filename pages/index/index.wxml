@@ -1,95 +1,138 @@
-<view class="container" wx:if="{{showContent}}">
+<!-- pages/index/index.wxml -->
 
-<!-- 帮助按钮 -->
-<view class="help-btn" bindtap="showHelp">
-  <text class="help-icon">?</text>
-</view>
+<view class="container">
+  <!-- 左上角帮助 -->
+  <view class="help-btn" bindtap="openHelp">
+    <text class="help-icon">?</text>
+  </view>
 
   <!-- 标题 -->
   <view class="title">
-    <text class="title-text">🎰 同人梗扭蛋机</text>
-    <text class="subtitle">随机组合词条，获得创作灵感</text>
+    <text class="title-text">🎲 同人梗扭蛋机</text>
+    <text class="subtitle">摇出你的故事灵感</text>
   </view>
 
-<!-- 登录入口 -->
-<button bindtap="goLogin">
-登录 / 注册
-</button>
+  <!-- 登录入口 -->
+  <button class="login-btn" bindtap="goLogin">
+    👤 用户中心
+  </button>
 
-<view>
-当前身份：{{role}}
-</view>
+  <!-- 登录状态 -->
+  <view wx:if="{{role!=='visitor'}}" class="role-text">
+    当前身份：{{role}}
+  </view>
 
-  <!-- 扭蛋机 -->
-  <view class="gacha-area">
-    <view class="gacha-machine {{isShaking?'shaking':''}}">
+  <!-- 扭蛋机主体 -->
+  <view class="gacha-machine {{isShaking?'shaking':''}}">
+    <!-- 外部光晕 -->
+    <view class="machine-light"></view>
+
+    <view class="gacha-area">
+      <!-- 玻璃球罩 -->
       <view class="dome">
-        <view class="dome-count">📚 已收录 {{totalCount}} 个词条</view>
-        <view class="ball" wx:for="{{balls}}" wx:key="index" style="left:{{item.x}}%;top:{{item.y}}%;width:{{item.size}}rpx;height:{{item.size}}rpx;background:{{item.color}};"></view>
+        <view wx:for="{{balls}}" wx:key="index" class="ball" style="width:{{item.size}}rpx; height:{{item.size}}rpx; left:{{item.left}}%; top:{{item.top}}%; background:{{item.color}};">
+        </view>
       </view>
+
+      <!-- 机器底座 -->
       <view class="body">
-        <view class="brand">CP梗扭蛋机</view>
+        <text class="brand">灵感扭蛋</text>
+        <!-- 旋钮 -->
         <view class="knob"></view>
+        <!-- 出口 -->
         <view class="slot"></view>
       </view>
     </view>
   </view>
 
-  <!-- 抽卡按钮 -->
-  <view class="controls">
-    <view class="mode-hint">👇 选择模式开始抽取</view>
-    <view class="btn-group">
-      <button class="btn btn-random" bindtap="spinRandom">🎲 完全随机</button>
-      <button class="btn btn-balanced" bindtap="spinBalanced">⚖️ 营养均衡</button>
-    </view>
-    <button class="btn btn-ghost" bindtap="clearCurrentResult">🗑️ 清空当前</button>
-    <button class="btn btn-prompt" bindtap="goToPrompt">📝 提示词相关</button>
-  </view>
-
-  <!-- 当前模式 -->
+  <!-- 模式显示 -->
   <view class="mode-display">
-    <text>当前模式：</text>
     <text class="mode-name">{{modeName}}</text>
     <text class="mode-badge">{{modeBadge}}</text>
   </view>
 
-  <!-- 抽取结果 -->
+  <!-- 抽卡按钮 -->
+  <view class="controls">
+    <view class="btn-group">
+      <button class="btn btn-random" bindtap="spinRandom">完全随机</button>
+      <button class="btn btn-balanced" bindtap="spinBalanced">营养平衡</button>
+    </view>
+  </view>
+
+  <!-- 抽卡结果 -->
   <view class="result-area" wx:if="{{results.length}}">
     <view class="result-card" wx:for="{{results}}" wx:key="index">
       <text class="result-title">{{item.text}}</text>
+      <text class="result-category">分类：{{item.category}}</text>
       <text class="result-desc">{{item.desc}}</text>
+      <text class="result-tags">标签：{{item.tags.join("、")}}</text>
     </view>
   </view>
-  <view class="empty" wx:else>
-    <text>还没有抽取结果，开始抽取获得灵感</text>
-  </view>
 
-  <!-- 收藏当前组合 -->
-  <view class="collect-area" wx:if="{{results.length}}">
-    <button class="btn btn-collect" bindtap="collectCurrent">❤️ 收藏组合</button>
+  <!-- 当前结果操作 -->
+  <view class="action-area" wx:if="{{results.length}}">
+
+    <button class="btn btn-collect" bindtap="collectCurrent">
+      ⭐ 收藏
+    </button>
+
+    <button class="btn btn-prompt" bindtap="goToPrompt">
+      提示词模板
+    </button>
+
+    <button class="btn btn-share" bindtap="openSharePanel">
+      分享结果
+    </button>
+
   </view>
 
   <!-- 底部入口 -->
   <view class="record-entry">
-    <view class="record-btn history-btn" bindtap="openHistory">📜 历史记录</view>
-    <view class="label-action" bindtap="goFavorites">⭐ 查看收藏</view>
-    <button class="btn btn-view" bindtap="goEntries">📚 词条查看 / 上传</button>
+    <button class="record-btn history-btn" bindtap="openHistory">📜 历史</button>
+    <button class="record-btn favorite-btn" bindtap="openFavorites">⭐ 我的</button>
+    <button class="record-btn entries-btn" bindtap="openEntries">📚 词条</button>
+  </view>
+
+  <!-- 帮助弹窗 -->
+  <view wx:if="{{showHelpModal}}" class="help-modal">
+    <view class="help-modal-content">
+      <text class="help-modal-title">使用说明</text>
+
+      <view class="help-modal-body">
+        <text class="help-line">1. 点击抽卡按钮获得三个灵感词条</text>
+        <text class="help-line">2. 平衡模式从六个分类中抽取</text>
+        <text class="help-line">3. 提示词模板可自行编辑复制</text>
+      </view>
+
+      <view class="help-modal-footer">
+        <button class="btn btn-ghost" bindtap="closeHelp">知道了</button>
+      </view>
+    </view>
   </view>
 </view>
 
-<!-- 帮助说明 -->
-<view class="help-modal" wx:if="{{showHelpModal}}">
+<!-- 分享选择 -->
+<view wx:if="{{showSharePanel}}" class="help-modal">
   <view class="help-modal-content">
-    <view class="help-modal-title">使用说明</view>
-    <view class="help-modal-body">
-      <text class="help-line">🎰 同人梗扭蛋机用于随机组合创作灵感词条。</text>
-      <text class="help-line">🎲 完全随机：从全部词条中随机抽取3条。</text>
-      <text class="help-line">⚖️ 营养均衡：从六个分类中随机选择三个分类，各抽取一条。</text>
-      <text class="help-line">☁️ 联网时自动同步云端词库。</text>
-      <text class="help-line">📦 离线时使用本地缓存词库。</text>
-    </view>
-    <view class="help-modal-footer">
-      <button class="btn btn-ghost" bindtap="closeHelp">知道了</button>
-    </view>
+   
+    <text class="help-modal-title">分享扭蛋结果</text>
+
+    <button class="btn btn-share" bindtap="copyShareText">
+      文字分享
+    </button>
+
+    <button class="btn btn-share" bindtap="createShareImage">
+      图片分享（待开发）
+    </button>
+
+    <button class="btn btn-ghost" bindtap="closeSharePanel">
+      取消
+    </button>
   </view>
+</view>
+
+<!-- 分享引导 -->
+<view class="share-guide">
+  <text class="share-arrow">↑</text>
+  <text class="share-text">分享</text>
 </view>

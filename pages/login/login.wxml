@@ -1,18 +1,18 @@
-<view class="login-container">
+<view class="container">
+  <view class="title">
+    <text class="title-text">👤 用户中心</text>
+  </view>
 
-<view class="login-title">
-  🎰 同人梗扭蛋机
-</view>
+  <!-- 未登录 -->
+  <view wx:if="{{role==='visitor'}}" class="user-card">
+    <text class="status">当前未登录</text>
+    <button class="login-btn" open-type="getUserProfile" bindtap="login">微信登录</button>
+  </view>
 
-<view class="login-subtitle">
-  登录 / 注册
-</view>
-
-<button 
-  bindtap="login"
-  type="primary"
->
-  微信登录
-</button>
-
+  <!-- 已登录 -->
+  <view wx:else class="user-card">
+    <text class="status">当前身份：{{role}}</text>
+    <button class="logout-btn" bindtap="logout">登出</button>
+    <button class="delete-btn" bindtap="deleteAccount">账户注销</button>
+  </view>
 </view>

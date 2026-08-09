@@ -24,9 +24,11 @@ exports.main = async (event) => {
 
   if (exist.data.length) {
     return {
-      success: true,
-      message: "已注册"
-    };
+      success:true,
+      message:"已注册",
+      role:exist.data[0].role,
+      isRegister:true
+     };
   }
 
   await db.collection("users")

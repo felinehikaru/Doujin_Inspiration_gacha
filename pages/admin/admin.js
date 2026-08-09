@@ -19,6 +19,23 @@ Page({
       if(res.result.success){
         console.log("词条数量:",res.result.data.length);
   
+        const list = res.result.data.map(item => {
+          if (item.submitTime) {
+            const date = new Date(item.submitTime);
+        
+            item.submitTimeText =
+              `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+          } else {
+            item.submitTimeText = "";
+          }
+        
+          return item;
+        });
+        
+        this.setData({
+          pendingList: list
+        });
+
         this.setData({
           pendingList:res.result.data
         });

@@ -24,9 +24,9 @@
     </text>
   </view>
 
-  <text class="entry-time" wx:if="{{item.submitTime}}">
-    提交时间：{{item.submitTime}}
-  </text>
+  <text class="entry-time" wx:if="{{item.submitTimeText}}">
+  提交时间：{{item.submitTimeText}}
+</text>
 
   <view class="entry-actions">
 

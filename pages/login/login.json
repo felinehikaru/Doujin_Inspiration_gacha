@@ -1,3 +1,4 @@
 {
-  "navigationBarTitleText": "登录注册"
-}
+  "usingComponents": {},
+  "navigationBarTitleText":"用户中心"
+ }

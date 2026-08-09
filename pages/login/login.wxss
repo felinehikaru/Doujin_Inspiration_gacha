@@ -1,14 +1,56 @@
-.login-container{
-  padding:80rpx 40rpx;
-  text-align:center;
+page {
+  background: #ffffff;
 }
 
-.login-title{
-  font-size:48rpx;
-  margin-bottom:40rpx;
+.container {
+  min-height: 100vh;
+  padding: 40rpx;
+  background: #ffffff;
 }
 
-.login-subtitle{
-  font-size:36rpx;
-  margin-bottom:60rpx;
+.title {
+  text-align: center;
+  margin-bottom: 60rpx;
+}
+
+.title-text {
+  font-size: 48rpx;
+  font-weight: 900;
+  color: #333;
+}
+
+.user-card {
+  background: #fff;
+  border-radius: 30rpx;
+  padding: 50rpx 30rpx;
+  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, .1);
+}
+
+.status {
+  display: block;
+  text-align: center;
+  font-size: 32rpx;
+  color: #555;
+  margin-bottom: 40rpx;
+}
+
+button {
+  height: 90rpx;
+  line-height: 90rpx;
+  border-radius: 45rpx;
+  font-size: 32rpx;
+  color: #fff;
+  margin-top: 30rpx;
+}
+
+.login-btn {
+  background: #07c160;
+}
+
+.logout-btn {
+  background: #888;
+}
+
+.delete-btn {
+  background: #e85d75;
 }

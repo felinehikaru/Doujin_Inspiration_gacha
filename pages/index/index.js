@@ -1,88 +1,100 @@
+const app = getApp();
+const localEntries = require("../../utils/entries.js");
+
 Page({
   data: {
+    // 用户状态
     role: "visitor",
     isRegister: false,
 
-    showHelpModal: false,
-
+    // 抽卡结果
     results: [],
     history: [],
 
-    mode: "balanced",
-    modeName: "营养均衡",
-    modeBadge: "随机抽取3个分类，各抽1条",
 
-    totalCount: 0,
+    // 词库数量
+    totalCount: localEntries.length,
 
+    // 扭蛋动画
     balls: [],
-    showContent: false,
     isShaking: false,
 
+    // 帮助
+    showHelpModal: false,
+
+    // 收藏
     favorites: [],
-    showFavoritesModal: false
+
+    //分享
+    showSharePanel:false
   },
 
   onLoad() {
-    this.showStartModal();
+    this.checkRole();
     this.loadHistory();
-    this.initNetworkAndEntries();
-    this.checkRole().then(()=>{
-      this.loadFavorites();
-    });
+    this.initBalls();
+    this.syncEntriesFromCloud();
   },
 
-  // =========================
-  // 欢迎弹窗
-  // =========================
-  showStartModal() {
-    wx.showModal({
-      title: "欢迎使用",
-      content: "💡 扭蛋机提供简单的提示词辅助功能。\n\n" +
-        "仅用于个人娱乐和灵感碰撞。\n\n" +
-        "不代表鼓励或认同AI代替创作。\n\n" +
-        "请同人创作者保持初心，享受创作过程。",
-      confirmText: "进入",
-      cancelText: "退出",
-      success: res => {
-        if (res.confirm) {
-          this.setData({
-            showContent: true
-          });
-          this.initBalls();
-        } else {
-          wx.exitMiniProgram();
+  // =====================
+  // 登录身份检测
+  // =====================
+  async checkRole() {
+    try {
+      const res = await wx.cloud.callFunction({
+        name: "checkRole"
+      });
+
+      if (res.result && res.result.success) {
+        this.setData({
+          role: res.result.role || "visitor",
+          isRegister: res.result.isRegister || false
+        });
+
+        if (app.updateUserStatus) {
+          app.updateUserStatus(res.result);
         }
       }
-    });
-  },
-
-  // =========================
-  //         网络检测
-  // =========================
-  async initNetworkAndEntries(){
-    const app=getApp();
-    if(app.globalData.online){ 
-      console.log("在线模式");
-      await this.syncEntriesFromCloud();
-    }else{
-      console.log("离线模式");
-
-      const local =
-        app.globalData.localEntries || [];
-  
-      this.setData({
-        totalCount:local.length
-      });
+    } catch (err) {
+      console.log("身份检测失败", err);
     }
   },
 
-// =========================
+  // =====================
+  // 登录入口
+  // =====================
+  goLogin() {
+    wx.navigateTo({
+      url: "/pages/login/login"
+    });
+  },
+
+  // =====================
+  // 词条中心
+  // =====================
+  openEntries() {
+    wx.navigateTo({
+      url: "/pages/entries/entries"
+    });
+  },
+
+// =====================
 // 云端词库同步
-// entries + user_entries
-// 在线使用
-// =========================
+//
+// 在线:
+// 云端官方 entries
+// +
+// 云端用户 user_entries
+//
+// 分别缓存
+// =====================
+
 async syncEntriesFromCloud() {
-  const app = getApp();
+  if (!app.globalData.online) {
+    console.log("离线模式，不同步词库");
+
+    return;
+  }
 
   try {
     const res = await wx.cloud.callFunction({
@@ -90,90 +102,133 @@ async syncEntriesFromCloud() {
     });
 
     if (res.result && res.result.success) {
-      const cloudEntries = res.result.data || [];
-      const cloudVersion = res.result.version || 1;
+      const official = res.result.officialEntries || [];
+      const user = res.result.userEntries || [];
 
-      // 保存云端词库
-      app.globalData.cloudEntries = cloudEntries;
+      // =====================
+      // 保存在线词库
+      // =====================
+      app.globalData.cloudOfficialEntries = official;
+      app.globalData.cloudUserEntries = user;
 
-      // =========================
-      // 更新本地缓存
-      //
-      // 用于离线模式
-      // =========================
-      if (app.updateLocalEntries) {
-        app.updateLocalEntries(cloudEntries, cloudVersion);
+      // =====================
+      // 更新离线缓存
+      // =====================
+      wx.setStorageSync("localOfficialEntries", official);
+      wx.setStorageSync("localUserEntries", user);
+
+      app.globalData.localOfficialEntries = official;
+      app.globalData.localUserEntries = user;
+
+      if (res.result.version !== undefined) {
+        wx.setStorageSync("entryVersion", res.result.version);
+        app.globalData.entryVersion = res.result.version;
       }
 
       this.setData({
-        totalCount: cloudEntries.length
+        totalCount: official.length + user.length
       });
 
-      console.log("云端词库加载:", cloudEntries.length, "版本:", cloudVersion);
+      console.log("官方词库:", official.length);
+      console.log("用户词库:", user.length);
+      console.log("总词条:", official.length + user.length);
     }
   } catch (err) {
-    console.log("云端同步失败", err);
-
-    // 清除失效云端数据
-    app.globalData.cloudEntries = [];
-
-    // 回退本地词库
-    const local = app.globalData.localEntries || [];
-
-    this.setData({
-      totalCount: local.length
-    });
+    console.log("词库同步失败", err);
   }
 },
 
-  // =========================
-  // 获取当前词库
-  //
-  // 在线:
-  // cloudEntries
-  //
-  // 离线:
-  // localEntries
-  // =========================
-  getEntries() {
-    const app = getApp();
-  
-    if (app.globalData.online && app.globalData.cloudEntries.length) {
-      return app.globalData.cloudEntries;
+// =====================
+// 获取抽卡词库
+//
+// 在线:
+// cloudOfficialEntries
+// +
+// cloudUserEntries
+//
+// 离线:
+// localOfficialEntries
+// +
+// localUserEntries
+// =====================
+
+getEntries() {
+  let official = [];
+  let user = [];
+
+  // 在线
+  if (app.globalData.online) {
+    official = app.globalData.cloudOfficialEntries || [];
+    user = app.globalData.cloudUserEntries || [];
+  }
+  // 离线
+  else {
+    official = app.globalData.localOfficialEntries || [];
+    user = app.globalData.localUserEntries || [];
+  }
+
+  return [...official, ...user];
+},
+
+  // =====================
+  // 初始化扭蛋
+  // =====================
+  initBalls() {
+    const balls = [];
+
+    for (let i = 0; i < 12; i++) {
+      balls.push({
+        id: i,
+        left: Math.random() * 80,
+        top: Math.random() * 60,
+        size: 50 + Math.random() * 30
+      });
     }
-  
-    return app.globalData.localEntries || [];
+
+    this.setData({
+      balls
+    });
   },
 
-  // =========================
-  // 抽卡逻辑
-  //
-  // random:
-  // 全部随机三个
-  //
-  // balanced:
-  // 六分类随机三个分类
-  // 每类一个
-  // =========================
-  draw(mode) {
+  // =====================
+  // 抽卡
+  // =====================
+  draw() {
+    if (this.data.mode === "balanced") {
+      this.spinBalanced();
+    } else {
+      this.spinRandom();
+    }
+  },
+
+  // =====================
+  // 随机抽卡
+  // =====================
+  spinRandom() {
     const entries = this.getEntries();
-    const result = [];
 
     if (!entries.length) {
-      return result;
+      return;
     }
 
-    if (mode === "random") {
-      const pool = [...entries];
+    const pool = [...entries];
+    const result = [];
 
-      while (result.length < 3 && pool.length) {
-        const index = Math.floor(Math.random() * pool.length);
-        result.push(pool.splice(index, 1)[0]);
-      }
+    while (result.length < 3 && pool.length) {
+      const index = Math.floor(Math.random() * pool.length);
 
-      return result;
+      result.push(pool.splice(index, 1)[0]);
     }
 
+    this.showResult(result);
+  },
+
+  // =====================
+  // 平衡抽卡
+  // 六分类抽3类
+  // =====================
+  spinBalanced() {
+    const entries = this.getEntries();
     const categories = [
       "world",
       "relationship",
@@ -183,390 +238,311 @@ async syncEntriesFromCloud() {
       "theme"
     ];
 
+    const categoryPool = [...categories];
     const selected = [];
 
-    while (selected.length < 3) {
-      const index = Math.floor(Math.random() * categories.length);
-      const category = categories[index];
-      if (!selected.includes(category)) {
-        selected.push(category);
-      }
+    while (selected.length < 3 && categoryPool.length) {
+      const index = Math.floor(Math.random() * categoryPool.length);
+
+      selected.push(categoryPool.splice(index, 1)[0]);
     }
 
-    selected.forEach(category => {
-      const list = entries.filter(item => item.category === category);
+    const result = [];
 
-      if (list.length) {
-        const index = Math.floor(Math.random() * list.length);
-        result.push(list[index]);
+    selected.forEach(category => {
+      const pool = entries.filter(item => item.category === category);
+
+      if (pool.length) {
+        result.push(pool[Math.floor(Math.random() * pool.length)]);
       }
     });
 
-    return result;
+    this.showResult(result);
   },
 
-  // =========================
-  // 执行抽卡
-  // =========================
-  spin(mode) {
-    if (this.data.isShaking) {
-      return;
-    }
-
+  // =====================
+  // 显示结果
+  // =====================
+  showResult(result) {
     this.setData({
-      results: [],
       isShaking: true
     });
 
     setTimeout(() => {
-      const results = this.draw(mode);
-
       this.setData({
-        results,
-        isShaking: false
+        isShaking: false,
+        results: result
       });
 
-      this.saveHistory(results);
+      app.globalData.currentResults = result;
 
-      const app = getApp();
-      app.globalData.currentResults = results;
-
-      wx.showToast({
-        title: "抽取成功",
-        icon: "success"
-      });
+      this.saveHistory(result);
     }, 800);
   },
 
-  spinRandom() {
-    this.spin("random");
-  },
-
-  spinBalanced() {
-    this.spin("balanced");
-  },
-
-  // =========================
-// 扭蛋背景
-// =========================
-initBalls() {
-  const colors = [
-    "#ff6b6b",
-    "#4ecdc4",
-    "#45b7d1",
-    "#ffe66d",
-    "#9b5de5",
-    "#f15bb5"
-  ];
-
-  const balls = [];
-
-  for (let i = 0; i < 20; i++) {
-    balls.push({
-      x: Math.random() * 90,
-      y: Math.random() * 80,
-      size: 20 + Math.random() * 30,
-      color: colors[Math.floor(Math.random() * colors.length)]
-    });
-  }
-
-  this.setData({
-    balls
-  });
-},
-
-// =========================
-// 用户权限
-// =========================
-async checkRole() {
-  try {
-    const res = await wx.cloud.callFunction({
-      name: "checkRole"
-    });
-
-    if (res.result && res.result.success) {
-      this.setData({
-        role: res.result.role,
-        isRegister: res.result.role !== "visitor"
-      });
+  // =====================
+  // 历史记录
+  // =====================
+  saveHistory(result) {
+    if (!Array.isArray(result) || !result.length) {
+      return;
     }
-  } catch (err) {
-    console.log("身份检测失败", err);
-  }
-},
 
-// =========================
-// 帮助
-// =========================
-showHelp() {
-  this.setData({
-    showHelpModal: true
-  });
-},
+    const text = result.map(item => item.text).join(" + ");
 
-closeHelp() {
-  this.setData({
-    showHelpModal: false
-  });
-},
+    let history = wx.getStorageSync("history") || [];
 
-// =========================
-// 登录
-// =========================
-goLogin() {
-  wx.navigateTo({
-    url: "/pages/login/login"
-  });
-},
-
-// =========================
-// 词条中心
-// =========================
-goEntries() {
-  wx.navigateTo({
-    url: "/pages/entries/entries"
-  });
-},
-
-// =========================
-// 历史记录
-// 本地Storage
-// =========================
-saveHistory(results) {
-  if (!results.length) {
-    return;
-  }
-
-  let history = wx.getStorageSync("history") || [];
-  const text = results.map(item => item.text).join(" + ");
-  history.unshift(text);
-
-  if (history.length > 110) {
-    history = history.slice(0, 110);
-  }
-
-  wx.setStorageSync("history", history);
-
-  this.setData({
-    history: history.slice(0, 10)
-  });
-},
-
-loadHistory() {
-  const history = wx.getStorageSync("history") || [];
-  this.setData({
-    history: history.slice(0, 10)
-  });
-},
-
-clearCurrentResult() {
-  this.setData({
-    results: []
-  });
-
-  const app = getApp();
-
-  if (app.globalData) {
-    app.globalData.currentResults = [];
-  }
-
-  wx.showToast({
-    title: "已清空当前词条",
-    icon: "success"
-  });
-},
-
-openHistory() {
-  wx.navigateTo({
-    url: "/pages/history/history"
-  });
-},
-
-// =========================
-// 提示词
-// =========================
-goToPrompt() {
-  if (!this.data.results.length) {
-    wx.showToast({
-      title: "请先抽卡",
-      icon: "none"
+    history.unshift({
+      text: text,
+      time: Date.now()
     });
-    return;
-  }
 
-  wx.navigateTo({
-    url: "/pages/prompt/prompt"
-  });
-},
+    if (history.length > 50) {
+      history = history.slice(0, 50);
+    }
 
-// =========================
-// 收藏
-// =========================
-async loadFavorites() {
-  // 登录用户读取云端
-  if (this.data.role !== "visitor") {
+    wx.setStorageSync("history", history);
+
+    this.setData({
+      history
+    });
+  },
+
+  loadHistory() {
+    const history = wx.getStorageSync("history") || [];
+
+    this.setData({
+      history
+    });
+  },
+
+  openHistory() {
+    wx.navigateTo({
+      url: "/pages/history/history"
+    });
+  },
+
+  // =====================
+  // 当前结果清除
+  // =====================
+  clearCurrentResult() {
+    this.setData({
+      results: []
+    });
+
+    app.globalData.currentResults = [];
+  },
+
+  // =====================
+  // 收藏
+  // =====================
+  async collectCurrent() {
+    if (!this.data.results.length) {
+      return;
+    }
+
+    const text = this.data.results.map(item => item.text).join(" + ");
+    const entries = this.data.results;
+
+    // 游客本地收藏
+    if (this.data.role === "visitor") {
+      let favorites = wx.getStorageSync("favorites") || [];
+
+      favorites.unshift({
+        text: text,
+        entries: entries,
+        createTime: Date.now()
+      });
+
+      // 收藏数量限制30
+      if (favorites.length > 30) {
+        favorites = favorites.slice(0, 30);
+      }
+
+      wx.setStorageSync("favorites", favorites);
+
+      wx.showToast({
+        title: "已保存到本地",
+        icon: "success"
+      });
+
+      return;
+    }
+
+    // 登录用户云收藏
     try {
       const res = await wx.cloud.callFunction({
-        name: "getFavorites"
+        name: "favorite",
+        data: {
+          action: "add",
+          text: text,
+          entries: entries
+        }
       });
 
       if (res.result && res.result.success) {
-        this.setData({
-          favorites: res.result.data || []
+        wx.showToast({
+          title: "收藏成功",
+          icon: "success"
         });
-        return;
+      } else {
+        wx.showToast({
+          title: res.result.message || "收藏失败",
+          icon: "none"
+        });
       }
     } catch (err) {
-      console.log("云端收藏读取失败", err);
+      console.log("收藏失败", err);
     }
-  }
+  },
 
-  // 游客读取本地
-  const favorites = wx.getStorageSync("favorites") || [];
+  openFavorites() {
+    wx.navigateTo({
+      url: "/pages/favorites/favorites"
+    });
+  },
 
-  this.setData({
-    favorites
-  });
-},
+  loadFavorites() {
+    const favorites = wx.getStorageSync("favorites") || [];
+  
+    this.setData({
+      favorites
+    });
+  },
 
-saveFavorites() {
-  wx.setStorageSync("favorites", this.data.favorites);
-},
+  // 兼容旧WXML
+  showFavorites() {
+    this.openFavorites();
+  },
 
-async collectCurrent() {
   // =====================
-  // 游客禁止收藏
+  // 提示词
   // =====================
-  if (this.data.role === "visitor") {
-    wx.showModal({
-      title: "需要登录",
-      content: "为减轻云端压力，收藏功能需要登录后使用，登录后收藏内容将保存至云端，更换设备也可以查看。",
-      confirmText: "去登录",
-      cancelText: "取消",
+  goToPrompt() {
 
-      success:res=>{
-        if(res.confirm){
-          wx.navigateTo({
-            url:"/pages/login/login"
-          });
-        }
+    wx.navigateTo({
+      url:"/pages/prompt/prompt"
+    });
+  
+  },
+
+  // =====================
+  // 分享复制
+  // =====================
+  copyCurrentResult() {
+    if (!this.data.results.length) {
+      return;
+    }
+
+    const text = this.data.results.map(item => item.text).join(" + ");
+
+    wx.setClipboardData({
+      data: text,
+
+      success() {
+        wx.showToast({
+          title: "已复制",
+          icon: "success"
+        });
       }
-     });
-     return;
-    }
+    });
+  },
 
   // =====================
-  // 没有抽卡结果
+  // 分享
   // =====================
+  onShareAppMessage() {
+    let title = "🎲 同人梗扭蛋机";
+    let path = "/pages/index/index";
+  
+    if (this.data.results.length) {
+      title = "我摇到了：" + this.data.results
+        .map(item => item.text)
+        .join("、");
+    }
+  
+    return {
+      title: title,
+      path: path
+    };
+  },
+
+  openSharePanel() {
+    this.setData({
+      showSharePanel: true
+    });
+  },
+  
+  closeSharePanel() {
+    this.setData({
+      showSharePanel: false
+    });
+  },
+
+  // =====================
+// 复制文字分享
+// =====================
+copyShareText() {
   if (!this.data.results.length) {
     wx.showToast({
-      title: "暂无词条",
+      title: "没有抽卡结果",
       icon: "none"
     });
+
     return;
   }
 
   const text = this.data.results
-    .map(item => item.text)
-    .join(" + ");
+    .map((item, index) => {
+      return (
+        `灵感词${index + 1}：
+${item.text}
 
-  // =====================
-  // 注册用户
-  // 云端收藏
-  // =====================
-  try {
-    const res = await wx.cloud.callFunction({
-      name: "saveFavorite",
-      data: {
-        text: text,
-        entries: this.data.results
-      }
-    });
+分类：
+${item.category}
 
-    if (res.result && res.result.success) {
+描述：
+${item.desc}
+
+标签：
+${item.tags.join("、")}`
+      );
+    })
+    .join("\n\n");
+
+  const shareText =
+    `🎲 同人梗扭蛋机
+
+我抽到的灵感：
+
+${text}
+
+快来一起摇一个吧！`;
+
+  wx.setClipboardData({
+    data: shareText,
+
+    success() {
       wx.showToast({
-        title: "收藏成功",
+        title: "分享文字已复制",
         icon: "success"
       });
-
-      this.loadFavorites();
-    } else {
-      wx.showToast({
-        title: res.result.message || "收藏失败",
-        icon: "none"
-      });
     }
-  } catch (err) {
-    console.log("收藏失败", err);
-    wx.showToast({
-      title: "收藏失败",
-      icon: "none"
+  });
+},
+
+  // =====================
+  // 帮助
+  // =====================
+  openHelp() {
+    this.setData({
+      showHelpModal: true
+    });
+  },
+
+  closeHelp() {
+    this.setData({
+      showHelpModal: false
     });
   }
-},
-
-  
-
-showFavorites() {
-  this.setData({
-    showFavoritesModal: true
-  });
-},
-
-closeFavoritesModal() {
-  this.setData({
-    showFavoritesModal: false
-  });
-},
-
-goFavorites() {
-  wx.navigateTo({
-    url: "/pages/favorites/favorites"
-  });
-},
-
-// =========================
-// 注册
-// =========================
-async registerUser() {
-  wx.showModal({
-    title: "注册说明",
-    content: "为减轻云空间和维护压力，游客可使用基础功能，免费注册后可使用全部功能",
-    confirmText: "注册",
-    success: async res => {
-      if (res.confirm) {
-        const result = await wx.cloud.callFunction({
-          name: "registerUser"
-        });
-
-        if (result.result && result.result.success) {
-          wx.showToast({
-            title: "注册成功",
-            icon: "success"
-          });
-          this.checkRole();
-        }
-      }
-    }
-  });
-},
-
-// =========================
-// 管理后台
-// =========================
-goAdmin() {
-  wx.navigateTo({
-    url: "/pages/admin/admin"
-  });
-},
-
-// =========================
-// 分享
-// =========================
-onShareAppMessage() {
-  return {
-    title: "🎰 同人梗扭蛋机",
-    path: "/pages/index/index"
-  };
-}
 });

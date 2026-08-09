@@ -1,5 +1,9 @@
 /* pages/admin/admin.wxss */
 
+page{
+  background:#ffffff;
+  }
+
 .container{
   padding:30rpx;
   min-height:100vh;

@@ -10,6 +10,9 @@ exports.main = async () => {
   try {
     let version = 1;
 
+    // =====================
+    // 获取词库版本
+    // =====================
     try {
       const versionRes = await db.collection("system_config")
         .doc("entries_version")
@@ -19,29 +22,49 @@ exports.main = async () => {
         version = versionRes.data.version || 1;
       }
     } catch (e) {
-      console.log("版本配置不存在，默认版本1");
+      console.log("版本不存在，默认1");
     }
 
+    // =====================
+    // 官方词库
+    // entries
+    // =====================
     const officialRes = await db.collection("entries")
       .orderBy("id", "asc")
       .limit(1000)
       .get();
 
+    // =====================
+    // 用户词库
+    // user_entries
+    // =====================
     const userRes = await db.collection("user_entries")
       .orderBy("createTime", "desc")
       .limit(1000)
       .get();
 
+    // =====================
+    // 返回分离数据
+    // =====================
     return {
       success: true,
-      version,
+      version: version,
       updateTime: Date.now(),
-      data: [
-        ...officialRes.data,
-        ...userRes.data
-      ]
+      officialEntries: officialRes.data || [],
+      userEntries: userRes.data.map(item => {
+        return {
+          id: item.id,
+          text: item.text,
+          category: item.category,
+          desc: item.desc,
+          tags: item.tags || [],
+          createTime: item.createTime
+        };
+      }) || []
     };
   } catch (err) {
+    console.error(err);
+
     return {
       success: false,
       message: err.message

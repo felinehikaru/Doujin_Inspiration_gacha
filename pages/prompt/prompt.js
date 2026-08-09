@@ -1,25 +1,23 @@
 // pages/prompt/prompt.js
 
 Page({
-  data:{
-    results:[],
-    prompt:'',
-    promptTemplate:'qqqqqqqqqqqqqqqqqqq',
-    showTemplateModal:false
+  data: {
+    results: [],
+    prompt: ""
   },
 
-  onLoad(){
-    this.loadPromptTemplate();
+  onLoad() {
     this.loadResults();
   },
 
-  onShow(){
+  onShow() {
     this.loadResults();
   },
 
-  loadResults(){
-    const app=getApp();
-    const results=(app.globalData&&app.globalData.currentResults)||[];
+  //读取当前抽卡结果
+  loadResults() {
+    const app = getApp();
+    const results = (app.globalData && app.globalData.currentResults) || [];
 
     this.setData({
       results
@@ -28,140 +26,75 @@ Page({
     this.generatePrompt();
   },
 
-  loadPromptTemplate(){
-    try{
-      const template=wx.getStorageSync('promptTemplate');
-
-      if(template){
-        this.setData({
-          promptTemplate:template
-        });
-      }
-
-    }catch(e){
-      console.warn('模板读取失败',e);
-    }
-  },
-
-  generatePrompt(){
-    const results=this.data.results;
-
-    if(!results.length){
-      this.setData({
-        prompt:this.data.promptTemplate
+  //生成默认模板
+  generatePrompt() {
+    const results = this.data.results || [];
+    let text = "";
+  
+    if (results.length) {
+      text =
+        `用以下三个灵感词作为关键词，生成一份文本大纲或简单剧情：
+  
+  `;
+  
+      results.forEach((item, index) => {
+        text +=
+          `灵感词${index + 1}：
+  名称：${item.text || ""}
+  
+  描述：
+  ${item.desc || ""}
+  
+  `;
       });
-      return;
     }
-
-    const resultText=results.map((item,index)=>{
-      return `${index+1}. ${item.text}\n类型：${item.type}\n描述：${item.desc}`;
-    }).join('\n\n');
-
-
-    const prompt=this.data.promptTemplate.replace(
-      /\{results\}/g,
-      resultText
-    );
-
-
+  
     this.setData({
-      prompt
+      prompt: text
     });
   },
 
-
-  openTemplateEditor(){
+  //直接编辑全文
+  onPromptInput(e) {
     this.setData({
-      showTemplateModal:true
+      prompt: e.detail.value
     });
   },
 
-
-  closeTemplateEditor(){
-    this.setData({
-      showTemplateModal:false
-    });
-  },
-
-
-  onTemplateInput(e){
-    this.setData({
-      promptTemplate:e.detail.value
-    });
-  },
-
-
-  saveTemplate(){
-    const template=this.data.promptTemplate;
-
-    wx.setStorageSync(
-      'promptTemplate',
-      template
-    );
-
-    this.generatePrompt();
-
-    this.setData({
-      showTemplateModal:false
-    });
+  //保存修改
+  savePrompt() {
+    wx.setStorageSync("currentPrompt", this.data.prompt);
 
     wx.showToast({
-      title:'模板已保存',
-      icon:'success'
+      title: "已保存",
+      icon: "success"
     });
   },
 
-
-  resetTemplate(){
-
-    const template='qqqqqqqqqqqqqqqqqqq';
-
-    this.setData({
-      promptTemplate:template
-    });
-
-    wx.setStorageSync(
-      'promptTemplate',
-      template
-    );
-
-    this.generatePrompt();
-
-    wx.showToast({
-      title:'已恢复默认',
-      icon:'success'
-    });
-
-  },
-
-
-  copyPrompt(){
-
-    if(!this.data.prompt){
+  //复制
+  copyPrompt() {
+    if (!this.data.prompt) {
       wx.showToast({
-        title:'没有可复制内容',
-        icon:'none'
+        title: "暂无内容",
+        icon: "none"
       });
+
       return;
     }
-
 
     wx.setClipboardData({
-      data:this.data.promptTemplate,
+      data: this.data.prompt,
 
-      success(){
+      success() {
         wx.showToast({
-          title:'已复制',
-          icon:'success'
+          title: "已复制",
+          icon: "success"
         });
       }
     });
-
   },
 
-
-  goBack(){
+  goBack() {
     wx.navigateBack();
   }
-
 });

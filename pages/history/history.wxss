@@ -1,75 +1,121 @@
 /* pages/history/history.wxss */
 
-.container{
-  padding:30rpx;
-  min-height:100vh;
-  background:#f8f6fa;
+/* =====================
+ 页面基础
+===================== */
+page {
+  background: #ffffff;
 }
 
-.header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:30rpx;
+.container {
+  min-height: 100vh;
+  background: #ffffff;
+  padding: 30rpx;
+  box-sizing: border-box;
 }
 
-.title{
-  font-size:36rpx;
-  font-weight:700;
-  color:#513068;
+/* =====================
+顶部
+===================== */
+.header {
+  text-align: center;
+  margin-bottom: 40rpx;
 }
 
-.count{
-  font-size:26rpx;
-  color:#7b3ee6;
+.title {
+  display: block;
+  font-size: 48rpx;
+  font-weight: 900;
+  color: #333;
 }
 
-.history-list{
-  width:100%;
+.count {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 28rpx;
+  color: #888;
 }
 
-.history-card{
-  background:#fff;
-  border-radius:18rpx;
-  padding:24rpx;
-  margin-bottom:20rpx;
-  box-shadow:0 4rpx 16rpx rgba(0,0,0,0.05);
+/* =====================
+历史列表
+===================== */
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
 }
 
-.history-index{
-  display:block;
-  font-size:24rpx;
-  color:#7b3ee6;
-  margin-bottom:12rpx;
+/* =====================
+历史卡片
+===================== */
+.history-card {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    #f5f1fa,
+    #ffffff
+  );
+  border-radius: 24rpx;
+  padding: 30rpx;
+  box-shadow: 0 8rpx 25rpx rgba(0, 0, 0, .08);
+  border: 1rpx solid #eee;
 }
 
-.history-text{
-  display:block;
-  font-size:30rpx;
-  color:#513068;
-  line-height:1.5;
+.history-index {
+  display: block;
+  font-size: 24rpx;
+  color: #998ca8;
+  margin-bottom: 14rpx;
 }
 
-.empty{
-  text-align:center;
-  padding:80rpx 0;
-  color:#999;
-  font-size:28rpx;
+.history-text {
+  display: block;
+  font-size: 34rpx;
+  color: #333;
+  line-height: 1.6;
+  word-break: break-all;
 }
 
-.clear-btn{
-  margin-top:50rpx;
-  background:#e85d75;
-  color:#fff;
-  border-radius:50rpx;
-  font-size:28rpx;
+.history-time {
+  display: block;
+  margin-top: 16rpx;
+  font-size: 22rpx;
+  color: #999;
 }
 
-.back-btn{
-  margin-top:20rpx;
-  background:#fff;
-  color:#513068;
-  border:1rpx solid #513068;
-  border-radius:50rpx;
-  font-size:28rpx;
+/* =====================
+空状态
+===================== */
+.empty {
+  text-align: center;
+  margin-top: 200rpx;
+  color: #999;
+  font-size: 30rpx;
+}
+
+/* =====================
+按钮
+===================== */
+.clear-btn {
+  margin-top: 40rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 40rpx;
+  background: #d98f9b;
+  color: #fff;
+  font-size: 28rpx;
+}
+
+.back-btn {
+  margin-top: 20rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 40rpx;
+  background: #ddd;
+  color: #444;
+  font-size: 28rpx;
+}
+
+button::after {
+  border: none;
 }
