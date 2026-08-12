@@ -284,6 +284,85 @@ page {
   );
 }
 
+.free-btn{
+  margin-top:20rpx;
+  background:#d8b4fe;
+  color:#333;
+  }
+
+/* 自由模式遮罩 */
+
+.free-mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, .55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+/* 弹窗 */
+
+.free-dialog {
+  width: 78%;
+  background: white;
+  border-radius: 35rpx;
+  padding: 40rpx;
+}
+
+.free-title {
+  display: block;
+  text-align: center;
+  font-size: 38rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.free-tip {
+  display: block;
+  text-align: center;
+  margin: 20rpx;
+  color: #888;
+}
+
+/* 分类按钮 */
+
+.free-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+}
+
+.free-item {
+  width: 42%;
+  padding: 22rpx 10rpx;
+  text-align: center;
+  background: #f3f0f8;
+  border-radius: 30rpx;
+  color: #555;
+}
+
+.free-item.active {
+  background: #8b5cf6;
+  color: white;
+}
+
+.free-start {
+  margin-top: 35rpx;
+  background: #8b5cf6;
+  color: white;
+  border-radius: 40rpx;
+}
+
+.free-cancel {
+  margin-top: 15rpx;
+  border-radius: 40rpx;
+}
+  
 /* =====================
 结果
 ===================== */
@@ -489,3 +568,17 @@ button::after {
   background:#999;
   color:#fff!important;
  }
+.achievement-btn { background: #e8c879; color: #5d4820; }
+.achievement-modal { position: fixed; inset: 0; z-index: 1001; display: flex; align-items: center; justify-content: center; overflow: hidden; background: rgba(20, 15, 35, .72); }
+.achievement-modal-card { position: relative; z-index: 2; width: 68%; padding: 54rpx 38rpx 38rpx; text-align: center; background: linear-gradient(145deg, #fffdf4, #f3e8c7); border: 4rpx solid #f4cf63; border-radius: 34rpx; box-shadow: 0 0 48rpx rgba(255, 214, 91, .7); animation: achievement-pop .35s ease-out; }
+.achievement-unlocked, .achievement-modal-icon, .achievement-modal-name, .achievement-modal-desc { display: block; }
+.achievement-unlocked { color: #a86a12; font-size: 30rpx; font-weight: 800; letter-spacing: 5rpx; }
+.achievement-modal-icon { margin: 20rpx 0 10rpx; font-size: 100rpx; }
+.achievement-modal-name { color: #49351b; font-size: 38rpx; font-weight: 800; }
+.achievement-modal-desc { margin-top: 14rpx; color: #80673e; font-size: 27rpx; }
+.achievement-close-btn { margin-top: 34rpx; color: #fff; font-weight: 700; background: #bd8c2c; border-radius: 40rpx; }
+.fireworks { position: absolute; inset: 0; }
+.firework { position: absolute; color: #ffd45a; font-size: 82rpx; text-shadow: 0 0 22rpx #ff76b6; animation: firework 1.25s ease-in-out infinite; }
+.firework-one { top: 12%; left: 12%; }.firework-two { top: 10%; right: 13%; animation-delay: .25s; }.firework-three { bottom: 16%; left: 16%; animation-delay: .5s; }.firework-four { bottom: 18%; right: 14%; animation-delay: .75s; }
+@keyframes achievement-pop { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes firework { 0%,100% { transform: scale(.55) rotate(0); opacity: .35; } 50% { transform: scale(1.15) rotate(20deg); opacity: 1; } }

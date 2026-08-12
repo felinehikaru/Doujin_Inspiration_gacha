@@ -54,10 +54,45 @@
   <!-- 抽卡按钮 -->
   <view class="controls">
     <view class="btn-group">
-      <button class="btn btn-random" bindtap="spinRandom">完全随机</button>
-      <button class="btn btn-balanced" bindtap="spinBalanced">营养平衡</button>
+
+      <button class="btn btn-random" bindtap="spinRandom">
+        完全随机
+      </button>
+
+      <button class="btn btn-balanced" bindtap="spinBalanced">
+        营养平衡
+      </button>
     </view>
+
+    <button class="btn free-btn" bindtap="openFreeMode">
+       自由模式
+    </button>
+
   </view>
+
+<!-- 自由模式弹窗 -->
+
+<view wx:if="{{showFreeMode}}" class="free-mask">
+  <view class="free-dialog">
+    <text class="free-title"> 自由模式</text>
+    <text class="free-tip">选择想抽取的分类</text>
+
+    <view class="free-list">
+      <view
+        wx:for="{{freeCategories}}"
+        wx:key="value"
+        class="free-item {{item.checked?'active':''}}"
+        data-index="{{index}}"
+        bindtap="changeFreeCategory"
+      >
+        {{item.checked?'✓':'○'}} {{item.title}}
+      </view>
+    </view>
+
+    <button class="free-start" bindtap="spinFree">开始抽取</button>
+    <button class="free-cancel" bindtap="closeFreeMode">取消</button>
+  </view>
+</view>
 
   <!-- 抽卡结果 -->
   <view class="result-area" wx:if="{{results.length}}">
@@ -91,8 +126,25 @@
     <button class="record-btn history-btn" bindtap="openHistory">📜 历史</button>
     <button class="record-btn favorite-btn" bindtap="openFavorites">⭐ 我的</button>
     <button class="record-btn entries-btn" bindtap="openEntries">📚 词条</button>
+    <button class="record-btn achievement-btn" bindtap="openAchievements">🏅 成就</button>
   </view>
 
+
+  <view wx:if="{{showAchievementModal}}" class="achievement-modal" bindtap="closeAchievementModal">
+    <view class="fireworks">
+      <text class="firework firework-one">✦</text>
+      <text class="firework firework-two">✦</text>
+      <text class="firework firework-three">✦</text>
+      <text class="firework firework-four">✦</text>
+    </view>
+    <view class="achievement-modal-card" catchtap="noop">
+      <text class="achievement-unlocked">成就达成！</text>
+      <text class="achievement-modal-icon">{{unlockedAchievement.icon}}</text>
+      <text class="achievement-modal-name">{{unlockedAchievement.name}}</text>
+      <text class="achievement-modal-desc">{{unlockedAchievement.description}}</text>
+      <button class="achievement-close-btn" bindtap="closeAchievementModal">太棒了</button>
+    </view>
+  </view>
   <!-- 帮助弹窗 -->
   <view wx:if="{{showHelpModal}}" class="help-modal">
     <view class="help-modal-content">
@@ -114,7 +166,7 @@
 <!-- 分享选择 -->
 <view wx:if="{{showSharePanel}}" class="help-modal">
   <view class="help-modal-content">
-   
+
     <text class="help-modal-title">分享扭蛋结果</text>
 
     <button class="btn btn-share" bindtap="copyShareText">
@@ -122,14 +174,20 @@
     </button>
 
     <button class="btn btn-share" bindtap="createShareImage">
-      图片分享（待开发）
-    </button>
+  图片分享
+</button>
 
     <button class="btn btn-ghost" bindtap="closeSharePanel">
       取消
     </button>
   </view>
 </view>
+
+<canvas
+  type="2d"
+  id="shareCanvas"
+  style="width:750px;height:1000px;position:absolute;left:-9999px;"
+></canvas>
 
 <!-- 分享引导 -->
 <view class="share-guide">

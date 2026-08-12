@@ -1,0 +1,33 @@
+<view class="container">
+  <view class="intro">
+    <text class="title">成就收藏室</text>
+    <text class="subtitle">记录每一次灵感相遇</text>
+  </view>
+
+  <view class="section">
+    <text class="section-title">普通成就</text>
+    <view wx:for="{{normalAchievements}}" wx:key="id" class="achievement-card">
+      <text class="achievement-icon">{{item.icon}}</text>
+      <view class="achievement-info">
+        <text class="achievement-name">{{item.name}}</text>
+        <text class="achievement-desc">{{item.description}}</text>
+        <view class="progress-row">
+          <view class="progress-track"><view class="progress-fill" style="width:{{item.progressPercent}}%"></view></view>
+          <text class="progress-text">{{item.progressText}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <text class="section-title">隐藏成就</text>
+    <view wx:if="{{!hiddenAchievements.length}}" class="hidden-empty">尚未发现隐藏成就</view>
+    <view wx:for="{{hiddenAchievements}}" wx:key="id" class="achievement-card hidden-card">
+      <text class="achievement-icon">{{item.icon}}</text>
+      <view class="achievement-info">
+        <text class="achievement-name">{{item.name}}</text>
+        <text class="achievement-desc">{{item.description}}</text>
+      </view>
+    </view>
+  </view>
+</view>

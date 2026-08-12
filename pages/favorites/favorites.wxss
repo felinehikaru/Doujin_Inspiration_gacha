@@ -1,68 +1,128 @@
 /* pages/favorites/favorites.wxss */
 
-/* =====================
- 页面基础
-===================== */
 page {
-  background: #ffffff;
+  background: #fff;
 }
 
 .container {
   min-height: 100vh;
-  background: #ffffff;
+  background: #fff;
   padding: 30rpx;
 }
 
-/* =====================
-标题
-===================== */
-.title {
-  text-align: center;
-  margin-bottom: 35rpx;
+.title-row {
+  height: 70rpx;
+  display: flex;
+  align-items: center;
+  position: relative;
 }
 
+.title-left {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.title-actions {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 12rpx;
+}
+
+.detail-btn,
+.manage-btn {
+  width: 64rpx !important;
+  height: 44rpx;
+  line-height: 44rpx;
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 22rpx;
+  font-weight: normal;
+  color: #fff;
+  background: #9b8de8;
+  border-radius: 22rpx;
+}
+
+.manage-btn { background: #7d9fb3; }
+
 .title-text {
-  display: block;
-  font-size: 42rpx;
-  font-weight: 900;
-  color: #333;
+  font-size: 38rpx;
+  font-weight: bold;
+  color: #222;
+}
+
+button::after {
+  border: none;
 }
 
 .subtitle {
   display: block;
   margin-top: 10rpx;
+  text-align: center;
   font-size: 26rpx;
   color: #888;
 }
 
-/* =====================
-收藏列表
-===================== */
+.search-input {
+  margin-top: 20rpx;
+  height: 70rpx;
+  line-height: 70rpx;
+  padding: 0 24rpx;
+  background: #f7f7f7;
+  border-radius: 35rpx;
+  font-size: 28rpx;
+}
+
 .favorite-list {
   display: flex;
   flex-direction: column;
-  gap: 22rpx;
+  gap: 18rpx;
+  margin-top: 20rpx;
 }
 
-/* =====================
-收藏卡片
-===================== */
 .favorite-card {
+  position: relative;
   background: #fafafa;
   border-radius: 22rpx;
   padding: 24rpx;
   box-shadow: 0 6rpx 18rpx rgba(0, 0, 0, .08);
 }
 
-.favorite-text {
-  font-size: 32rpx;
-  color: #333;
-  line-height: 1.5;
+.entry-item {
+  margin-bottom: 10rpx;
+  padding-bottom: 10rpx;
 }
 
-/* =====================
-操作按钮
-===================== */
+.entry-title {
+  display: flex;
+  align-items: center;
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.entry-number {
+  color: #8b6cff;
+  margin-right: 10rpx;
+}
+
+.entry-desc {
+  margin-top: 6rpx;
+  padding-left: 38rpx;
+  font-size: 26rpx;
+  color: #666;
+}
+
+.entry-category {
+  margin-top: 4rpx;
+  padding-left: 38rpx;
+  font-size: 26rpx;
+  color: #8b6cff;
+}
+
 .favorite-actions {
   margin-top: 20rpx;
   display: flex;
@@ -94,30 +154,14 @@ page {
   background: #d98f9b;
 }
 
-/* =====================
-空状态
-===================== */
 .empty {
   text-align: center;
   margin-top: 200rpx;
   color: #999;
   font-size: 30rpx;
 }
-
-button::after {
-  border: none;
-}
-
-/* 小屏 */
-@media(max-width: 360px) {
-  .favorite-text {
-    font-size: 28rpx;
-  }
-
-  .copy-btn,
-  .prompt-btn,
-  .delete-btn {
-    font-size: 24rpx;
-    padding: 0 20rpx;
-  }
-}
+.favorite-card.selected { background: #f2edff; box-shadow: 0 0 0 3rpx #9b8de8; }
+.selection-mark { position: absolute; top: 20rpx; right: 20rpx; width: 38rpx; height: 38rpx; line-height: 38rpx; text-align: center; color: #fff; font-size: 26rpx; font-weight: bold; background: #fff; border: 2rpx solid #9b8de8; border-radius: 50%; }
+.favorite-card.selected .selection-mark { background: #9b8de8; }
+.manage-bar { position: fixed; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: space-between; padding: 20rpx 30rpx calc(20rpx + env(safe-area-inset-bottom)); color: #444; background: #fff; box-shadow: 0 -6rpx 18rpx rgba(0, 0, 0, .1); z-index: 10; }
+.batch-delete-btn { margin: 0; padding: 0 34rpx; height: 68rpx; line-height: 68rpx; border-radius: 34rpx; color: #fff; font-size: 28rpx; background: #d98f9b; }

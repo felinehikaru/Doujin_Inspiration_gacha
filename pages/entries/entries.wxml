@@ -14,39 +14,23 @@
     📖 查看全部词条
   </button>
 
-  <button
-    wx:if="{{role==='admin'||role==='maintainer'}}"
-    class="main-btn"
-    bindtap="goAudit"
-  >
+  <button wx:if="{{role==='admin'||role==='maintainer'}}" class="main-btn" bindtap="goAudit">
     🛠 词条审核
   </button>
 
   <!-- 浏览区域 -->
   <view wx:if="{{showList}}" class="entry-area">
     <!-- 搜索 -->
-    <input
-      class="search"
-      placeholder="搜索词条"
-      bindinput="onSearch"
-    />
+    <input class="search" placeholder="搜索词条" bindinput="onSearch" />
 
     <!-- 搜索结果 -->
     <view wx:if="{{isSearching}}">
-      <view
-        wx:for="{{searchGroups}}"
-        wx:key="category"
-        class="search-group"
-      >
+      <view wx:for="{{searchGroups}}" wx:key="category" class="search-group">
         <view class="category-title">
           {{item.title}}
         </view>
 
-        <view
-          wx:for="{{item.list}}"
-          wx:key="_id"
-          class="entry-card"
-        >
+        <view wx:for="{{item.list}}" wx:key="_id" class="entry-card">
           <text class="entry-name">
             {{item.text}}
           </text>
@@ -61,31 +45,18 @@
     <view wx:else>
       <!-- 六分类标签 -->
       <view class="tabs">
-        <view
-          wx:for="{{categoryList}}"
-          wx:key="category"
-          class="tab {{currentCategory===item.category?'active':''}}"
-          data-category="{{item.category}}"
-          bindtap="changeCategory"
-        >
+        <view wx:for="{{categoryList}}" wx:key="category" class="tab {{currentCategory===item.category?'active':''}}" data-category="{{item.category}}" bindtap="changeCategory">
           {{item.title}}
         </view>
       </view>
 
       <!-- 当前分类 -->
       <view class="entry-list">
-        <view
-          wx:if="{{!currentList.length}}"
-          class="empty-tip"
-        >
+        <view wx:if="{{!currentList.length}}" class="empty-tip">
           暂无词条
         </view>
 
-        <view
-          wx:for="{{currentList}}"
-          wx:key="_id"
-          class="entry-card"
-        >
+        <view wx:for="{{currentList}}" wx:key="_id" class="entry-card">
           <text class="entry-name">
             {{item.text}}
           </text>
@@ -104,48 +75,51 @@
         📤 投稿新词条
       </text>
 
-      <input
-        class="upload-input"
-        placeholder="词条名称"
-        maxlength="30"
-        bindinput="onTextInput"
-      />
+      <input class="upload-input" 
+      placeholder="词条名称" 
+      maxlength="30" 
+      bindinput="onTextInput" />
 
-      <textarea
-        class="upload-textarea"
-        placeholder="词条描述"
-        maxlength="300"
-        bindinput="onDescInput"
-      />
+      <!-- 相似词条检测 -->
 
-      <picker
-        mode="selector"
-        range="{{categoryOptions}}"
-        range-key="label"
-        bindchange="onCategoryChange"
-      >
+      <view wx:if="{{showSimilar}}" class="similar-box">
+        <text class="similar-title">⚠️ 发现相似词条，请确认</text>
+
+        <view wx:for="{{similarEntries}}" 
+        wx:key="_id" 
+        class="similar-item" 
+        data-index="{{index}}" 
+        bindtap="chooseSimilar">
+
+          <text class="similar-name">{{item.text}}</text>
+          <text class="similar-desc">{{item.desc}}</text>
+        </view>
+      </view>
+
+      <textarea 
+      class="upload-textarea" 
+      placeholder="词条描述" 
+      maxlength="300" 
+      bindinput="onDescInput" />
+
+      <picker 
+      mode="selector" 
+      range="{{categoryOptions}}" 
+      range-key="label" 
+      bindchange="onCategoryChange">
+      
         <view class="picker">
           {{uploadCategoryLabel||"请选择分类"}}
         </view>
       </picker>
 
-      <input
-        class="upload-input"
-        placeholder="标签（逗号分隔）"
-        bindinput="onTagsInput"
-      />
+      <input class="upload-input" placeholder="标签（逗号分隔）" bindinput="onTagsInput" />
 
-      <button
-        class="submit-btn"
-        bindtap="submitEntry"
-      >
+      <button class="submit-btn" bindtap="submitEntry">
         提交审核
       </button>
 
-      <button
-        class="cancel-btn"
-        bindtap="closeUpload"
-      >
+      <button class="cancel-btn" bindtap="closeUpload">
         取消
       </button>
     </view>

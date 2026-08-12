@@ -6,8 +6,10 @@
     "pages/prompt/prompt",
     "pages/admin/admin",
     "pages/history/history",
-    "pages/favorites/favorites"
+    "pages/favorites/favorites",
+    "pages/achievements/achievements"
   ],
+
   "window": {
     "navigationBarTitleText": "同人梗扭蛋机",
     "navigationBarBackgroundColor": "#7a6ff0",

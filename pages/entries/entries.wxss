@@ -85,25 +85,26 @@
 
 .entry-card {
   background: white;
-  border-radius: 24rpx;
-  padding: 30rpx;
-  margin-bottom: 22rpx;
-  box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.08);
+  border-radius: 16rpx;
+  padding: 14rpx 18rpx;
+  margin-bottom: 12rpx;
+  box-shadow: 0 3rpx 8rpx rgba(0, 0, 0, 0.05);
 }
 
 .entry-name {
   display: block;
-  font-size: 32rpx;
+  font-size: 30rpx;
   font-weight: bold;
   color: #222;
+  line-height: 1.2;
 }
 
 .entry-desc {
   display: block;
-  margin-top: 15rpx;
-  font-size: 28rpx;
+  margin-top: 5rpx;
+  font-size: 25rpx;
   color: #666;
-  line-height: 1.6;
+  line-height: 1.35;
 }
 
 .empty {
@@ -127,6 +128,8 @@
 
 .modal-box {
   width: 82%;
+  max-height: 85vh;
+  overflow-y: auto;
   background: white;
   border-radius: 30rpx;
   padding: 40rpx;
@@ -198,3 +201,61 @@
   color:#999;
   padding:30rpx;
  }
+
+ .entry-area{
+  position:relative;
+  z-index:1;
+}
+
+.modal {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* =====================
+   投稿重复检测提示
+===================== */
+
+.similar-box {
+  background: #fff7ed;
+  border-radius: 20rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.similar-title {
+  display: block;
+  color: #d97706;
+  font-size: 28rpx;
+  font-weight: bold;
+  margin-bottom: 15rpx;
+}
+
+.similar-item {
+  background: white;
+  border-radius: 15rpx;
+  padding: 15rpx;
+  margin-top: 10rpx;
+}
+
+.similar-name {
+  display: block;
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.similar-desc {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.5;
+}

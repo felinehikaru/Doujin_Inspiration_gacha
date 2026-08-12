@@ -1,0 +1,118 @@
+page {
+  background: #f7f4ff;
+}
+
+.container {
+  min-height: 100vh;
+  padding: 36rpx 30rpx 70rpx;
+  box-sizing: border-box;
+}
+
+.intro {
+  padding: 22rpx 8rpx 42rpx;
+  text-align: center;
+}
+
+.title {
+  display: block;
+  font-size: 46rpx;
+  font-weight: 800;
+  color: #393051;
+}
+
+.subtitle {
+  display: block;
+  margin-top: 12rpx;
+  color: #8e849e;
+  font-size: 26rpx;
+}
+
+.section {
+  margin-bottom: 42rpx;
+}
+
+.section-title {
+  display: block;
+  margin: 0 0 18rpx 8rpx;
+  color: #554a68;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.achievement-card {
+  display: flex;
+  align-items: center;
+  margin-bottom: 18rpx;
+  padding: 26rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  box-shadow: 0 8rpx 22rpx rgba(91, 74, 120, .08);
+}
+
+.hidden-card {
+  background: linear-gradient(135deg, #f4f0ff, #fff);
+}
+
+.achievement-icon {
+  width: 90rpx;
+  margin-right: 22rpx;
+  font-size: 58rpx;
+  text-align: center;
+}
+
+.achievement-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.achievement-name,
+.achievement-desc {
+  display: block;
+}
+
+.achievement-name {
+  color: #373041;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.achievement-desc {
+  margin-top: 8rpx;
+  color: #877d90;
+  font-size: 25rpx;
+}
+
+.progress-row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  margin-top: 20rpx;
+}
+
+.progress-track {
+  flex: 1;
+  height: 12rpx;
+  overflow: hidden;
+  background: #eee8f5;
+  border-radius: 20rpx;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #8c7be7, #d584b0);
+  border-radius: inherit;
+}
+
+.progress-text {
+  color: #766a83;
+  font-size: 22rpx;
+}
+
+.hidden-empty {
+  padding: 42rpx;
+  color: #9a91a6;
+  text-align: center;
+  font-size: 26rpx;
+  background: rgba(255, 255, 255, .55);
+  border-radius: 22rpx;
+}

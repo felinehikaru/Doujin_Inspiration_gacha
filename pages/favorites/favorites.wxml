@@ -2,35 +2,64 @@
 
 <view class="container">
   <view class="title">
-    <text class="title-text">⭐ 我的收藏</text>
+    <view class="title-row">
+      <view class="title-left">
+        <text>⭐</text>
+        <text class="title-text">我的收藏</text>
+      </view>
+
+      <view class="title-actions">
+        <button class="detail-btn" bindtap="toggleDetail">{{showDetail ? "收起" : "详情"}}</button>
+        <button class="manage-btn" bindtap="toggleManage">{{isManaging ? "完成" : "管理"}}</button>
+      </view>
+    </view>
+
     <text class="subtitle">保存喜欢的灵感组合</text>
+
+    <input
+      class="search-input"
+      placeholder="搜索收藏词条或描述..."
+      value="{{searchKeyword}}"
+      bindinput="onSearchInput"
+    />
   </view>
 
   <view class="favorite-list">
-    <view wx:if="{{!favorites.length}}" class="empty">
-      暂无收藏组合
+    <view wx:if="{{!displayFavorites.length}}" class="empty">
+      暂无匹配收藏
     </view>
 
-    <view wx:for="{{favorites}}" wx:key="index" class="favorite-card">
-      <view class="favorite-text">
-        <text>{{item.text || item}}</text>
+    <view wx:for="{{displayFavorites}}" wx:key="clientKey" class="favorite-card {{item.isSelected ? 'selected' : ''}}" data-key="{{item.clientKey}}" bindtap="toggleSelect">
+      <view wx:if="{{isManaging}}" class="selection-mark">{{item.isSelected ? "✓" : ""}}</view>
+      <view class="favorite-entries">
+        <block wx:for="{{item.entries}}" wx:key="index">
+          <view class="entry-item">
+            <view class="entry-title">
+              <text class="entry-number">{{index + 1}}.</text>
+              <text>{{item.text}}</text>
+            </view>
+
+            <view wx:if="{{showDetail}}" class="entry-desc">
+              {{item.desc}}
+            </view>
+
+            <view wx:if="{{showDetail}}" class="entry-category">
+              分类：{{item.categoryName}}
+            </view>
+          </view>
+        </block>
       </view>
 
-      <view class="favorite-actions">
-
-        <button class="copy-btn" 
-        data-index="{{index}}" 
-        bindtap="copyFavorite">复制</button>
-
-        <button class="prompt-btn" 
-        data-index="{{index}}" 
-        bindtap="createPrompt">提示词模板</button>
-
-        <button class="delete-btn" 
-        data-index="{{index}}" 
-        bindtap="deleteFavorite">删除</button>
-
+      <view wx:if="{{!isManaging}}" class="favorite-actions">
+        <button class="copy-btn" data-index="{{index}}" bindtap="copyFavorite">复制</button>
+        <button class="prompt-btn" data-index="{{index}}" bindtap="createPrompt">提示词模板</button>
+        <button class="delete-btn" data-index="{{index}}" bindtap="deleteFavorite">删除</button>
       </view>
     </view>
+  </view>
+
+  <view wx:if="{{isManaging}}" class="manage-bar">
+    <text>已选 {{selectedKeys.length}} 个</text>
+    <button class="batch-delete-btn" bindtap="deleteSelected">删除所选</button>
   </view>
 </view>
