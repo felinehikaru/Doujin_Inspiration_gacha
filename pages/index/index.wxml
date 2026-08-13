@@ -8,7 +8,7 @@
 
   <!-- 标题 -->
   <view class="title">
-    <text class="title-text">🎲 同人梗扭蛋机</text>
+    <text class="title-text">灵感扭蛋机</text>
     <text class="subtitle">摇出你的故事灵感</text>
   </view>
 
@@ -65,34 +65,28 @@
     </view>
 
     <button class="btn free-btn" bindtap="openFreeMode">
-       自由模式
+      自由模式
     </button>
 
   </view>
 
-<!-- 自由模式弹窗 -->
+  <!-- 自由模式弹窗 -->
 
-<view wx:if="{{showFreeMode}}" class="free-mask">
-  <view class="free-dialog">
-    <text class="free-title"> 自由模式</text>
-    <text class="free-tip">选择想抽取的分类</text>
+  <view wx:if="{{showFreeMode}}" class="free-mask">
+    <view class="free-dialog">
+      <text class="free-title"> 自由模式</text>
+      <text class="free-tip">选择想抽取的分类</text>
 
-    <view class="free-list">
-      <view
-        wx:for="{{freeCategories}}"
-        wx:key="value"
-        class="free-item {{item.checked?'active':''}}"
-        data-index="{{index}}"
-        bindtap="changeFreeCategory"
-      >
-        {{item.checked?'✓':'○'}} {{item.title}}
+      <view class="free-list">
+        <view wx:for="{{freeCategories}}" wx:key="value" class="free-item {{item.checked?'active':''}}" data-index="{{index}}" bindtap="changeFreeCategory">
+          {{item.checked?'✓':'○'}} {{item.title}}
+        </view>
       </view>
-    </view>
 
-    <button class="free-start" bindtap="spinFree">开始抽取</button>
-    <button class="free-cancel" bindtap="closeFreeMode">取消</button>
+      <button class="free-start" bindtap="spinFree">开始抽取</button>
+      <button class="free-cancel" bindtap="closeFreeMode">取消</button>
+    </view>
   </view>
-</view>
 
   <!-- 抽卡结果 -->
   <view class="result-area" wx:if="{{results.length}}">
@@ -123,10 +117,22 @@
 
   <!-- 底部入口 -->
   <view class="record-entry">
-    <button class="record-btn history-btn" bindtap="openHistory">📜 历史</button>
-    <button class="record-btn favorite-btn" bindtap="openFavorites">⭐ 我的</button>
-    <button class="record-btn entries-btn" bindtap="openEntries">📚 词条</button>
-    <button class="record-btn achievement-btn" bindtap="openAchievements">🏅 成就</button>
+
+    <view class="record-row">
+      <button class="record-btn history-btn" bindtap="openHistory">
+        📜 历史</button>
+
+      <button class="record-btn favorite-btn" bindtap="openFavorites">
+        ⭐ 收藏</button>
+    </view>
+
+    <view class="record-row">
+      <button class="record-btn entries-btn" bindtap="openEntries">
+        📚 词条中心</button>
+
+      <button class="record-btn achievement-btn" bindtap="openAchievements">
+        🏅 成就</button>
+    </view>
   </view>
 
 
@@ -174,8 +180,8 @@
     </button>
 
     <button class="btn btn-share" bindtap="createShareImage">
-  图片分享
-</button>
+      图片分享
+    </button>
 
     <button class="btn btn-ghost" bindtap="closeSharePanel">
       取消
@@ -183,11 +189,7 @@
   </view>
 </view>
 
-<canvas
-  type="2d"
-  id="shareCanvas"
-  style="width:750px;height:1000px;position:absolute;left:-9999px;"
-></canvas>
+<canvas type="2d" id="shareCanvas" style="width:750px;height:1000px;position:absolute;left:-9999px;"></canvas>
 
 <!-- 分享引导 -->
 <view class="share-guide">

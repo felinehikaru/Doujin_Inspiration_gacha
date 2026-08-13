@@ -2,6 +2,7 @@
 
 const localOfficialEntries = require("./utils/entries.js");
 const localUserEntries = require("./utils/user_entries.js");
+const versions = require("./utils/version.js");
 
 App({
   globalData: {
@@ -31,10 +32,11 @@ App({
     cloudOfficialEntries: [],
     cloudUserEntries: [],
 
-    // =====================
-    // 版本
-    // =====================
-    entryVersion: 0,
+    // 官方词库版本
+officialVersion:"1.00.000",
+
+// 用户词库版本
+userVersion:"1.00.000",
 
     // 网络
     online: false
@@ -86,7 +88,16 @@ App({
       console.log("初始化用户词库:", localUserEntries.length);
     }
 
-    this.globalData.entryVersion = wx.getStorageSync("entryVersion") || 0;
+    this.globalData.officialVersion =
+wx.getStorageSync("officialVersion")
+||
+versions.officialVersion;
+
+
+this.globalData.userVersion =
+wx.getStorageSync("userVersion")
+||
+versions.userVersion;
   },
 
   // =====================

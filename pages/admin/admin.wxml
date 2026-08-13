@@ -1,57 +1,112 @@
+<!-- pages/admin/admin.wxml -->
+
 <view class="container">
-
-<view class="header">
-  <text class="title">📋 词条审核</text>
-  <text class="count">待审核：{{pendingList.length}} 条</text>
-</view>
-
-<view wx:for="{{pendingList}}" wx:key="_id" class="entry-card">
-
-  <view class="entry-info">
-    <text class="entry-text">{{item.text}}</text>
-    <text class="entry-category">
-      分类：{{item.category}}
+  <!-- 标题 -->
+  <view class="header">
+    <text class="title">
+      📋 词条审核
+    </text>
+    <text class="count">
+      待审核：{{pendingList.length}} 条
     </text>
   </view>
 
-  <text class="entry-desc">
-    {{item.desc}}
-  </text>
+  <!-- 投稿列表 -->
+  <view wx:for="{{pendingList}}" wx:key="_id" class="entry-card">
+    <view class="entry-info">
+      <text class="entry-text">
+        {{item.text}}
+      </text>
+      <text class="entry-category">
+        分类：{{item.categoryName}}
+      </text>
+    </view>
 
-  <view class="entry-tags" wx:if="{{item.tags && item.tags.length}}">
-    <text class="tag" wx:for="{{item.tags}}" wx:key="index">
-      #{{item}}
+    <text class="entry-desc">
+      {{item.desc}}
+    </text>
+
+    <!-- 标签 -->
+    <view class="entry-tags" wx:if="{{item.tags && item.tags.length}}">
+      <text class="tag" wx:for="{{item.tags}}" wx:key="index">
+        #{{item}}
+      </text>
+    </view>
+
+    <!-- 时间 -->
+    <text class="entry-time" wx:if="{{item.submitTimeText}}">
+      提交时间：
+      {{item.submitTimeText}}
+    </text>
+
+    <!-- 操作按钮 -->
+    <view class="entry-actions">
+      <button class="btn-edit" bindtap="editEntry" data-item="{{item}}">
+        ✏️ 编辑
+      </button>
+
+      <button class="btn-approve" bindtap="approveEntry" data-id="{{item._id}}" disabled="{{loading}}">
+        ✅ 通过
+      </button>
+
+      <button class="btn-reject" bindtap="rejectEntry" data-id="{{item._id}}" disabled="{{loading}}">
+        ❌ 拒绝
+      </button>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:if="{{pendingList.length===0}}" class="empty">
+    <text>
+      🎉 暂无待审核词条
     </text>
   </view>
 
-  <text class="entry-time" wx:if="{{item.submitTimeText}}">
-  提交时间：{{item.submitTimeText}}
-</text>
+  <!-- 编辑弹窗 -->
+  <view wx:if="{{showEdit}}" class="edit-mask">
+    <view class="edit-panel">
+      <text class="edit-title">
+        编辑投稿词条
+      </text>
 
-  <view class="entry-actions">
+      <!-- 名称 -->
+      <text class="edit-label">
+        词条名称
+      </text>
+      <input class="edit-input" value="{{editText}}" bindinput="onEditText" placeholder="请输入词条名称" />
 
-    <button
-      class="btn-approve"
-      bindtap="approveEntry"
-      data-id="{{item._id}}"
-      disabled="{{loading}}">
-      ✅ 通过
-    </button>
+      <!-- 分类 -->
+      <text class="edit-label">
+        分类
+      </text>
+      <picker mode="selector" range="{{categoryList}}" range-key="name" bindchange="onCategoryChange">
+        <view class="category-picker">
+          {{editCategoryName || "请选择分类"}}
+        </view>
+      </picker>
 
-    <button
-      class="btn-reject"
-      bindtap="rejectEntry"
-      data-id="{{item._id}}"
-      disabled="{{loading}}">
-      ❌ 拒绝
-    </button>
+      <!-- 描述 -->
+      <text class="edit-label">
+        描述
+      </text>
+      <textarea class="edit-textarea" value="{{editDesc}}" bindinput="onEditDesc" placeholder="请输入描述" />
 
+      <!-- 标签 -->
+      <text class="edit-label">
+        标签（英文逗号分隔）
+      </text>
+      <input class="edit-input" value="{{editTags}}" bindinput="onEditTags" placeholder="例如：校园,幻想,能力" />
+
+      <!-- 操作 -->
+      <view class="edit-actions">
+        <button class="cancel-btn" bindtap="closeEdit">
+          取消
+        </button>
+
+        <button class="save-btn" bindtap="saveEdit">
+          保存
+        </button>
+      </view>
+    </view>
   </view>
-
-</view>
-
-<view wx:if="{{pendingList.length===0}}" class="empty">
-  <text>🎉 暂无待审核词条</text>
-</view>
-
 </view>

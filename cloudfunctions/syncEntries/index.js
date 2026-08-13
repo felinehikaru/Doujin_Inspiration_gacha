@@ -8,26 +8,46 @@ const db = cloud.database();
 
 exports.main = async () => {
   try {
-    let version = 1;
+    // =====================
+    // 默认版本
+    // =====================
+    let officialVersion = "1.00.000";
+    let userVersion = "1.00.000";
 
     // =====================
-    // 获取词库版本
+    // 获取官方词库版本
+    // system_config / official_version
     // =====================
     try {
-      const versionRes = await db.collection("system_config")
-        .doc("entries_version")
+      const officialVersionRes = await db.collection("system_config")
+        .doc("official_version")
         .get();
 
-      if (versionRes.data) {
-        version = versionRes.data.version || 1;
+      if (officialVersionRes.data && officialVersionRes.data.version) {
+        officialVersion = officialVersionRes.data.version;
       }
     } catch (e) {
-      console.log("版本不存在，默认1");
+      console.log("官方词库版本不存在，使用默认版本");
     }
 
     // =====================
-    // 官方词库
-    // entries
+    // 获取用户词库版本
+    // system_config / user_version
+    // =====================
+    try {
+      const userVersionRes = await db.collection("system_config")
+        .doc("user_version")
+        .get();
+
+      if (userVersionRes.data && userVersionRes.data.version) {
+        userVersion = userVersionRes.data.version;
+      }
+    } catch (e) {
+      console.log("用户词库版本不存在，使用默认版本");
+    }
+
+    // =====================
+    // 官方词库 entries
     // =====================
     const officialRes = await db.collection("entries")
       .orderBy("id", "asc")
@@ -35,8 +55,7 @@ exports.main = async () => {
       .get();
 
     // =====================
-    // 用户词库
-    // user_entries
+    // 用户词库 user_entries
     // =====================
     const userRes = await db.collection("user_entries")
       .orderBy("createTime", "desc")
@@ -44,11 +63,12 @@ exports.main = async () => {
       .get();
 
     // =====================
-    // 返回分离数据
+    // 返回数据
     // =====================
     return {
       success: true,
-      version: version,
+      officialVersion: officialVersion,
+      userVersion: userVersion,
       updateTime: Date.now(),
       officialEntries: officialRes.data || [],
       userEntries: userRes.data.map(item => {
@@ -64,7 +84,6 @@ exports.main = async () => {
     };
   } catch (err) {
     console.error(err);
-
     return {
       success: false,
       message: err.message
