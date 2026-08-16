@@ -1,5 +1,4 @@
 <!-- pages/prompt/prompt.wxml -->
-
 <view class="container">
   <view class="title">
     <text class="title-text">提示词模板</text>
@@ -9,17 +8,29 @@
   <!-- 完整可编辑提示词 -->
   <view class="prompt-card">
     <textarea
-      class="prompt-editor"
-      value="{{prompt}}"
-      bindinput="onPromptInput"
-      auto-height="true"
-    />
+  class="prompt-input"
+  value="{{prompt}}"
+  bindinput="onPromptInput"
+  maxlength="-1"
+  cursor-spacing="20"
+/>
   </view>
 
   <!-- 操作按钮 -->
   <view class="button-area">
-    <button class="btn save-btn" bindtap="savePrompt">保存修改</button>
-    <button class="btn copy-btn" bindtap="copyPrompt">一键复制</button>
-    <button class="btn back-btn" bindtap="goBack">返回</button>
+    <button
+      class="btn save-btn"
+      bindtap="savePrompt"
+    >保存修改</button>
+
+    <button
+      class="btn copy-btn"
+      bindtap="copyPrompt"
+    >一键复制</button>
+
+    <button
+      class="btn back-btn"
+      bindtap="goBack"
+    >返回</button>
   </view>
 </view>

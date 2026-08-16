@@ -11,6 +11,18 @@ exports.main = async (event, context) => {
     const openid = cloud.getWXContext().OPENID;
 
     // =====================
+    // 检查openid
+    // =====================
+    if (!openid) {
+      return {
+        success: false,
+        data: null,
+        message: "未获取用户身份",
+        code: "NO_OPENID"
+      };
+    }
+
+    // =====================
     // 权限检查
     // admin / maintainer
     // =====================
@@ -29,7 +41,9 @@ exports.main = async (event, context) => {
     ) {
       return {
         success: false,
-        message: "无修改权限"
+        data: null,
+        message: "无修改权限",
+        code: "NO_PERMISSION"
       };
     }
 
@@ -41,10 +55,15 @@ exports.main = async (event, context) => {
       tags
     } = event;
 
+    // =====================
+    // 参数检查
+    // =====================
     if (!entryId) {
       return {
         success: false,
-        message: "缺少词条ID"
+        data: null,
+        message: "缺少词条ID",
+        code: "MISSING_ID"
       };
     }
 
@@ -58,7 +77,9 @@ exports.main = async (event, context) => {
     if (!entryRes.data) {
       return {
         success: false,
-        message: "投稿词条不存在"
+        data: null,
+        message: "投稿词条不存在",
+        code: "NOT_FOUND"
       };
     }
 
@@ -86,14 +107,18 @@ exports.main = async (event, context) => {
 
     return {
       success: true,
+      data: null,
       message: "修改成功"
     };
+
   } catch (err) {
-    console.error(err);
+    console.error("updatePendingEntry错误:", err);
 
     return {
       success: false,
-      message: err.message
+      data: null,
+      message: err.message || "修改失败",
+      code: "SERVER_ERROR"
     };
   }
 };

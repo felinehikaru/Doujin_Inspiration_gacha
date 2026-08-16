@@ -135,92 +135,81 @@ Page({
   // 云端用户 user_entries
   // =====================
 
-  async syncEntriesFromCloud() {
-    if (!app.globalData.online) {
-      console.log("离线模式，不同步词库");
+// =====================
+// 云端同步词库
+// =====================
+async syncEntriesFromCloud() {
+  try {
+    const res = await wx.cloud.callFunction({
+      name: "syncEntries"
+    });
+
+    if (!res.result || !res.result.success) {
+      console.log(
+        "词库同步失败:",
+        res.result?.message || "未知错误"
+      );
       return;
     }
 
-    try {
-      const res = await wx.cloud.callFunction({
-        name: "syncEntries"
-      });
+    // =====================
+    // 兼容统一返回格式
+    // =====================
+    const data = res.result.data || res.result;
 
-      if (res.result && res.result.success) {
-        const official = res.result.officialEntries || [];
-        const user = res.result.userEntries || [];
+    const {
+      officialEntries,
+      userEntries,
+      officialVersion,
+      userVersion
+    } = data;
 
-        // =====================
-        // 获取本地版本
-        // =====================
-        const localOfficialVersion = wx.getStorageSync("officialVersion") || "1.00.000";
-        const localUserVersion = wx.getStorageSync("userVersion") || "1.00.000";
-
-        // 云端版本
-        const cloudOfficialVersion = res.result.officialVersion || "1.00.000";
-        const cloudUserVersion = res.result.userVersion || "1.00.000";
-
-        // =====================
-        // 在线数据
-        // =====================
-        app.globalData.cloudOfficialEntries = official;
-        app.globalData.cloudUserEntries = user;
-
-        // =====================
-        // 判断官方词库版本
-        // =====================
-        if (cloudOfficialVersion !== localOfficialVersion) {
-          console.log(
-            "官方词库更新:",
-            localOfficialVersion,
-            "→",
-            cloudOfficialVersion
-          );
-
-          wx.setStorageSync("localOfficialEntries", official);
-          wx.setStorageSync("officialVersion", cloudOfficialVersion);
-
-          app.globalData.localOfficialEntries = official;
-          app.globalData.officialVersion = cloudOfficialVersion;
-        } else {
-          console.log("官方词库版本一致，不更新");
-        }
-
-        // =====================
-        // 判断用户词库版本
-        // =====================
-        if (cloudUserVersion !== localUserVersion) {
-          console.log(
-            "用户词库更新:",
-            localUserVersion,
-            "→",
-            cloudUserVersion
-          );
-
-          wx.setStorageSync("localUserEntries", user);
-          wx.setStorageSync("userVersion", cloudUserVersion);
-
-          app.globalData.localUserEntries = user;
-          app.globalData.userVersion = cloudUserVersion;
-        } else {
-          console.log("用户词库版本一致，不更新");
-        }
-
-        // =====================
-        // 当前在线使用云端数据
-        // =====================
-        this.setData({
-          totalCount: official.length + user.length
-        });
-
-        console.log("官方词库:", official.length);
-        console.log("用户词库:", user.length);
-        console.log("总词条:", official.length + user.length);
-      }
-    } catch (err) {
-      console.log("词库同步失败", err);
+    if (
+      !Array.isArray(officialEntries) ||
+      !Array.isArray(userEntries)
+    ) {
+      console.log(
+        "同步数据格式错误"
+      );
+      return;
     }
-  },
+
+    // =====================
+    // 更新全局缓存
+    // =====================
+    const app = getApp();
+
+    app.updateLocalEntries({
+      officialEntries: officialEntries,
+      userEntries: userEntries,
+      officialVersion: officialVersion,
+      userVersion: userVersion
+    });
+
+    // =====================
+    // 更新页面数据
+    // =====================
+    this.setData({
+      totalCount:
+        officialEntries.length +
+        userEntries.length
+    });
+
+    console.log(
+      "词库同步完成",
+      "官方:",
+      officialEntries.length,
+      "用户:",
+      userEntries.length
+    );
+
+  } catch (err) {
+    console.error(
+      "同步词库失败:",
+      err
+    );
+  }
+},
 
   // =====================
   // 获取抽卡词库
@@ -239,22 +228,33 @@ Page({
   getEntries() {
     let official = [];
     let user = [];
-
-    // 在线
-    if (app.globalData.online) {
-      official = app.globalData.cloudOfficialEntries || [];
-      user = app.globalData.cloudUserEntries || [];
-    }
-    // 离线
-    else {
-      official = app.globalData.localOfficialEntries || [];
-      user = app.globalData.localUserEntries || [];
-    }
-
-    return [
+  
+    // 优先使用云同步后的缓存
+    official =
+      app.globalData.localOfficialEntries ||
+      app.globalData.cloudOfficialEntries ||
+      [];
+  
+    user =
+      app.globalData.localUserEntries ||
+      app.globalData.cloudUserEntries ||
+      [];
+  
+    const entries = [
       ...official,
       ...user
     ];
+  
+    console.log(
+      "当前抽卡词库:",
+      entries.length,
+      "官方:",
+      official.length,
+      "用户:",
+      user.length
+    );
+  
+    return entries;
   },
 
   // =====================
@@ -582,28 +582,42 @@ Page({
     const entries = this.data.results;
 
     // 游客本地收藏
-    if (this.data.role === "visitor") {
-      let favorites = wx.getStorageSync("favorites") || [];
+    
+if (this.data.role === "visitor") {
+  let favorites = wx.getStorageSync("favorites") || [];
 
-      favorites.unshift({
-        text: text,
-        entries: entries,
-        createTime: Date.now()
-      });
+  // =====================
+  // 防止重复收藏
+  // =====================
+  const exist = favorites.some(item => item.text === text);
 
-      if (favorites.length > 30) {
-        favorites = favorites.slice(0, 30);
-      }
+  if (exist) {
+    wx.showToast({
+      title: "已经收藏过了",
+      icon: "none"
+    });
+    return;
+  }
 
-      wx.setStorageSync("favorites", favorites);
+  favorites.unshift({
+    text: text,
+    entries: entries,
+    createTime: Date.now()
+  });
 
-      wx.showToast({
-        title: "已保存到本地",
-        icon: "success"
-      });
+  if (favorites.length > 30) {
+    favorites = favorites.slice(0, 30);
+  }
 
-      return;
-    }
+  wx.setStorageSync("favorites", favorites);
+
+  wx.showToast({
+    title: "已保存到本地",
+    icon: "success"
+  });
+
+  return;
+}
 
     // 登录用户云收藏
     try {

@@ -10,17 +10,40 @@ exports.main = async (event, context) => {
   try {
     const openid = cloud.getWXContext().OPENID;
 
+    // =====================
+    // 检查openid
+    // =====================
+    if (!openid) {
+      return {
+        success: false,
+        data: null,
+        message: "未获取用户身份",
+        code: "NO_OPENID"
+      };
+    }
+
+    // =====================
     // 权限检查
+    // admin / maintainer
+    // =====================
     const user = await db.collection('users')
       .where({
         openid: openid
       })
       .get();
 
-    if (user.data.length === 0 || (user.data[0].role !== "admin" && user.data[0].role !== "maintainer")) {
+    if (
+      user.data.length === 0 ||
+      (
+        user.data[0].role !== "admin" &&
+        user.data[0].role !== "maintainer"
+      )
+    ) {
       return {
         success: false,
-        message: "无审核权限"
+        data: null,
+        message: "无审核权限",
+        code: "NO_PERMISSION"
       };
     }
 
@@ -28,6 +51,15 @@ exports.main = async (event, context) => {
       entryId,
       action
     } = event;
+
+    if (!entryId) {
+      return {
+        success: false,
+        data: null,
+        message: "缺少词条ID",
+        code: "MISSING_ID"
+      };
+    }
 
     const res = await db.collection('pending_entries')
       .doc(entryId)
@@ -38,13 +70,24 @@ exports.main = async (event, context) => {
     if (!entry) {
       return {
         success: false,
-        message: "词条不存在"
+        data: null,
+        message: "词条不存在",
+        code: "NOT_FOUND"
       };
     }
 
-    console.log("审核操作:", action, "词条:", entry.text, "管理员:", openid);
+    console.log(
+      "审核操作:",
+      action,
+      "词条:",
+      entry.text,
+      "管理员:",
+      openid
+    );
 
-    //审核通过
+    // =====================
+    // 审核通过
+    // =====================
     if (action === "approve") {
       await db.collection('user_entries')
         .add({
@@ -55,7 +98,7 @@ exports.main = async (event, context) => {
             desc: entry.desc,
             tags: entry.tags || [],
             openid: entry.openid,
-            reviewerOpenid:openid,
+            reviewerOpenid: openid,
             createTime: entry.submitTime || new Date(),
             extend: {},
             meta: {}
@@ -68,11 +111,14 @@ exports.main = async (event, context) => {
 
       return {
         success: true,
+        data: null,
         message: "审核通过"
       };
     }
 
-    //拒绝
+    // =====================
+    // 拒绝
+    // =====================
     if (action === "reject") {
       await db.collection('pending_entries')
         .doc(entryId)
@@ -80,19 +126,29 @@ exports.main = async (event, context) => {
 
       return {
         success: true,
+        data: null,
         message: "已拒绝"
       };
     }
 
+    // =====================
+    // 未知操作
+    // =====================
     return {
       success: false,
-      message: "未知操作"
+      data: null,
+      message: "未知操作",
+      code: "INVALID_ACTION"
     };
+
   } catch (err) {
-    console.error(err);
+    console.error("approveEntry错误:", err);
+
     return {
       success: false,
-      message: err.message
+      data: null,
+      message: err.message || "审核失败",
+      code: "SERVER_ERROR"
     };
   }
 };
