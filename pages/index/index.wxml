@@ -18,9 +18,9 @@
   </button>
 
   <!-- 登录状态 -->
-  <view wx:if="{{role!=='visitor'}}" class="role-text">
-    当前身份：{{role}}
-  </view>
+  <text class="role-text">
+当前身份：{{role==="visitor"?"游客":role==="maintainer"?"维护者":role==="admin"?"管理员":"用户"}}
+</text>
 
   <!-- 扭蛋机主体 -->
   <view class="gacha-machine {{isShaking?'shaking':''}}">

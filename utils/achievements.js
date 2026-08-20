@@ -5,7 +5,7 @@ const achievements = [
     type: "normal",
     icon: "🏆",
     iconImage: "",
-    name: "千里之行始于足下",
+    name: "千里之行始于手下",
     description: "第一次摇动扭蛋机！",
     target: 1,
     progressKey: "drawCount"

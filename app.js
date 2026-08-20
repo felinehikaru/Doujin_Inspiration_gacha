@@ -81,11 +81,21 @@ userVersion:"1.00.000",
 
       console.log("读取用户缓存:", users.length);
     } else {
-      this.globalData.localUserEntries = localUserEntries;
-
-      wx.setStorageSync("localUserEntries", localUserEntries);
-
-      console.log("初始化用户词库:", localUserEntries.length);
+      const defaultUserEntries = Array.isArray(localUserEntries)
+        ? localUserEntries
+        : [];
+    
+      this.globalData.localUserEntries = defaultUserEntries;
+    
+      wx.setStorageSync(
+        "localUserEntries",
+        defaultUserEntries
+      );
+    
+      console.log(
+        "初始化用户词库:",
+        defaultUserEntries.length
+      );
     }
 
     this.globalData.officialVersion =
@@ -119,40 +129,49 @@ versions.userVersion;
     });
   },
 
-  // =====================
-  // 更新词库缓存
-  // =====================
-  updateLocalEntries(data) {
-    if (!data) {
-      return;
-    }
+// =====================
+// 更新词库缓存
+// =====================
+updateLocalEntries(data) {
+  if (!data) {
+    return;
+  }
 
-    if (Array.isArray(data.officialEntries)) {
-      wx.setStorageSync("localOfficialEntries", data.officialEntries);
+  // 官方词库
+  if (Array.isArray(data.officialEntries)) {
+    wx.setStorageSync("localOfficialEntries", data.officialEntries);
+    this.globalData.localOfficialEntries = data.officialEntries;
+  }
 
-      this.globalData.localOfficialEntries = data.officialEntries;
-    }
+  // 用户词库
+  if (Array.isArray(data.userEntries)) {
+    wx.setStorageSync("localUserEntries", data.userEntries);
+    this.globalData.localUserEntries = data.userEntries;
+  }
 
-    if (Array.isArray(data.userEntries)) {
-      wx.setStorageSync("localUserEntries", data.userEntries);
+  // 官方版本
+  if (data.officialVersion) {
+    wx.setStorageSync("officialVersion", data.officialVersion);
+    this.globalData.officialVersion = data.officialVersion;
+  }
 
-      this.globalData.localUserEntries = data.userEntries;
-    }
+  // 用户版本
+  if (data.userVersion) {
+    wx.setStorageSync("userVersion", data.userVersion);
+    this.globalData.userVersion = data.userVersion;
+  }
 
-    if (data.version !== undefined) {
-      wx.setStorageSync("entryVersion", data.version);
-
-      this.globalData.entryVersion = data.version;
-    }
-
-    console.log(
-      "词库缓存更新",
-      "官方:",
-      this.globalData.localOfficialEntries.length,
-      "用户:",
-      this.globalData.localUserEntries.length
-    );
-  },
+  console.log(
+    "词库缓存更新",
+    "官方:",
+    this.globalData.localOfficialEntries.length,
+    "用户:",
+    this.globalData.localUserEntries.length,
+    "版本:",
+    this.globalData.officialVersion,
+    this.globalData.userVersion
+  );
+},
 
   updateUserStatus(data = {}) {
     this.globalData.role = data.role || "visitor";

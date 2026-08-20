@@ -11,5 +11,7 @@ createTime:"",
 extend:{},
 meta:{}
 }*/
+const userEntries = [];
 
+module.exports = userEntries;
   
