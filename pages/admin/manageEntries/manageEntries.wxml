@@ -40,7 +40,7 @@
   <!-- 投稿弹窗 -->
   <view class="upload-mask" wx:if="{{showUpload}}">
     <view class="upload-box">
-      <text class="upload-title">📤 投稿新词条</text>
+      <text class="upload-title">投稿新词条</text>
       <input placeholder="词条名称" bindinput="onTextInput" />
       <textarea placeholder="词条描述" bindinput="onDescInput"></textarea>
       <picker mode="selector" range="{{categoryOptions}}" range-key="label" bindchange="onCategoryChange">

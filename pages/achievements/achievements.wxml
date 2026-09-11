@@ -1,13 +1,44 @@
 <view class="container">
+  <!-- 底部云朵装饰 -->
+  <view class="cloud-bg">
+    <view class="cloud-bg-base"></view>
+    <view class="cb" style="left:2%; width:160rpx; height:160rpx;"></view>
+    <view class="cb" style="left:14%; width:240rpx; height:240rpx;"></view>
+    <view class="cb" style="left:36%; width:130rpx; height:130rpx;"></view>
+    <view class="cb" style="left:55%; width:220rpx; height:220rpx;"></view>
+    <view class="cb" style="left:76%; width:170rpx; height:170rpx;"></view>
+    <view class="cb" style="left:90%; width:110rpx; height:110rpx;"></view>
+  </view>
+
+  <!-- 随机四角星装饰（每次打开随机生成） -->
+  <view class="page-sparkles">
+    <view
+      wx:for="{{sparkles}}"
+      wx:key="index"
+      class="sparkle-deco"
+      style="left:{{item.x}}rpx;top:{{item.y}}rpx;width:{{item.size}}rpx;height:{{item.size}}rpx;background:{{item.color}};animation-delay:{{item.delay}}s;"
+    ></view>
+  </view>
+
+
+
   <view class="intro">
-    <text class="title">成就收藏室</text>
+    <view class="title-with-icon">
+      <view class="page-icon icon-achievement">
+        <view class="trophy-cup"></view>
+        <view class="trophy-stem"></view>
+        <view class="trophy-base"></view>
+      </view>
+      <text class="title">收藏</text>
+    </view>
     <text class="subtitle">记录每一次灵感相遇</text>
   </view>
 
   <view class="section">
     <text class="section-title">普通成就</text>
-    <view wx:for="{{normalAchievements}}" wx:key="id" class="achievement-card">
-      <text class="achievement-icon">{{item.icon}}</text>
+    <view wx:for="{{normalAchievements}}" wx:key="id" class="achievement-card" wx:if="{{index < 2 || !normalCollapsed}}">
+      <image wx:if="{{item.iconImage}}" class="achievement-icon-img" src="{{item.iconImage}}" mode="aspectFit"></image>
+      <text wx:else class="achievement-icon">{{item.icon}}</text>
       <view class="achievement-info">
         <text class="achievement-name">{{item.name}}</text>
         <text class="achievement-desc">{{item.description}}</text>
@@ -17,17 +48,24 @@
         </view>
       </view>
     </view>
+    <view wx:if="{{normalAchievements.length > 2}}" class="expand-btn" bindtap="toggleNormal">
+      <text class="expand-arrow">{{normalCollapsed ? '展开全部 ▾' : '收起 ▴'}}</text>
+    </view>
   </view>
 
   <view class="section">
     <text class="section-title">隐藏成就</text>
     <view wx:if="{{!hiddenAchievements.length}}" class="hidden-empty">尚未发现隐藏成就</view>
-    <view wx:for="{{hiddenAchievements}}" wx:key="id" class="achievement-card hidden-card">
-      <text class="achievement-icon">{{item.icon}}</text>
+    <view wx:for="{{hiddenAchievements}}" wx:key="id" class="achievement-card hidden-card" wx:if="{{index < 2 || !hiddenCollapsed}}">
+      <image wx:if="{{item.iconImage}}" class="achievement-icon-img" src="{{item.iconImage}}" mode="aspectFit"></image>
+      <text wx:else class="achievement-icon">{{item.icon}}</text>
       <view class="achievement-info">
         <text class="achievement-name">{{item.name}}</text>
         <text class="achievement-desc">{{item.description}}</text>
       </view>
+    </view>
+    <view wx:if="{{hiddenAchievements.length > 2}}" class="expand-btn" bindtap="toggleHidden">
+      <text class="expand-arrow">{{hiddenCollapsed ? '展开全部 ▾' : '收起 ▴'}}</text>
     </view>
   </view>
 </view>

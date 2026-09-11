@@ -1,3 +1,5 @@
+const categoryConfig = require("../../utils/category.js");
+
 Page({
   data: {
     // =========================
@@ -24,32 +26,11 @@ Page({
     uploadTags: "",
     isUploading: false,
 
-    categoryOptions: [
-      {
-        value: "world",
-        label: "世界背景"
-      },
-      {
-        value: "relationship",
-        label: "关系设定"
-      },
-      {
-        value: "character",
-        label: "角色身份"
-      },
-      {
-        value: "conflict",
-        label: "冲突矛盾"
-      },
-      {
-        value: "scene",
-        label: "特殊场景"
-      },
-      {
-        value: "theme",
-        label: "主题氛围"
-      }
-    ]
+    categoryOptions: categoryConfig.list.map(item => ({
+      value: item.value,
+      label: item.name
+    }))
+    
   },
 
   // =========================
@@ -66,12 +47,12 @@ Page({
   async checkRole() {
     try {
       const res = await wx.cloud.callFunction({
-        name: "checkRole"
+        name: "user", data: { action: "checkRole" }
       });
 
       if (res.result && res.result.success) {
         this.setData({
-          role: res.result.role
+          role: res.result.data.role
         });
       }
     } catch (err) {
@@ -240,8 +221,9 @@ Page({
 
     try {
       const res = await wx.cloud.callFunction({
-        name: "submitEntry",
+        name: "entryAdmin",
         data: {
+          action: "submit",
           text: uploadText.trim(),
           desc: uploadDesc.trim(),
           category: uploadCategory,

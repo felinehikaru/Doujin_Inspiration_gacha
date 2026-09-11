@@ -1,198 +1,592 @@
 <!-- pages/index/index.wxml -->
 
-<view class="container">
-  <!-- 左上角帮助 -->
-  <view class="help-btn" bindtap="openHelp">
-    <text class="help-icon">?</text>
+<view class="page-wrap">
+
+<!-- =====================
+     顶部标题区
+===================== -->
+
+<view class="top-bar">
+
+  <view
+    class="help-button"
+    bindtap="openHelp"
+  >
+    ?
   </view>
 
-  <!-- 标题 -->
-  <view class="title">
-    <text class="title-text">灵感扭蛋机</text>
-    <text class="subtitle">摇出你的故事灵感</text>
-  </view>
-
-  <!-- 登录入口 -->
-  <button class="login-btn" bindtap="goLogin">
-    👤 用户中心
-  </button>
-
-  <!-- 登录状态 -->
-  <text class="role-text">
-当前身份：{{role==="visitor"?"游客":role==="maintainer"?"维护者":role==="admin"?"管理员":"用户"}}
-</text>
-
-  <!-- 扭蛋机主体 -->
-  <view class="gacha-machine {{isShaking?'shaking':''}}">
-    <!-- 外部光晕 -->
-    <view class="machine-light"></view>
-
-    <view class="gacha-area">
-      <!-- 玻璃球罩 -->
-      <view class="dome">
-        <view wx:for="{{balls}}" wx:key="index" class="ball" style="width:{{item.size}}rpx; height:{{item.size}}rpx; left:{{item.left}}%; top:{{item.top}}%; background:{{item.color}};">
-        </view>
+  <view class="header">
+    <view class="title-row">
+      <view class="title-ornament">
+        <view class="ornament-line"></view>
+        <view class="ornament-dot"></view>
       </view>
-
-      <!-- 机器底座 -->
-      <view class="body">
-        <text class="brand">灵感扭蛋</text>
-        <!-- 旋钮 -->
-        <view class="knob"></view>
-        <!-- 出口 -->
-        <view class="slot"></view>
+      <text class="title-main">灵感扭蛋机</text>
+      <view class="title-ornament">
+        <view class="ornament-dot"></view>
+        <view class="ornament-line"></view>
       </view>
+    </view>
+    <view class="sub-row">
+      <view class="sub-bar"></view>
+      <text class="title-sub">摇出你的故事灵感</text>
+      <view class="sub-bar"></view>
     </view>
   </view>
 
-  <!-- 模式显示 -->
-  <view class="mode-display">
-    <text class="mode-name">{{modeName}}</text>
-    <text class="mode-badge">{{modeBadge}}</text>
+</view>
+
+<!-- =====================
+     用户中心
+===================== -->
+
+<view
+  class="user-card"
+  bindtap="goLogin"
+>
+
+  <view class="user-avatar user-avatar-icon">
+    <view class="ua-head"></view>
+    <view class="ua-body"></view>
   </view>
 
-  <!-- 抽卡按钮 -->
-  <view class="controls">
-    <view class="btn-group">
+  <view class="user-info">
+    <text class="user-label">{{userNick || '用户中心'}}</text>
+    <text class="user-role">当前身份：{{role === 'visitor' ? '游客' : role === 'maintainer' ? '维护者' : role === 'admin' ? '管理员' : '用户'}}</text>
+  </view>
 
-      <button class="btn btn-random" bindtap="spinRandom">
-        完全随机
-      </button>
+  <text class="user-arrow">
+    ›
+  </text>
 
-      <button class="btn btn-balanced" bindtap="spinBalanced">
-        营养平衡
-      </button>
+</view>
+
+<!-- 词条总数统计 -->
+
+<view class="entry-count">
+  <text class="entry-count-text">
+    目前共有 {{totalCount}} 条词条
+  </text>
+</view>
+
+<!-- =====================
+     扭蛋机区域
+===================== -->
+
+<view
+  class="gacha-machine"
+>
+
+  <!-- 背景云朵（横穿屏幕，下边缘对齐扭蛋机底） -->
+
+  <view class="cloud-bg">
+    <view wx:for="{{clouds}}" wx:key="index" class="cb" style="width:{{item.size}}rpx;height:{{item.size}}rpx;left:{{item.x}}rpx;bottom:{{item.y}}rpx;background:{{item.color}};"></view>
+    <view class="cloud-bg-base"></view>
+  </view>
+
+  <!-- 四角星装饰（每次打开随机生成） -->
+
+  <view
+    wx:for="{{sparkles}}"
+    wx:key="index"
+    class="sparkle-deco"
+    style="width:{{item.size}}rpx;height:{{item.size}}rpx;left:{{item.x}}rpx;top:{{item.y}}rpx;background:{{item.color}};animation-delay:{{item.delay}}s;"
+  ></view>
+
+  <!-- 可摇动机器主体（机头+球+机身+动画） -->
+
+  <view class="machine-core {{isShaking?'shaking':''}}">
+
+    <!-- 玻璃罩 -->
+
+    <image
+      class="machine-head"
+      src="/assets/gacha/machine_head.png"
+      mode="aspectFit"
+    />
+
+  <!--扭蛋群（摇动时球在罩内弹跳）-->
+  <view
+    class="ball"
+    wx:for="{{balls}}"
+    wx:key="index"
+    style="left: {{item.x}}rpx; top: {{item.y}}rpx; width: {{item.size}}rpx; height: {{item.size}}rpx; --ball-color: {{item.color}}; animation-delay: {{item.delay}}s; --bounce: {{item.bounce}}rpx; --dur: {{item.dur}}s; --rot: {{item.rot}}deg;"
+  ></view>
+
+    <!-- 机身 -->
+
+    <image
+      class="machine-body"
+      src="/assets/gacha/machine_body.png"
+      mode="aspectFit"
+    />
+
+    <!-- 光效+金球画布（canvas 内部先画光效再画金球，彻底解决层级） -->
+    <canvas type="2d" id="gachaFx" class="gacha-fx-canvas"></canvas>
+
+    <!-- 金球掉落+光效（DOM 版：真机上 Canvas 2D node 获取不到时自动启用） -->
+    <view wx:if="{{dropBall}}" class="drop-fx">
+      <view class="drop-glow-a"></view>
+      <view class="drop-rays">
+        <view class="ray ray-1"></view>
+        <view class="ray ray-2"></view>
+        <view class="ray ray-3"></view>
+      </view>
+      <view class="drop-glow-b"></view>
+      <view class="fx-star s1"></view>
+      <view class="fx-star s2"></view>
+      <view class="fx-star s3"></view>
+      <view class="drop-ball"></view>
+      <view class="drop-half half-l"></view>
+      <view class="drop-half half-r"></view>
     </view>
 
-    <button class="btn free-btn" bindtap="openFreeMode">
+  </view>
+
+</view>
+
+<!-- =====================
+     三种模式
+===================== -->
+
+<view class="mode-tabs">
+
+  <view
+    class="mode-tab mode-random {{activeMode==='random'?'active':''}}"
+    bindtap="spinRandom"
+  >
+    完全随机
+  </view>
+
+  <view
+    class="mode-tab mode-balanced {{activeMode==='balanced'?'active':''}}"
+    bindtap="spinBalanced"
+  >
+    营养平衡
+  </view>
+
+  <view
+    class="mode-tab mode-free {{activeMode==='free'?'active':''}}"
+    bindtap="openFreeMode"
+  >
+    自由模式
+  </view>
+
+</view>
+
+<!-- =====================
+    空闲引导（让主界面不空旷）
+===================== -->
+
+<view
+  wx:if="{{!results.length}}"
+  class="empty-state"
+>
+  <text class="empty-text">选择一个模式，摇出你的故事灵感</text>
+</view>
+
+<!-- =====================
+     抽卡结果
+===================== -->
+
+<view
+  wx:if="{{results.length}}"
+  class="result-section"
+>
+
+  <view class="result-grid">
+
+    <view
+      class="result-card result-{{item.mode}}"
+      wx:for="{{results}}"
+      wx:key="id"
+    >
+
+      <view class="result-head">
+        <text class="result-title">{{item.title || item.text}}</text>
+        <text class="result-category">{{item.categoryName}}</text>
+      </view>
+
+      <text class="result-desc">
+        {{item.description || item.desc}}
+      </text>
+
+      <view
+        wx:if="{{item.tags && item.tags.length}}"
+        class="result-tags"
+      >
+        <text class="tag-line">tag：<text wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tagItem">{{tagItem}}　</text></text>
+      </view>
+
+    </view>
+
+  </view>
+
+</view>
+
+<!-- =====================
+    当前结果操作按钮
+===================== -->
+
+<view
+  wx:if="{{results.length}}"
+  class="action-bar"
+>
+
+  <view
+    class="action-btn"
+    bindtap="collectCurrent"
+  >
+    收藏
+  </view>
+
+  <view
+    class="action-btn"
+    bindtap="goToPrompt"
+  >
+    提示词模板
+  </view>
+
+  <view
+    class="action-btn"
+    bindtap="openSharePanel"
+  >
+    分享结果
+  </view>
+
+</view>
+
+<!-- =====================
+   底部功能入口
+===================== -->
+
+<view class="bottom-nav">
+
+  <view
+    class="nav-item nav-history"
+    bindtap="openHistory"
+  >
+    <view class="nav-icon icon-history">
+      <view class="clock-hand clock-hand-h"></view>
+      <view class="clock-hand clock-hand-v"></view>
+    </view>
+    <text class="nav-label">历史</text>
+  </view>
+
+  <view
+    class="nav-item nav-favorite"
+    bindtap="openFavorites"
+  >
+    <view class="nav-icon icon-favorite"></view>
+    <text class="nav-label">收藏</text>
+  </view>
+
+  <view
+    class="nav-item nav-entries"
+    bindtap="openEntries"
+  >
+    <view class="nav-icon icon-entries">
+      <view class="book-page book-left"></view>
+      <view class="book-page book-right"></view>
+    </view>
+    <text class="nav-label">词条中心</text>
+  </view>
+
+  <view
+    wx:if="{{showAchievementEntry}}"
+    class="nav-item nav-achievement"
+    bindtap="openAchievements"
+  >
+    <view class="nav-icon icon-achievement">
+      <view class="trophy-cup"></view>
+      <view class="trophy-stem"></view>
+      <view class="trophy-base"></view>
+    </view>
+    <text class="nav-label">成就</text>
+  </view>
+
+</view>
+
+<!-- =====================
+   帮助弹窗
+===================== -->
+
+<view
+  wx:if="{{showHelpModal}}"
+  class="help-mask"
+  bindtap="closeHelp"
+>
+
+  <view
+    class="help-dialog {{helpClosing ? 'help-closing' : ''}}"
+    catchtap="noop"
+  >
+
+    <text class="help-title">
+      使用说明
+    </text>
+
+    <view class="help-content">
+
+      <view class="help-item">
+        <text class="help-item-title">完全随机</text>
+        <text class="help-item-desc">从全部词条中随机抽取3条，不限分类</text>
+      </view>
+
+      <view class="help-item">
+        <text class="help-item-title">营养平衡</text>
+        <text class="help-item-desc">随机抽选三个分类，再各随机抽一条</text>
+      </view>
+
+      <view class="help-item">
+        <text class="help-item-title">自由模式</text>
+        <text class="help-item-desc">手动选择想要的分类，按需抽取</text>
+      </view>
+
+    </view>
+
+    <view
+      class="help-btn"
+      bindtap="closeHelp"
+    >
+      知道了
+    </view>
+
+  </view>
+
+</view>
+
+<!-- =====================
+   自由模式弹窗
+===================== -->
+
+<view
+  wx:if="{{showFreeMode}}"
+  class="free-mask"
+  catchtap="closeFreeMode"
+>
+
+  <view
+    class="free-dialog {{freeClosing ? 'free-closing' : ''}}"
+    catchtap="noop"
+  >
+
+    <text class="free-title">
       自由模式
-    </button>
+    </text>
 
-  </view>
+    <text class="free-tip">
+      选择想抽取的分类
+    </text>
 
-  <!-- 自由模式弹窗 -->
+    <view class="free-list">
 
-  <view wx:if="{{showFreeMode}}" class="free-mask">
-    <view class="free-dialog">
-      <text class="free-title"> 自由模式</text>
-      <text class="free-tip">选择想抽取的分类</text>
-
-      <view class="free-list">
-        <view wx:for="{{freeCategories}}" wx:key="value" class="free-item {{item.checked?'active':''}}" data-index="{{index}}" bindtap="changeFreeCategory">
-          {{item.checked?'✓':'○'}} {{item.title}}
-        </view>
+      <view
+        wx:for="{{freeCategories}}"
+        wx:key="value"
+        class="free-item {{item.checked?'active':''}}"
+        data-index="{{index}}"
+        bindtap="changeFreeCategory"
+      >
+        {{item.checked?'✓':'○'}}
+        {{item.title}}
       </view>
 
-      <button class="free-start" bindtap="spinFree">开始抽取</button>
-      <button class="free-cancel" bindtap="closeFreeMode">取消</button>
-    </view>
-  </view>
-
-  <!-- 抽卡结果 -->
-  <view class="result-area" wx:if="{{results.length}}">
-    <view class="result-card" wx:for="{{results}}" wx:key="index">
-      <text class="result-title">{{item.text}}</text>
-      <text class="result-category">分类：{{item.category}}</text>
-      <text class="result-desc">{{item.desc}}</text>
-      <text class="result-tags">标签：{{item.tags.join("、")}}</text>
-    </view>
-  </view>
-
-  <!-- 当前结果操作 -->
-  <view class="action-area" wx:if="{{results.length}}">
-
-    <button class="btn btn-collect" bindtap="collectCurrent">
-      ⭐ 收藏
-    </button>
-
-    <button class="btn btn-prompt" bindtap="goToPrompt">
-      提示词模板
-    </button>
-
-    <button class="btn btn-share" bindtap="openSharePanel">
-      分享结果
-    </button>
-
-  </view>
-
-  <!-- 底部入口 -->
-  <view class="record-entry">
-
-    <view class="record-row">
-      <button class="record-btn history-btn" bindtap="openHistory">
-        📜 历史</button>
-
-      <button class="record-btn favorite-btn" bindtap="openFavorites">
-        ⭐ 收藏</button>
     </view>
 
-    <view class="record-row">
-      <button class="record-btn entries-btn" bindtap="openEntries">
-        📚 词条中心</button>
-
-      <button class="record-btn achievement-btn" bindtap="openAchievements">
-        🏅 成就</button>
+    <view
+      class="free-btn"
+      bindtap="spinFree"
+    >
+      开始抽取
     </view>
-  </view>
 
-
-  <view wx:if="{{showAchievementModal}}" class="achievement-modal" bindtap="closeAchievementModal">
-    <view class="fireworks">
-      <text class="firework firework-one">✦</text>
-      <text class="firework firework-two">✦</text>
-      <text class="firework firework-three">✦</text>
-      <text class="firework firework-four">✦</text>
-    </view>
-    <view class="achievement-modal-card" catchtap="noop">
-      <text class="achievement-unlocked">成就达成！</text>
-      <text class="achievement-modal-icon">{{unlockedAchievement.icon}}</text>
-      <text class="achievement-modal-name">{{unlockedAchievement.name}}</text>
-      <text class="achievement-modal-desc">{{unlockedAchievement.description}}</text>
-      <button class="achievement-close-btn" bindtap="closeAchievementModal">太棒了</button>
-    </view>
-  </view>
-  <!-- 帮助弹窗 -->
-  <view wx:if="{{showHelpModal}}" class="help-modal">
-    <view class="help-modal-content">
-      <text class="help-modal-title">使用说明</text>
-
-      <view class="help-modal-body">
-        <text class="help-line">1. 点击抽卡按钮获得三个灵感词条</text>
-        <text class="help-line">2. 平衡模式从六个分类中抽取</text>
-        <text class="help-line">3. 提示词模板可自行编辑复制</text>
-      </view>
-
-      <view class="help-modal-footer">
-        <button class="btn btn-ghost" bindtap="closeHelp">知道了</button>
-      </view>
-    </view>
-  </view>
-</view>
-
-<!-- 分享选择 -->
-<view wx:if="{{showSharePanel}}" class="help-modal">
-  <view class="help-modal-content">
-
-    <text class="help-modal-title">分享扭蛋结果</text>
-
-    <button class="btn btn-share" bindtap="copyShareText">
-      文字分享
-    </button>
-
-    <button class="btn btn-share" bindtap="createShareImage">
-      图片分享
-    </button>
-
-    <button class="btn btn-ghost" bindtap="closeSharePanel">
+    <view
+      class="free-btn cancel"
+      bindtap="closeFreeMode"
+    >
       取消
-    </button>
+    </view>
+
+  </view>
+
+</view>
+
+<!-- =====================
+   成就弹窗
+===================== -->
+
+<view
+  wx:if="{{showAchievementModal}}"
+  class="achievement-modal"
+  bindtap="closeAchievementModal"
+>
+
+  <view
+    class="achievement-card"
+    catchtap="noop"
+  >
+
+    <!-- 成就达成礼花粒子（纯CSS） -->
+    <view class="ach-confetti">
+      <view class="cf cf-1"></view>
+      <view class="cf cf-2"></view>
+      <view class="cf cf-3"></view>
+      <view class="cf cf-4"></view>
+      <view class="cf cf-5"></view>
+      <view class="cf cf-6"></view>
+      <view class="cf cf-7"></view>
+      <view class="cf cf-8"></view>
+      <view class="cf cf-9"></view>
+      <view class="cf cf-10"></view>
+    </view>
+
+    <text class="ach-title">
+      🎉 成就达成！
+    </text>
+
+    <view class="ach-icon-wrap">
+      <view class="ach-halo"></view>
+      <image wx:if="{{unlockedAchievement.iconImage}}" class="ach-icon-img" src="{{unlockedAchievement.iconImage}}" mode="aspectFit"></image>
+      <text wx:else class="ach-icon">
+        {{unlockedAchievement.icon}}
+      </text>
+    </view>
+
+    <text class="ach-name">
+      {{unlockedAchievement.name}}
+    </text>
+
+    <text class="ach-desc">
+      {{unlockedAchievement.description}}
+    </text>
+
+    <view
+      class="ach-btn"
+      bindtap="closeAchievementModal"
+    >
+      太棒了
+    </view>
+
+  </view>
+
+</view>
+
+<!-- =====================
+   成就入口解锁飞行动画（首个成就恭喜窗点掉后播放）
+===================== -->
+
+<view
+  wx:if="{{showAchievementFly}}"
+  class="ach-fly-layer"
+  style="transform: translate({{achFlyX}}rpx, {{achFlyY}}rpx);"
+>
+  <!-- 闪光光晕 -->
+  <view class="ach-fly-halo"></view>
+
+  <!-- 小彩带粒子 -->
+  <view class="ach-fly-confetti">
+    <view class="acf acf-1"></view>
+    <view class="acf acf-2"></view>
+    <view class="acf acf-3"></view>
+    <view class="acf acf-4"></view>
+    <view class="acf acf-5"></view>
+    <view class="acf acf-6"></view>
+    <view class="acf acf-7"></view>
+    <view class="acf acf-8"></view>
+    <view class="acf acf-9"></view>
+    <view class="acf acf-10"></view>
+  </view>
+
+  <!-- 成就按钮本体（与底部入口同款：渐变底 + 奖杯图标 + 文字） -->
+  <view class="nav-item nav-achievement ach-fly-btn">
+    <view class="nav-icon icon-achievement">
+      <view class="trophy-cup"></view>
+      <view class="trophy-stem"></view>
+      <view class="trophy-base"></view>
+    </view>
+    <text class="nav-label">成就</text>
   </view>
 </view>
 
-<canvas type="2d" id="shareCanvas" style="width:750px;height:1000px;position:absolute;left:-9999px;"></canvas>
+<!-- =====================
+   分享面板
+===================== -->
 
-<!-- 分享引导 -->
-<view class="share-guide">
-  <text class="share-arrow">↑</text>
-  <text class="share-text">分享</text>
+<view
+  wx:if="{{showSharePanel}}"
+  class="share-mask"
+  catchtap="closeSharePanel"
+>
+
+  <view
+    class="share-panel"
+    catchtap="noop"
+  >
+
+    <text class="share-title">
+      分享扭蛋结果
+    </text>
+
+    <view
+      class="share-btn"
+      bindtap="copyShareText"
+    >
+      文字分享
+    </view>
+
+    <view
+      class="share-btn"
+      bindtap="createShareImage"
+    >
+      图片分享
+    </view>
+
+    <view
+      class="share-btn cancel"
+      bindtap="closeSharePanel"
+    >
+      取消
+    </view>
+
+  </view>
+
+</view>
+
+<!-- =====================
+   分享图片 Canvas
+===================== -->
+
+<canvas
+  type="2d"
+  id="shareCanvas"
+  style="position:absolute;width:750px;height:1100px;left:-9999px;top:0;"
+/>
+
+
+<!-- =====================
+   欢迎弹窗（打开小程序时显示）
+===================== -->
+
+<view class="welcome-modal" wx:if="{{showWelcomeModal}}">
+  <view class="welcome-mask"></view>
+  <view class="welcome-box">
+    <view class="welcome-text">
+      <view class="welcome-line">本程序<text class="welcome-red">拒绝接入</text>、</view>
+      <view class="welcome-line">程序体<text class="welcome-red">不使用</text>任何 AI，</view>
+      <view class="welcome-line">也<text class="welcome-red">不鼓励</text>以 AI 完全替代创作。</view>
+      <view class="welcome-line">提示词模板模块</view>
+      <view class="welcome-line">仅作为学习交流用途，</view>
+      <view class="welcome-line">希望能为你的创作提供灵感。</view>
+    </view>
+    <view class="welcome-confirm" bindtap="confirmWelcome">同意，确认使用</view>
+    <view class="welcome-dontshow" bindtap="toggleWelcomeDontShow">
+      <view class="welcome-checkbox {{welcomeDontShow ? 'checked' : ''}}">
+        <text wx:if="{{welcomeDontShow}}">✓</text>
+      </view>
+      <text class="welcome-dontshow-text">不再显示</text>
+    </view>
+  </view>
+</view>
+
 </view>

@@ -50,8 +50,32 @@ userVersion:"1.00.000",
 
     console.log("云开发初始化成功");
 
+    this.cleanLegacyStorage();
     this.initLocalEntries();
     this.checkNetwork();
+  },
+
+  // =====================
+  // 成就/登录标记版本清理：
+  // 旧版本曾把成就入口解锁标记长期残留本地，导致游客进入也显示成就按钮。
+  // 每次版本号变更清一次旧标记；登录用户由云端恢复，游客重新抽卡解锁。
+  // =====================
+  cleanLegacyStorage() {
+    const ACH_STORAGE_VERSION = "4";
+    if (wx.getStorageSync("achStorageVersion") === ACH_STORAGE_VERSION) {
+      return;
+    }
+    try {
+      wx.removeStorageSync("firstDrawAchieved");
+      wx.removeStorageSync("achievementEntryUnlocked");
+      wx.removeStorageSync("achievementFlyPlayed");
+      wx.removeStorageSync("firstDrawLoginTipShown");
+      wx.removeStorageSync("localLoggedIn");
+      wx.setStorageSync("achStorageVersion", ACH_STORAGE_VERSION);
+      console.log("[版本清理] 已清除旧版成就/登录残留标记");
+    } catch (err) {
+      console.log("[版本清理] 失败", err);
+    }
   },
 
   // =====================

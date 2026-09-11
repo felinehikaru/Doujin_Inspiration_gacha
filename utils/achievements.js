@@ -13,12 +13,92 @@ const achievements = [
   {
     id: "thirty_entries",
     type: "hidden",
-    icon: "😔",
+    icon: "🌛",
     iconImage: "",
     name: "330抽的计算方式",
     description: "喜欢我的大保底吗",
     target: 330,
     progressKey: "entryCount"
+  },
+  {
+    id: "share_first",
+    type: "normal",
+    icon: "",
+    iconImage: "/assets/achievement_icon/p737131379.jpg",
+    name: "我也要吗",
+    description: "第一次分享抽卡结果",
+    target: 1,
+    progressKey: "shareCount"
+  },
+  {
+    id: "four_classics",
+    type: "normal",
+    icon: "📚",
+    iconImage: "",
+    name: "四大名著",
+    description: "累计抽中的词条中，tag里集齐“三国”“西游”“水浒”和“红楼”",
+    target: 4,
+    progressKey: "fourClassicsCount"
+  },
+  {
+    id: "pokemon_newbie",
+    type: "normal",
+    icon: "",
+    iconImage: "",
+    name: "宝可梦新人",
+    description: "累计抽中一个tag含有“宝可梦”的词条",
+    target: 1,
+    progressKey: "pokemonCount"
+  },
+  {
+    id: "pokemon_master",
+    type: "normal",
+    icon: "",
+    iconImage: "",
+    name: "宝可梦大师",
+    description: "累计抽中5个不同的tag含有“宝可梦”的词条",
+    target: 5,
+    progressKey: "pokemonCount"
+  },
+  {
+    id: "gong_gong",
+    type: "hidden",
+    icon: "",
+    iconImage: "",
+    name: "公说公有理",
+    description: "累计抽到三个不同的tag中含有“公公”的不同词条",
+    target: 3,
+    progressKey: "gongCount"
+  },
+  {
+    id: "mo_mo",
+    type: "hidden",
+    icon: "",
+    iconImage: "",
+    name: "嬷说嬷嬷你",
+    description: "累计抽到三个不同的tag中含有“嬷嬷”的不同词条",
+    target: 3,
+    progressKey: "moCount"
+  },
+  {
+    id: "cyberpunk_entry",
+    type: "hidden",
+    icon: "",
+    iconImage: "",
+    name: "牛逼啊V",
+    description: "累计抽到一个赛博朋克相关词条",
+    target: 1,
+    progressKey: "cyberCount"
+  },
+  {
+    id: "cyberpunk_set",
+    type: "hidden",
+    icon: "",
+    iconImage: "",
+    name: "永不消逝！！",
+    description: "累计同时抽到“赛博朋克” + “机械改造者” + “未来都市”",
+    target: 1,
+    progressKey: "cyberSetHit"
   }
 ];
 

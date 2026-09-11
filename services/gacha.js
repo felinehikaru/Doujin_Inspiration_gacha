@@ -84,16 +84,19 @@ function spinRandom(page) {
 
   while (result.length < 3 && pool.length) {
     const index = Math.floor(Math.random() * pool.length);
-    result.push(pool.splice(index, 1)[0]);
+
+    result.push(
+      pool.splice(index, 1)[0]
+    );
   }
 
-  page.showResult(result);
+  page.startGachaAnimation(result);
 }
 
 // =====================
 // 平衡模式
 //
-// 六分类
+// 六分类：
 // world
 // relationship
 // character
@@ -101,7 +104,8 @@ function spinRandom(page) {
 // scene
 // theme
 //
-// 随机抽三个分类
+// 随机抽取三个不同分类
+// 每个分类抽取一个词条
 // =====================
 function spinBalanced(page) {
   const entries = getEntries();
@@ -125,24 +129,46 @@ function spinBalanced(page) {
 
   const selected = [];
 
-  while (selected.length < 3 && categories.length) {
-    const index = Math.floor(Math.random() * categories.length);
-    selected.push(categories.splice(index, 1)[0]);
+  while (
+    selected.length < 3 &&
+    categories.length
+  ) {
+    const index = Math.floor(
+      Math.random() * categories.length
+    );
+
+    selected.push(
+      categories.splice(index, 1)[0]
+    );
   }
 
   const result = [];
 
   selected.forEach(category => {
-    const pool = entries.filter(item => item.category === category);
+    const pool = entries.filter(
+      item => item.category === category
+    );
 
     if (pool.length) {
       result.push(
-        pool[Math.floor(Math.random() * pool.length)]
+        pool[
+          Math.floor(
+            Math.random() * pool.length
+          )
+        ]
       );
     }
   });
 
-  page.showResult(result);
+  if (!result.length) {
+    wx.showToast({
+      title: "没有对应词条",
+      icon: "none"
+    });
+    return;
+  }
+
+  page.startGachaAnimation(result);
 }
 
 // =====================
@@ -151,15 +177,18 @@ function spinBalanced(page) {
 function changeFreeCategory(page, e) {
   const index = e.currentTarget.dataset.index;
 
-  const list = page.data.freeCategories.map((item, i) => {
-    if (i === index) {
-      return {
-        ...item,
-        checked: !item.checked
-      };
+  const list = page.data.freeCategories.map(
+    (item, i) => {
+      if (i === index) {
+        return {
+          ...item,
+          checked: !item.checked
+        };
+      }
+
+      return item;
     }
-    return item;
-  });
+  );
 
   page.setData({
     freeCategories: list
@@ -187,11 +216,17 @@ function spinFree(page) {
   const result = [];
 
   categories.forEach(category => {
-    const pool = entries.filter(item => item.category === category);
+    const pool = entries.filter(
+      item => item.category === category
+    );
 
     if (pool.length) {
       result.push(
-        pool[Math.floor(Math.random() * pool.length)]
+        pool[
+          Math.floor(
+            Math.random() * pool.length
+          )
+        ]
       );
     }
   });
@@ -208,7 +243,7 @@ function spinFree(page) {
     showFreeMode: false
   });
 
-  page.showResult(result);
+  page.startGachaAnimation(result);
 }
 
 module.exports = {
