@@ -1,91 +1,102 @@
 /* pages/history/history.wxss */
 
-/* =====================
- 页面基础
-===================== */
 page {
-  background: #ffffff;
+  background: #f3f7fa;
 }
 
 .container {
   min-height: 100vh;
-  background: #ffffff;
-  padding: 30rpx;
-  box-sizing: border-box;
+  background: #f3f7fa;
+  padding: 30rpx 30rpx calc(30rpx + env(safe-area-inset-bottom));
 }
 
-/* =====================
-顶部
-===================== */
 .header {
-  text-align: center;
-  margin-bottom: 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.title-row {
+  height: 70rpx;
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  justify-content: center;
 }
 
 .title {
-  display: block;
-  font-size: 48rpx;
-  font-weight: 900;
-  color: #333;
+  font-size: 38rpx;
+  font-weight: bold;
+  color: #222;
+}
+
+.sub-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  margin-top: 4rpx;
+  padding-bottom: 2rpx;
+}
+
+.count-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 34rpx;
+}
+
+.sub-actions {
+  position: absolute;
+  right: 0;
+  top: 30rpx;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.order-btn {
+  width: 80rpx !important;
+  height: 52rpx;
+  line-height: 52rpx;
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 26rpx;
+  font-weight: normal;
+  color: #fff;
+  background: #a8b0b5;
+  border-radius: 26rpx;
+}
+
+.detail-btn {
+  width: 80rpx !important;
+  height: 52rpx;
+  line-height: 52rpx;
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 26rpx;
+  font-weight: normal;
+  color: #fff;
+  background: #c9a6aa;
+  border-radius: 26rpx;
+}
+
+.detail-btn-hover {
+  opacity: 0.75;
 }
 
 .count {
-  display: block;
-  margin-top: 12rpx;
-  font-size: 28rpx;
-  color: #888;
-}
-
-/* =====================
-历史列表
-===================== */
-.history-list {
-  display: flex;
-  flex-direction: column;
-  gap: 24rpx;
-}
-
-/* =====================
-历史卡片
-===================== */
-.history-card {
-  position: relative;
-  background: linear-gradient(
-    135deg,
-    #f5f1fa,
-    #ffffff
-  );
-  border-radius: 24rpx;
-  padding: 30rpx;
-  box-shadow: 0 8rpx 25rpx rgba(0, 0, 0, .08);
-  border: 1rpx solid #eee;
-}
-
-.history-index {
-  display: block;
   font-size: 24rpx;
-  color: #998ca8;
-  margin-bottom: 14rpx;
+  color: #8aa0ab;
 }
 
-.history-text {
-  display: block;
-  font-size: 34rpx;
-  color: #333;
-  line-height: 1.6;
-  word-break: break-all;
+.history-list {
+  margin-bottom: 30rpx;
 }
 
-.history-time {
-  display: block;
-  margin-top: 16rpx;
-  font-size: 22rpx;
-  color: #999;
-}
-
-/* =====================
-空状态
-===================== */
 .empty {
   text-align: center;
   margin-top: 200rpx;
@@ -93,29 +104,377 @@ page {
   font-size: 30rpx;
 }
 
-/* =====================
-按钮
-===================== */
 .clear-btn {
-  margin-top: 40rpx;
-  height: 80rpx;
-  line-height: 80rpx;
-  border-radius: 40rpx;
-  background: #d98f9b;
+  width: auto;
+  height: 60rpx;
+  line-height: 60rpx;
+  padding: 0 36rpx;
+  border-radius: 30rpx;
+  background: #c9a6aa;
   color: #fff;
-  font-size: 28rpx;
+  font-size: 26rpx;
+  margin: 0 auto 18rpx;
 }
 
 .back-btn {
-  margin-top: 20rpx;
-  height: 80rpx;
-  line-height: 80rpx;
-  border-radius: 40rpx;
-  background: #ddd;
-  color: #444;
-  font-size: 28rpx;
+  width: auto;
+  height: 60rpx;
+  line-height: 60rpx;
+  padding: 0 56rpx;
+  border-radius: 30rpx;
+  background: #9aa2a8;
+  color: #fff;
+  font-size: 26rpx;
+  margin: 0 auto;
 }
 
 button::after {
   border: none;
+}
+
+/* ===== 词条列表样式（和收藏页面一致） ===== */
+.history-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 22rpx;
+  padding: 24rpx;
+  box-shadow: 0 6rpx 18rpx rgba(139, 177, 191, .12);
+  margin-bottom: 18rpx;
+}
+
+.history-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.history-index {
+  font-size: 26rpx;
+  color: #7a9ab0;
+  font-weight: bold;
+}
+
+.history-time {
+  font-size: 24rpx;
+  color: #a8bcc4;
+}
+
+.history-entries {
+  margin-bottom: 8rpx;
+}
+
+.entry-item {
+  margin-bottom: 10rpx;
+  padding-bottom: 10rpx;
+}
+
+.entry-title {
+  display: flex;
+  align-items: center;
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.entry-desc {
+  margin-top: 6rpx;
+  padding-left: 38rpx;
+  font-size: 26rpx;
+  color: #6f7f88;
+}
+
+.entry-category {
+  margin-top: 4rpx;
+  padding-left: 38rpx;
+  font-size: 26rpx;
+  color: #8fa8b0;
+}
+
+.history-actions {
+  margin-top: 6rpx;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.history-actions .copy-btn {
+  height: 44rpx !important;
+  line-height: 44rpx !important;
+  padding: 0 16rpx !important;
+  min-width: 0 !important;
+  width: auto !important;
+  margin: 0 !important;
+  border-radius: 22rpx;
+  color: #fff;
+  font-size: 26rpx;
+  font-weight: bold;
+  background: #a8b0b5;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== 页面标题图标（主界面同款，48rpx 缩放版） ===== */
+.title-with-icon,
+.title-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+}
+
+.page-icon {
+  width: 48rpx;
+  height: 48rpx;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* 历史：时钟（蓝） */
+.page-icon.icon-history {
+  border: 3rpx solid #6a9fc8;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.page-icon.icon-history .clock-hand {
+  position: absolute;
+  background: #6a9fc8;
+  border-radius: 2rpx;
+}
+
+.page-icon.icon-history .clock-hand-v {
+  width: 4rpx;
+  height: 14rpx;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -100%);
+  transform-origin: bottom center;
+}
+
+.page-icon.icon-history .clock-hand-h {
+  width: 10rpx;
+  height: 4rpx;
+  left: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* 收藏：五角星（黄，空心） */
+.page-icon.icon-favorite {
+  position: relative;
+  background: #e0b848;
+  clip-path: polygon(
+    50% 0%,
+    61% 35%,
+    98% 35%,
+    68% 57%,
+    79% 91%,
+    50% 70%,
+    21% 91%,
+    32% 57%,
+    2% 35%,
+    39% 35%
+  );
+}
+
+.page-icon.icon-favorite::after {
+  content: '';
+  position: absolute;
+  inset: 5rpx;
+  background: #fdfbf5;
+  clip-path: polygon(
+    50% 0%,
+    61% 35%,
+    98% 35%,
+    68% 57%,
+    79% 91%,
+    50% 70%,
+    21% 91%,
+    32% 57%,
+    2% 35%,
+    39% 35%
+  );
+}
+
+/* 词条中心：打开的书（绿） */
+.page-icon.icon-entries .book-page {
+  position: absolute;
+  top: 7rpx;
+  width: 19rpx;
+  height: 33rpx;
+  border: 3rpx solid #6ab88a;
+  box-sizing: border-box;
+}
+
+.page-icon.icon-entries .book-left {
+  left: 4rpx;
+  border-right: none;
+  border-radius: 5rpx 0 0 5rpx;
+  transform: skewY(-4deg);
+  transform-origin: right center;
+}
+
+.page-icon.icon-entries .book-right {
+  right: 4rpx;
+  border-left: none;
+  border-radius: 0 5rpx 5rpx 0;
+  transform: skewY(4deg);
+  transform-origin: left center;
+}
+
+/* 成就：奖杯（红） */
+.page-icon.icon-achievement .trophy-cup {
+  position: absolute;
+  left: 50%;
+  top: 3rpx;
+  transform: translateX(-50%);
+  width: 28rpx;
+  height: 21rpx;
+  border: 4rpx solid #d87070;
+  border-top: none;
+  border-radius: 0 0 12rpx 12rpx;
+  box-sizing: border-box;
+}
+
+.page-icon.icon-achievement .trophy-cup::before {
+  content: '';
+  position: absolute;
+  left: -8rpx;
+  top: 2rpx;
+  width: 6rpx;
+  height: 10rpx;
+  border: 3rpx solid #d87070;
+  border-right: none;
+  border-radius: 8rpx 0 0 8rpx;
+}
+
+.page-icon.icon-achievement .trophy-cup::after {
+  content: '';
+  position: absolute;
+  right: -8rpx;
+  top: 2rpx;
+  width: 6rpx;
+  height: 10rpx;
+  border: 3rpx solid #d87070;
+  border-left: none;
+  border-radius: 0 8rpx 8rpx 0;
+}
+
+.page-icon.icon-achievement .trophy-stem {
+  position: absolute;
+  left: 50%;
+  top: 26rpx;
+  transform: translateX(-50%);
+  width: 6rpx;
+  height: 8rpx;
+  background: #d87070;
+}
+
+.page-icon.icon-achievement .trophy-base {
+  position: absolute;
+  left: 50%;
+  bottom: 4rpx;
+  transform: translateX(-50%);
+  width: 21rpx;
+  height: 6rpx;
+  background: #d87070;
+  border-radius: 2rpx;
+}
+
+/* ===== 主页面同款装饰：云朵 + 四角星 ===== */
+page {
+  background: linear-gradient(#ffffff, #f3f7fa);
+}
+
+.container {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(#ffffff, #f3f7fa);
+}
+
+/* 底部云朵：圆 + 底座，横穿屏幕 */
+.cloud-bg {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  bottom: -20rpx;
+  height: 280rpx;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.cloud-bg-base {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 80rpx;
+  background: #e6eef4;
+}
+
+.cb {
+  position: absolute;
+  background: #e6eef4;
+  border-radius: 50%;
+  bottom: 0;
+}
+
+/* 四角星装饰（菱形芒星） */
+.sparkle-deco {
+  position: absolute;
+  z-index: 2;
+  clip-path: polygon(
+    50% 0%,
+    65% 35%,
+    100% 50%,
+    65% 65%,
+    50% 100%,
+    35% 65%,
+    0% 50%,
+    35% 35%
+  );
+  animation: sparkle-float 3s ease-in-out infinite;
+}
+/* 随机四角星装饰（页面级） */
+.page-sparkles {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+
+@keyframes sparkle-float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateY(-10rpx) rotate(15deg);
+    opacity: 1;
+  }
+}
+
+/* 内容浮在云朵之上 */
+.title,
+.title-row,
+.header,
+.intro {
+  position: relative;
+  z-index: 2;
+}
+
+.history-list {
+  position: relative;
+  z-index: 1;
 }

@@ -3,9 +3,9 @@
 /* 页面整体 */
 .container {
   min-height: 100vh;
-  padding: 30rpx;
+  padding: 30rpx 30rpx calc(30rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
-  background: #f8f5ff;
+  background: #f0f7f2;
 }
 
 /* 标题 */
@@ -18,7 +18,7 @@
   display: block;
   font-size: 42rpx;
   font-weight: bold;
-  color: #333;
+  color: #2f4f3a;
 }
 
 .subtitle {
@@ -28,53 +28,116 @@
   color: #888;
 }
 
-/* 顶部按钮 */
+/* 顶部按钮：低饱和三色，与浅绿页面和谐 */
 .main-btn {
-  width: 70%;
-  margin: 18rpx auto;
-  border-radius: 18rpx;
-  background: white;
-  color: #333;
-  font-size: 30rpx;
-}
-
-/* 搜索框 */
-.search {
-  width: 100%;
-  height: 80rpx;
-  background: white;
+  width: 72%;
+  margin: 20rpx auto;
   border-radius: 20rpx;
-  padding: 0 25rpx;
-  box-sizing: border-box;
-  margin: 30rpx 0;
-  font-size: 28rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+  border: none;
+  line-height: 2.5;
+}
+.main-btn::after {
+  border: none;
 }
 
-/* 六分类标签 */
+/* 投稿新词条：主绿（页面主题色系） */
+.btn-upload {
+  background: linear-gradient(135deg, #c9e6d2, #b0d8bd);
+  color: #33684a;
+  box-shadow: 0 6rpx 16rpx rgba(111, 175, 134, 0.18);
+}
+
+/* 查看全部词条：浅青蓝（与绿同冷暖，区分色相） */
+.btn-view {
+  background: linear-gradient(135deg, #c8dfe9, #afcfde);
+  color: #345d72;
+  box-shadow: 0 6rpx 16rpx rgba(111, 165, 190, 0.18);
+}
+
+/* 词条审核：浅金杏（呼应装饰星 #e8d5a3） */
+.btn-audit {
+  background: linear-gradient(135deg, #f0e6c8, #e6d6aa);
+  color: #74613a;
+  box-shadow: 0 6rpx 16rpx rgba(190, 165, 105, 0.16);
+}
+
+/* 搜索框：浅绿胶囊 + 放大镜 */
+.search-wrap {
+  display: flex;
+  align-items: center;
+  height: 78rpx;
+  background: #eef6f0;
+  border: 2rpx solid #dcebe1;
+  border-radius: 40rpx;
+  padding: 0 28rpx;
+  box-sizing: border-box;
+  margin: 30rpx 0 26rpx;
+}
+
+.search-icon {
+  font-size: 26rpx;
+  margin-right: 14rpx;
+}
+
+.search {
+  flex: 1;
+  height: 100%;
+  background: transparent;
+  padding: 0;
+  font-size: 28rpx;
+  color: #2f5d3f;
+}
+
+/* 搜索结果分组标题 */
+.category-title {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #2f6b46;
+  margin: 18rpx 6rpx 10rpx;
+}
+
+.cat-dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: #8cc6a0;
+}
+
+/* 六分类标签：莫兰迪浅绿胶囊 */
 .tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 18rpx;
-  margin-bottom: 25rpx;
+  gap: 16rpx;
+  margin-bottom: 26rpx;
 }
 
 .tab {
-  padding: 14rpx 25rpx;
-  background: #ffffff;
+  padding: 12rpx 28rpx;
+  background: #f2f9f4;
+  border: 2rpx solid #e2f0e6;
   border-radius: 40rpx;
   font-size: 26rpx;
-  color: #555;
+  color: #4a7a5e;
 }
 
 .tab.active {
-  background: #8b5cf6;
-  color: white;
+  background: linear-gradient(135deg, #c9e6d2, #a8d8bd);
+  border-color: #b5ddc2;
+  color: #2f6b46;
+  font-weight: 600;
 }
 
 /* 当前分类标题 */
 .current-title {
-  font-size: 34rpx;
+  font-size: 32rpx;
   font-weight: bold;
+  color: #2f6b46;
   margin-bottom: 20rpx;
 }
 
@@ -84,33 +147,40 @@
 }
 
 .entry-card {
-  background: white;
-  border-radius: 16rpx;
-  padding: 14rpx 18rpx;
-  margin-bottom: 12rpx;
-  box-shadow: 0 3rpx 8rpx rgba(0, 0, 0, 0.05);
+  background: linear-gradient(180deg, #ffffff, #f7fbf8);
+  border: 2rpx solid #e4f0e8;
+  border-radius: 18rpx;
+  padding: 17rpx 24rpx;
+  margin-bottom: 16rpx;
+  box-shadow: 0 4rpx 12rpx rgba(111, 175, 134, 0.1);
 }
 
 .entry-name {
   display: block;
   font-size: 30rpx;
   font-weight: bold;
-  color: #222;
-  line-height: 1.2;
+  color: #000000;
+  line-height: 1.15;
 }
 
 .entry-desc {
   display: block;
-  margin-top: 5rpx;
-  font-size: 25rpx;
-  color: #666;
-  line-height: 1.35;
+  margin-top: 4rpx;
+  font-size: 24rpx;
+  color: #7a8f81;
+  line-height: 1.4;
 }
 
-.empty {
+/* 空状态 */
+.empty,
+.empty-tip {
   text-align: center;
-  color: #999;
-  padding: 80rpx 0;
+  color: #9db8a8;
+  padding: 70rpx 0;
+  font-size: 26rpx;
+  background: #f2f9f4;
+  border-radius: 20rpx;
+  margin-top: 20rpx;
 }
 
 /* 投稿弹窗 */
@@ -120,15 +190,16 @@
   top: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.55);
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
 
 .modal-box {
   width: 82%;
-  max-height: 85vh;
+  max-height: 90vh;
   overflow-y: auto;
   background: white;
   border-radius: 30rpx;
@@ -185,7 +256,7 @@
 
 /* 弹窗按钮 */
 .submit-btn {
-  background: #8b5cf6;
+  background: #6ab88a;
   color: white;
   border-radius: 20rpx;
   margin-top: 20rpx;
@@ -249,7 +320,7 @@
   display: block;
   font-size: 30rpx;
   font-weight: bold;
-  color: #333;
+  color: #2f4f3a;
 }
 
 .similar-desc {
@@ -258,4 +329,296 @@
   font-size: 26rpx;
   color: #666;
   line-height: 1.5;
+}
+/* ===== 页面标题图标（主界面同款，48rpx 缩放版） ===== */
+.title-with-icon,
+.title-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+}
+
+.page-icon {
+  width: 48rpx;
+  height: 48rpx;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* 历史：时钟（蓝） */
+.page-icon.icon-history {
+  border: 3rpx solid #6a9fc8;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.page-icon.icon-history .clock-hand {
+  position: absolute;
+  background: #6ab88a;
+  border-radius: 2rpx;
+}
+
+.page-icon.icon-history .clock-hand-v {
+  width: 4rpx;
+  height: 14rpx;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -100%);
+  transform-origin: bottom center;
+}
+
+.page-icon.icon-history .clock-hand-h {
+  width: 10rpx;
+  height: 4rpx;
+  left: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* 收藏：五角星（黄，空心） */
+.page-icon.icon-favorite {
+  position: relative;
+  background: #e0b848;
+  clip-path: polygon(
+    50% 0%,
+    61% 35%,
+    98% 35%,
+    68% 57%,
+    79% 91%,
+    50% 70%,
+    21% 91%,
+    32% 57%,
+    2% 35%,
+    39% 35%
+  );
+}
+
+.page-icon.icon-favorite::after {
+  content: '';
+  position: absolute;
+  inset: 5rpx;
+  background: #fdfbf5;
+  clip-path: polygon(
+    50% 0%,
+    61% 35%,
+    98% 35%,
+    68% 57%,
+    79% 91%,
+    50% 70%,
+    21% 91%,
+    32% 57%,
+    2% 35%,
+    39% 35%
+  );
+}
+
+/* 词条中心：打开的书（绿） */
+.page-icon.icon-entries .book-page {
+  position: absolute;
+  top: 7rpx;
+  width: 19rpx;
+  height: 33rpx;
+  border: 3rpx solid #6ab88a;
+  box-sizing: border-box;
+}
+
+.page-icon.icon-entries .book-left {
+  left: 4rpx;
+  border-right: none;
+  border-radius: 5rpx 0 0 5rpx;
+  transform: skewY(-4deg);
+  transform-origin: right center;
+}
+
+.page-icon.icon-entries .book-right {
+  right: 4rpx;
+  border-left: none;
+  border-radius: 0 5rpx 5rpx 0;
+  transform: skewY(4deg);
+  transform-origin: left center;
+}
+
+/* 成就：奖杯（红） */
+.page-icon.icon-achievement .trophy-cup {
+  position: absolute;
+  left: 50%;
+  top: 3rpx;
+  transform: translateX(-50%);
+  width: 28rpx;
+  height: 21rpx;
+  border: 4rpx solid #d87070;
+  border-top: none;
+  border-radius: 0 0 12rpx 12rpx;
+  box-sizing: border-box;
+}
+
+.page-icon.icon-achievement .trophy-cup::before {
+  content: '';
+  position: absolute;
+  left: -8rpx;
+  top: 2rpx;
+  width: 6rpx;
+  height: 10rpx;
+  border: 3rpx solid #d87070;
+  border-right: none;
+  border-radius: 8rpx 0 0 8rpx;
+}
+
+.page-icon.icon-achievement .trophy-cup::after {
+  content: '';
+  position: absolute;
+  right: -8rpx;
+  top: 2rpx;
+  width: 6rpx;
+  height: 10rpx;
+  border: 3rpx solid #d87070;
+  border-left: none;
+  border-radius: 0 8rpx 8rpx 0;
+}
+
+.page-icon.icon-achievement .trophy-stem {
+  position: absolute;
+  left: 50%;
+  top: 26rpx;
+  transform: translateX(-50%);
+  width: 6rpx;
+  height: 8rpx;
+  background: #d87070;
+}
+
+.page-icon.icon-achievement .trophy-base {
+  position: absolute;
+  left: 50%;
+  bottom: 4rpx;
+  transform: translateX(-50%);
+  width: 21rpx;
+  height: 6rpx;
+  background: #d87070;
+  border-radius: 2rpx;
+}
+
+/* ===== 主页面同款装饰：云朵 + 四角星 ===== */
+page {
+  background: linear-gradient(#ffffff, #f0f7f2);
+}
+
+.container {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(#ffffff, #f0f7f2);
+}
+
+/* 底部云朵：圆 + 底座，横穿屏幕 */
+.cloud-bg {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  bottom: -20rpx;
+  height: 280rpx;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.cloud-bg-base {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 80rpx;
+  background: #e2f0e6;
+}
+
+.cb {
+  position: absolute;
+  background: #e2f0e6;
+  border-radius: 50%;
+  bottom: 0;
+}
+
+/* 四角星装饰（菱形芒星） */
+.sparkle-deco {
+  position: absolute;
+  z-index: 2;
+  clip-path: polygon(
+    50% 0%,
+    65% 35%,
+    100% 50%,
+    65% 65%,
+    50% 100%,
+    35% 65%,
+    0% 50%,
+    35% 35%
+  );
+  animation: sparkle-float 3s ease-in-out infinite;
+}
+/* 随机四角星装饰（页面级） */
+.page-sparkles {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+
+@keyframes sparkle-float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateY(-10rpx) rotate(15deg);
+    opacity: 1;
+  }
+}
+
+/* 内容浮在云朵之上 */
+.title,
+.title-row,
+.header,
+.intro {
+  position: relative;
+  z-index: 2;
+}
+
+.entry-area {
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== 相似 tag 推荐 ===== */
+.tag-suggest {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  background: #f0f7f2;
+  border-radius: 15rpx;
+  padding: 16rpx;
+  margin-bottom: 20rpx;
+}
+.tag-suggest-item {
+  padding: 8rpx 20rpx;
+  background: #ffffff;
+  border: 2rpx solid #bcdcc8;
+  border-radius: 24rpx;
+  font-size: 26rpx;
+  color: #2f6b46;
+}
+
+/* ===== 词条 tag 显示 ===== */
+.entry-tags {
+  margin-top: 8rpx;
+}
+.entry-tag-line {
+  font-size: 25rpx;
+  color: #7ba6b5;
+  line-height: 1.3;
 }

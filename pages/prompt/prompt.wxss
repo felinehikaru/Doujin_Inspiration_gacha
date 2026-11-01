@@ -18,9 +18,9 @@ page {
 
 .title-text {
   display: block;
-  font-size: 48rpx;
-  font-weight: 900;
-  color: #333;
+  font-size: 38rpx;
+  font-weight: bold;
+  color: #222;
 }
 
 .subtitle {
@@ -51,28 +51,37 @@ page {
 }
 
 /* 按钮 */
-.button-area {
-  margin-top: 40rpx;
+.btn {
+  width: 200rpx;
+  height: 64rpx;
+  line-height: 64rpx;
+  padding: 0 24rpx;
+  border-radius: 32rpx;
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #ffffff;
+  margin-top: 16rpx;
 }
 
-.btn {
-  height: 90rpx;
-  line-height: 90rpx;
-  border-radius: 45rpx;
-  font-size: 32rpx;
-  font-weight: bold;
-  color: white;
-  margin-top: 20rpx;
+.button-area {
+  margin-top: 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.btn::after {
+  border: none;
 }
 
 .save-btn {
-  background: #7b8ee8;
+  background: #a8c5e0;
 }
 
 .copy-btn {
-  background: #9b6de3;
+  background: #c8b8e0;
 }
 
 .back-btn {
-  background: #888;
+  background: #c8c8c8;
 }

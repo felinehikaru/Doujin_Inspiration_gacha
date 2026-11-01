@@ -11,10 +11,10 @@
   ],
 
   "window": {
-    "navigationBarTitleText": "同人梗扭蛋机",
-    "navigationBarBackgroundColor": "#7a6ff0",
+    "navigationBarTitleText": "创作抽灵感随机扭蛋机",
+    "navigationBarBackgroundColor": "#8bb1bf",
     "navigationBarTextStyle": "white",
-    "backgroundColor": "#f5f0ff"
+    "backgroundColor": "#ffffff"
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json",

@@ -14,6 +14,14 @@ function saveHistory(page, result) {
     return;
   }
 
+  // 保存完整词条信息（用于词条列表显示）
+  const entries = result.map(item => ({
+    text: item.text,
+    desc: item.desc || "",
+    category: item.category || "",
+    categoryName: item.categoryName || ""
+  }));
+
   const text = result
     .map(item => item.text)
     .join(" + ");
@@ -22,12 +30,13 @@ function saveHistory(page, result) {
 
   history.unshift({
     text: text,
+    entries: entries,
     time: Date.now()
   });
 
-  // 最大保存50条
-  if (history.length > 50) {
-    history = history.slice(0, 50);
+  // 最大保存30条
+  if (history.length > 30) {
+    history = history.slice(0, 30);
   }
 
   wx.setStorageSync("history", history);

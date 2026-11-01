@@ -1,9 +1,14 @@
 // pages/entries/entries.js
 
 const app = getApp();
+const categoryConfig = require("../../utils/category.js");
+
+
+const { generateSparkles, THEME_COLORS, randInt } = require("../../beautify/sparkleGen.js");
 
 Page({
   data: {
+    sparkles: [],
     role: "visitor",
     showList: false,
 
@@ -19,38 +24,13 @@ Page({
     // =====================
     // 六分类
     // =====================
-    categoryList: [
-      {
-        category: "world",
-        title: "世界背景",
-        list: []
-      },
-      {
-        category: "relationship",
-        title: "关系设定",
-        list: []
-      },
-      {
-        category: "character",
-        title: "角色身份",
-        list: []
-      },
-      {
-        category: "conflict",
-        title: "冲突矛盾",
-        list: []
-      },
-      {
-        category: "scene",
-        title: "特殊场景",
-        list: []
-      },
-      {
-        category: "theme",
-        title: "主题氛围",
-        list: []
-      }
-    ],
+    categoryList: categoryConfig.list.map(item => {
+      return {
+        category:item.value,
+        title:item.name,
+        list:[]
+      };
+    }),
 
     // 当前分类
     currentCategory: "all",
@@ -79,32 +59,19 @@ Page({
     similarEntries: [],
     showSimilar: false,
 
-    categoryOptions: [
-      {
-        value: "world",
-        label: "世界背景"
-      },
-      {
-        value: "relationship",
-        label: "关系设定"
-      },
-      {
-        value: "character",
-        label: "角色身份"
-      },
-      {
-        value: "conflict",
-        label: "冲突矛盾"
-      },
-      {
-        value: "scene",
-        label: "特殊场景"
-      },
-      {
-        value: "theme",
-        label: "主题氛围"
-      }
-    ],
+    // =====================
+    // 标签推荐（相似 tag 筛选）
+    // =====================
+    tagList: [],
+    tagSuggestions: [],
+
+    categoryOptions:
+    categoryConfig.list.map(item=>{
+      return {
+        value:item.value,
+        label:item.name
+      };
+    }),
 
     // =====================
     // 分页
@@ -119,6 +86,15 @@ Page({
   // =====================
   onLoad() {
     this.checkRole();
+  this.setData({
+    sparkles: [
+      // 标题/副标题区域：至少 3 颗
+      ...generateSparkles({ colors: THEME_COLORS.entries, count: 3, xRange: [[70, 165], [680, 715]], yRange: [15, 100] }),
+      // 页面其他区域：3~5 颗
+      ...generateSparkles({ colors: THEME_COLORS.entries, count: randInt(3, 5), xRange: [[60, 120], [635, 685]], yRange: [360, 760] })
+    ]
+  });
+  
   },
 
   // =====================
@@ -127,12 +103,12 @@ Page({
   async checkRole() {
     try {
       const res = await wx.cloud.callFunction({
-        name: "checkRole"
+        name: "user", data: { action: "checkRole" }
       });
 
       if (res.result && res.result.success) {
         this.setData({
-          role: res.result.role || "visitor"
+          role: res.result.data.role || "visitor"
         });
       }
     } catch (e) {
@@ -150,16 +126,10 @@ Page({
   // 本地官方词库 + 本地用户词库
   // =====================
   getEntrySource() {
-    let official = [];
-    let user = [];
-
-    if (app.globalData.online) {
-      official = app.globalData.cloudOfficialEntries || [];
-      user = app.globalData.cloudUserEntries || [];
-    } else {
-      official = app.globalData.localOfficialEntries || [];
-      user = app.globalData.localUserEntries || [];
-    }
+    // 本地缓存词库为权威数据源（app 启动时加载/云端同步后写入缓存，与抽卡同源）
+    // 云端字段(cloudOfficialEntries)只在投稿弹窗打开时临时填充，平时为空，不可依赖
+    const official = app.globalData.localOfficialEntries || [];
+    const user = app.globalData.localUserEntries || [];
 
     return [...official, ...user];
   },
@@ -224,6 +194,88 @@ Page({
     this.setData({
       entries: source
     });
+
+    // 构建现有 tag 列表（供相似 tag 推荐）
+    this.buildTagList(source);
+  },
+
+  // =====================
+  // 构建现有 tag 词频列表（去重、按出现次数排序）
+  // =====================
+  buildTagList(source) {
+    const freq = {};
+    const list = Array.isArray(source) ? source : [];
+
+    list.forEach(item => {
+      const tags = Array.isArray(item.tags) ? item.tags : [];
+      tags.forEach(t => {
+        if (t && typeof t === "string") {
+          const key = t.trim();
+          if (key) {
+            freq[key] = (freq[key] || 0) + 1;
+          }
+        }
+      });
+    });
+
+    const tagList = Object.keys(freq).sort((a, b) => freq[b] - freq[a]);
+
+    this.setData({ tagList });
+
+    return tagList;
+  },
+
+  // =====================
+  // 标签输入：检测相似 tag 并推荐
+  // =====================
+  onTagsInput(e) {
+    const value = e.detail.value || "";
+    const parts = value.split(/[,，]/);
+    const keyword = (parts[parts.length - 1] || "").trim();
+
+    // 兜底：tagList 为空（openUpload 构建失败）时即时从词库构建
+    let tagList = this.data.tagList;
+    if (!tagList || !tagList.length) {
+      tagList = this.buildTagList(this.getEntrySource()) || [];
+    }
+
+    let suggestions = [];
+    if (keyword) {
+      const selected = parts.slice(0, -1)
+        .map(s => s.trim())
+        .filter(s => s);
+
+      suggestions = tagList
+        .filter(t => t.includes(keyword) && !selected.includes(t))
+        .sort((a, b) => {
+          // 前缀匹配优先
+          const pa = a.startsWith(keyword) ? 0 : 1;
+          const pb = b.startsWith(keyword) ? 0 : 1;
+          return pa - pb;
+        })
+        .slice(0, 6);
+    }
+
+    this.setData({
+      uploadTags: value,
+      tagSuggestions: suggestions
+    });
+  },
+
+  // =====================
+  // 点击候选 tag：替换当前输入片段
+  // =====================
+  chooseTag(e) {
+    const tag = e.currentTarget.dataset.tag;
+    const value = this.data.uploadTags || "";
+    const parts = value.split(/[,，]/);
+
+    parts[parts.length - 1] = tag;
+
+    this.setData({
+      uploadTags: parts.join("，"),
+      tagSuggestions: []
+    });
   },
 
   // =====================
@@ -258,12 +310,6 @@ Page({
   onDescInput(e) {
     this.setData({
       uploadDesc: e.detail.value
-    });
-  },
-
-  onTagsInput(e) {
-    this.setData({
-      uploadTags: e.detail.value
     });
   },
 
@@ -362,47 +408,22 @@ Page({
   // 分类整理
   // =====================
   formatEntries(list) {
-    const result = [
-      {
-        category: "world",
-        title: "世界背景",
+    const result = categoryConfig.list.map(item => {
+      return {
+        category: item.value,
+        title: item.name,
         list: []
-      },
-      {
-        category: "relationship",
-        title: "关系设定",
-        list: []
-      },
-      {
-        category: "character",
-        title: "角色身份",
-        list: []
-      },
-      {
-        category: "conflict",
-        title: "冲突矛盾",
-        list: []
-      },
-      {
-        category: "scene",
-        title: "特殊场景",
-        list: []
-      },
-      {
-        category: "theme",
-        title: "主题氛围",
-        list: []
-      }
-    ];
-
+      };
+    });
+  
     list.forEach(item => {
       const group = result.find(g => g.category === item.category);
-
+  
       if (group) {
         group.list.push(item);
       }
     });
-
+  
     return result;
   },
 
@@ -460,11 +481,19 @@ Page({
       return;
     }
 
+    // 以 # 开头：按 tag 搜索
+    const isTagSearch = key.startsWith("#");
+    const searchKey = isTagSearch ? key.slice(1).trim() : key;
+
     const result = this.data.entries.filter(item => {
+      if (isTagSearch) {
+        const tags = item.tags || [];
+        return tags.some(t => t.includes(searchKey));
+      }
       const text = item.text || "";
       const desc = item.desc || "";
 
-      return text.includes(key) || desc.includes(key);
+      return text.includes(searchKey) || desc.includes(searchKey);
     });
 
     this.setData({
@@ -478,6 +507,7 @@ Page({
   // 投稿提交
   // =====================
   async submitEntry() {
+    console.log('[submitEntry] 点击', this.data.uploadText, this.data.showSimilar);
     const d = this.data;
 
     if (!d.uploadText || !d.uploadDesc || !d.uploadCategory) {
@@ -501,8 +531,9 @@ Page({
 
     try {
       const res = await wx.cloud.callFunction({
-        name: "submitEntry",
+        name: "entryAdmin",
         data: {
+          action: "submit",
           text: d.uploadText,
           desc: d.uploadDesc,
           category: d.uploadCategory,
@@ -510,16 +541,16 @@ Page({
         }
       });
 
+      console.log("[submitEntry] 云函数返回", res.result);
       if (res.result && res.result.success) {
-        wx.showToast({
-          title: "提交成功",
-          icon: "success"
-        });
-
+        wx.showToast({ title: "提交成功", icon: "success" });
         this.closeUpload();
+      } else {
+        wx.showToast({ title: (res.result && res.result.message) || "提交失败", icon: "none", duration: 2500 });
       }
     } catch (e) {
-      console.log("投稿失败", e);
+      console.log("[submitEntry] 投稿失败", e);
+      wx.showToast({ title: "网络错误", icon: "none" });
     }
   },
 

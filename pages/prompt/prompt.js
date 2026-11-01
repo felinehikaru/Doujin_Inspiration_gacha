@@ -32,17 +32,11 @@ Page({
     let text = "";
   
     if (results.length) {
-      text =
-        `用以下三个灵感词作为关键词，生成一份文本大纲或简单剧情：
-  
-  `;
-  
+    
       results.forEach((item, index) => {
         text +=
           `灵感词${index + 1}：
   名称：${item.text || ""}
-  
-  描述：
   ${item.desc || ""}
   
   `;

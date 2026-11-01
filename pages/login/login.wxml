@@ -1,17 +1,56 @@
 <view class="container">
-  <view class="title">
-    <text class="title-text">👤 用户中心</text>
+
+  <!-- 底部云朵装饰（主页面同款：圆+底座横穿屏幕） -->
+  <view class="cloud-bg">
+    <view class="cloud-bg-base"></view>
+    <view class="cb" style="left:2%; width:160rpx; height:160rpx;"></view>
+    <view class="cb" style="left:14%; width:240rpx; height:240rpx;"></view>
+    <view class="cb" style="left:36%; width:130rpx; height:130rpx;"></view>
+    <view class="cb" style="left:55%; width:220rpx; height:220rpx;"></view>
+    <view class="cb" style="left:76%; width:170rpx; height:170rpx;"></view>
+    <view class="cb" style="left:90%; width:110rpx; height:110rpx;"></view>
   </view>
 
-  <!-- 未登录 -->
-  <view wx:if="{{role==='visitor'}}" class="user-card">
-    <text class="status">当前未登录</text>
-    <button class="login-btn" open-type="getUserProfile" bindtap="login">微信登录</button>
+  <!-- 标题 + 四角星装饰 -->
+  <view class="title">
+    <view class="sparkle-deco sparkle-1"></view>
+    <view class="sparkle-deco sparkle-2"></view>
+    <view class="sparkle-deco sparkle-3"></view>
+    <view class="title-with-icon">
+      <view class="page-icon icon-user">
+        <view class="user-head"></view>
+        <view class="user-body"></view>
+      </view>
+      <text class="title-text">用户中心</text>
+    </view>
+  </view>
+
+  <!-- 未登录：头像+昵称选择 -->
+  <view wx:if="{{role==='visitor'}}" class="login-card">
+    <view class="login-avatar-wrap">
+      <button
+        class="login-avatar-btn {{tempAvatarUrl ? 'done' : ''}}"
+        open-type="chooseAvatar"
+        bindchooseavatar="onChooseAvatar"
+      >
+        <image wx:if="{{tempAvatarUrl}}" class="login-avatar" src="{{tempAvatarUrl}}" mode="aspectFill"></image>
+        <text wx:else class="login-avatar-text">点击选择头像</text>
+      </button>
+    </view>
+    <input
+      type="nickname"
+      class="login-nick {{tempNickName ? 'done' : ''}}"
+      value="{{tempNickName}}"
+      bindinput="onNickInput"
+      bindblur="onNickBlur"
+      placeholder="点击选择昵称"
+      placeholder-class="login-nick-ph"
+    />
   </view>
 
   <!-- 已登录 -->
   <view wx:else class="user-card">
-    <text class="status">当前身份：{{role}}</text>
+    <text class="status">当前身份：{{role === 'visitor' ? '游客' : role === 'maintainer' ? '维护者' : role === 'admin' ? '管理员' : '用户'}}</text>
     <button class="logout-btn" bindtap="logout">登出</button>
     <button class="delete-btn" bindtap="deleteAccount">账户注销</button>
   </view>

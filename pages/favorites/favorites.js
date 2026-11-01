@@ -1,6 +1,11 @@
 // pages/favorites/favorites.js
+const categoryConfig = require("../../utils/category.js");
+
+const { generateSparkles, THEME_COLORS, randInt } = require("../../beautify/sparkleGen.js");
+
 Page({
   data:{
+    sparkles: [],
     favorites:[],
     displayFavorites:[],
     role:"visitor",
@@ -12,6 +17,15 @@ Page({
 
   onLoad(){
     this.checkRole();
+  this.setData({
+    sparkles: [
+      // 标题/副标题区域：至少 3 颗
+      ...generateSparkles({ colors: THEME_COLORS.favorite, count: 3, xRange: [[70, 165], [680, 715]], yRange: [15, 100] }),
+      // 页面其他区域：3~5 颗
+      ...generateSparkles({ colors: THEME_COLORS.favorite, count: randInt(3, 5), xRange: [[60, 120], [635, 685]], yRange: [360, 760] })
+    ]
+  });
+  
   },
 
   onShow(){
@@ -21,11 +35,11 @@ Page({
   async checkRole(){
     try{
       const res=await wx.cloud.callFunction({
-        name:"checkRole"
+        name:"user", data: { action: "checkRole" }
       });
 
       const role=res.result&&res.result.success
-        ?res.result.role||"visitor"
+        ?res.result.data.role||"visitor"
         :"visitor";
 
       this.setData({
@@ -39,19 +53,25 @@ Page({
     }
   },
 
-  formatEntries(entries){
-    const categoryName={
-      world:"世界背景",
-      relationship:"关系设定",
-      character:"角色身份",
-      conflict:"冲突矛盾",
-      scene:"特殊场景",
-      theme:"主题氛围"
-    };
+  formatTime(time) {
+    if (!time) {
+      return "";
+    }
+    const date = new Date(time);
 
-    return (entries||[]).map(entry=>({
+    return (
+      date.getFullYear() + "-" +
+      String(date.getMonth() + 1).padStart(2, "0") + "-" +
+      String(date.getDate()).padStart(2, "0") + " " +
+      String(date.getHours()).padStart(2, "0") + ":" +
+      String(date.getMinutes()).padStart(2, "0")
+    );
+  },
+
+  formatEntries(entries) {
+    return (entries || []).map(entry => ({
       ...entry,
-      categoryName:categoryName[entry.category]||"其他"
+      categoryName: categoryConfig.getName(entry.category) || "其他"
     }));
   },
 
@@ -59,6 +79,7 @@ Page({
     return (list||[]).map((item,index)=>({
       ...item,
       clientKey:item._id||item.clientKey||`local-${item.createTime||""}-${index}`,
+      timeText:this.formatTime(item.createTime||item.time||item._createTime),
       entries:this.formatEntries(item.entries)
     }));
   },

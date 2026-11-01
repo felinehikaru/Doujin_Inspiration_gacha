@@ -1,54 +1,91 @@
 <!-- pages/history/history.wxml -->
 
 <view class="container">
+  <!-- 底部云朵装饰 -->
+  <view class="cloud-bg">
+    <view class="cloud-bg-base"></view>
+    <view class="cb" style="left:2%; width:160rpx; height:160rpx;"></view>
+    <view class="cb" style="left:14%; width:240rpx; height:240rpx;"></view>
+    <view class="cb" style="left:36%; width:130rpx; height:130rpx;"></view>
+    <view class="cb" style="left:55%; width:220rpx; height:220rpx;"></view>
+    <view class="cb" style="left:76%; width:170rpx; height:170rpx;"></view>
+    <view class="cb" style="left:90%; width:110rpx; height:110rpx;"></view>
+  </view>
+
+  <!-- 随机四角星装饰（每次打开随机生成） -->
+  <view class="page-sparkles">
+    <view
+      wx:for="{{sparkles}}"
+      wx:key="index"
+      class="sparkle-deco"
+      style="left:{{item.x}}rpx;top:{{item.y}}rpx;width:{{item.size}}rpx;height:{{item.size}}rpx;background:{{item.color}};animation-delay:{{item.delay}}s;"
+    ></view>
+  </view>
+
+
+
 
   <view class="header">
-    <text class="title">📜 历史记录</text>
-    <text class="count">共{{history.length}}条</text>
+    <view class="title-row">
+      <view class="title-icon-wrap">
+        <view class="page-icon icon-history">
+          <view class="clock-hand clock-hand-h"></view>
+          <view class="clock-hand clock-hand-v"></view>
+        </view>
+        <text class="title">历史记录</text>
+      </view>
+    </view>
+    <view class="sub-row">
+      <view class="count-wrap">
+        <text class="count">最多保存30条</text>
+        <text class="count">清除本地缓存记录消失</text>
+      </view>
+      <view class="sub-actions">
+        <button class="order-btn" hover-class="detail-btn-hover" hover-stay-time="80" bindtap="toggleOrder">{{order === "desc" ? "逆序" : "正序"}}</button>
+        <button class="detail-btn" hover-class="detail-btn-hover" hover-stay-time="80" bindtap="toggleDetail">{{showDetail ? "收起" : "详情"}}</button>
+      </view>
+    </view>
   </view>
 
   <view class="history-list">
 
-    <view class="history-card" wx:for="{{history}}" wx:key="index">
+    <view wx:for="{{history}}" wx:key="index" class="history-card">
 
-      <text class="history-index">
-        第{{index+1}}次
-      </text>
+      <view class="history-meta">
+        <text class="history-index">{{item.timeIndex}}</text>
+        <text class="history-time">{{item.timeText}}</text>
+      </view>
 
-      <text class="history-text">
-        {{item.text}}
-      </text>
+      <view class="history-entries">
+        <block wx:for="{{item.entries}}" wx:key="index" wx:for-item="entry">
+          <view class="entry-item">
+            <view class="entry-title">
+              <text>{{entry.text}}</text>
+            </view>
+            <view wx:if="{{showDetail && entry.desc}}" class="entry-desc">{{entry.desc}}</view>
+            <view wx:if="{{showDetail && entry.categoryName}}" class="entry-category">分类：{{entry.categoryName}}</view>
+          </view>
+        </block>
+      </view>
 
-      <button class="history-copy-btn" data-index="{{index}}" bindtap="copyHistory">
-        复制
-      </button>
-
-      <text class="history-time">
-        {{item.timeText}}
-      </text>
+      <view class="history-actions">
+        <button class="copy-btn" data-index="{{index}}" bindtap="copyHistory">复制</button>
+      </view>
 
     </view>
 
     <view wx:if="{{!history.length}}" class="empty">
-
-      <text>
-        暂无历史记录
-      </text>
-
+      <text>暂无历史记录</text>
     </view>
 
   </view>
 
   <button class="clear-btn" bindtap="clearHistory">
-
-    🗑️ 清空历史记录
-
+    清空历史记录
   </button>
 
   <button class="back-btn" bindtap="goBack">
-
     返回
-
   </button>
 
 </view>

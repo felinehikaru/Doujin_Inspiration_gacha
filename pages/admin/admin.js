@@ -1,3 +1,5 @@
+const categoryConfig = require("../../utils/category.js");
+
 Page({
   data: {
     pendingList: [],
@@ -11,42 +13,14 @@ Page({
     editCategory: "",
     editTags: "",
 
-    categoryList: [{
-        value: "world",
-        name: "世界背景"
-      },
-      {
-        value: "relationship",
-        name: "关系设定"
-      },
-      {
-        value: "character",
-        name: "角色身份"
-      },
-      {
-        value: "conflict",
-        name: "冲突矛盾"
-      },
-      {
-        value: "scene",
-        name: "特殊场景"
-      },
-      {
-        value: "theme",
-        name: "主题氛围"
-      }
-    ]
-  },
-
-  getCategoryName(value) {
-
-    const item = this.data.categoryList.find(
-      i => i.value === value
-    );
-
-    return item ? item.name : "";
+  // 分类配置
+    categoryList: categoryConfig.list
 
   },
+
+getCategoryName(value) {
+  return categoryConfig.getName(value);
+},
 
   onShow() {
     const app = getApp();
@@ -74,7 +48,7 @@ Page({
   async loadPending() {
     try {
       const res = await wx.cloud.callFunction({
-        name: "getPendingEntries"
+        name: "entryAdmin", data: { action: "list" }
       });
 
       console.log("getPendingEntries返回:", res);
@@ -187,8 +161,9 @@ Page({
 
     try {
       const res = await wx.cloud.callFunction({
-        name: "updatePendingEntry",
+        name: "entryAdmin",
         data: {
+          action: "update",
           entryId: this.data.editId,
           text: this.data.editText,
           desc: this.data.editDesc,
@@ -231,10 +206,11 @@ Page({
 
     try {
       const res = await wx.cloud.callFunction({
-        name: "approveEntry",
+        name: "entryAdmin",
         data: {
+          action: "review",
           entryId: id,
-          action: "approve"
+          reviewAction: "approve"
         }
       });
 
@@ -269,10 +245,11 @@ Page({
 
     try {
       const res = await wx.cloud.callFunction({
-        name: "approveEntry",
+        name: "entryAdmin",
         data: {
+          action: "review",
           entryId: id,
-          action: "reject"
+          reviewAction: "reject"
         }
       });
 

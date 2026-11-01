@@ -9,22 +9,6 @@ const db = cloud.database();
 const collection = db.collection("achievement_progress");
 
 // =====================
-// 成就规则
-// =====================
-const rules = [
-  {
-    id: "first_draw",
-    key: "drawCount",
-    target: 1
-  },
-  {
-    id: "thirty_entries",
-    key: "entryCount",
-    target: 330
-  }
-];
-
-// =====================
 // 数据格式整理
 // =====================
 function normalizeProgress(document, openid) {
@@ -41,26 +25,39 @@ function normalizeProgress(document, openid) {
           achievedAt: document.createTime || new Date()
         }));
 
+  const src = (document && document.inProgress) || document || {};
+
+  const arr = (key) =>
+    Array.isArray(src[key]) ? src[key] : [];
+
   return {
     ...document,
     openid,
     inProgress: {
-      drawCount:
-        Number(
-          document &&
-          document.inProgress &&
-          document.inProgress.drawCount ||
-          document &&
-          document.drawCount
-        ) || 0,
-      entryCount:
-        Number(
-          document &&
-          document.inProgress &&
-          document.inProgress.entryCount ||
-          document &&
-          document.entryCount
-        ) || 0
+      // =====================
+      // 普通成就字段
+      // =====================
+      drawCount: Number(src.drawCount) || 0,
+      entryCount: Number(src.entryCount) || 0,
+      shareCount: Number(src.shareCount) || 0,
+      fourClassicsCount: Number(src.fourClassicsCount) || 0,
+      pokemonCount: Number(src.pokemonCount) || 0,
+      vulgarCount: Number(src.vulgarCount) || 0,
+      collectedTags: arr("collectedTags"),
+      pokemonTexts: arr("pokemonTexts"),
+      vulgarTexts: arr("vulgarTexts"),
+
+      // =====================
+      // 隐藏成就字段
+      // =====================
+      gongCount: Number(src.gongCount) || 0,
+      moCount: Number(src.moCount) || 0,
+      cyberCount: Number(src.cyberCount) || 0,
+      cyberSetHit: !!src.cyberSetHit,
+      crashCount: Number(src.crashCount) || 0,
+      gongTexts: arr("gongTexts"),
+      moTexts: arr("moTexts"),
+      cyberTexts: arr("cyberTexts")
     },
     unlockedAchievements
   };
@@ -72,13 +69,146 @@ function normalizeProgress(document, openid) {
 async function getProgress(openid) {
   const result =
     await collection
-      .where({
-        openid
-      })
+      .where({ openid })
       .limit(1)
       .get();
 
   return result.data[0] || null;
+}
+
+// =====================
+// 累计词条（tag 统计）
+// =====================
+function accumulateEntries(progress, entries) {
+  const p = progress.inProgress;
+  const list = Array.isArray(entries) ? entries : [];
+
+  const add = (arr, v) => {
+    if (v && !arr.includes(v)) arr.push(v);
+  };
+
+  let hasCyber = false;
+  let hasMechanical = false;
+  let hasCity = false;
+
+  list.forEach(entry => {
+    const text = String(entry.text || "");
+    const category = String(entry.category || "");
+    const tags = Array.isArray(entry.tags)
+      ? entry.tags.map(String)
+      : [];
+
+    // =====================
+    // 普通成就统计
+    // =====================
+
+    // 累计所有 tag（去重）——四大名著共用
+    tags.forEach(t => add(p.collectedTags, t));
+
+    // 宝可梦：tag 含"宝可梦"的词条（按词条名去重）
+    if (tags.some(t => t.includes("宝可梦"))) {
+      add(p.pokemonTexts, text);
+    }
+
+    // 恶俗：tag 含"恶俗"的词条（按词条名去重）
+    if (tags.some(t => t.includes("恶俗"))) {
+      add(p.vulgarTexts, text);
+    }
+
+    // =====================
+    // 隐藏成就统计
+    // =====================
+
+    // 公公 / 嬷嬷：tag 含关键字的词条（按词条名去重）
+    if (tags.some(t => t.includes("公公"))) {
+      add(p.gongTexts, text);
+    }
+    if (tags.some(t => t.includes("嬷嬷"))) {
+      add(p.moTexts, text);
+    }
+    // 赛博朋克相关：tag 含"赛博朋克"或分类为赛博朋克
+    const isCyber =
+      tags.some(t => t.includes("赛博朋克")) ||
+      category.includes("赛博朋克");
+    if (isCyber) {
+      add(p.cyberTexts, text);
+    }
+
+    // 三件套：赛博朋克相关 / 机械改造者 / 未来都市（词条名或 tag）
+    if (isCyber || text.includes("赛博朋克")) hasCyber = true;
+    if (text.includes("机械改造者") || tags.some(t => t.includes("机械改造者"))) {
+      hasMechanical = true;
+    }
+    if (text.includes("未来都市") || tags.some(t => t.includes("未来都市"))) {
+      hasCity = true;
+    }
+  });
+
+  // =====================
+  // 汇总计数
+  // =====================
+
+  // 普通成就计数
+  p.fourClassicsCount = ["三国", "西游", "水浒", "红楼"]
+    .filter(t => p.collectedTags.includes(t))
+    .length;
+  p.pokemonCount = p.pokemonTexts.length;
+  p.vulgarCount = p.vulgarTexts.length;
+
+  // 隐藏成就计数
+  p.gongCount = p.gongTexts.length;
+  p.moCount = p.moTexts.length;
+  p.cyberCount = p.cyberTexts.length;
+
+  if (hasCyber && hasMechanical && hasCity) {
+    p.cyberSetHit = true;
+  }
+}
+
+// =====================
+// 规则检查：返回新解锁 id 列表
+// =====================
+function applyRules(progress) {
+  const newly = [];
+  const unlockedIds =
+    progress.unlockedAchievements
+      .map(item => typeof item === "string" ? item : item.id);
+
+  const unlock = (id) => {
+    if (!unlockedIds.includes(id)) {
+      progress.unlockedAchievements.push({
+        id,
+        achievedAt: new Date()
+      });
+      newly.push(id);
+    }
+  };
+
+  const p = progress.inProgress;
+  const hasTag = t => p.collectedTags.includes(t);
+
+  // ============================================================
+  // 普通成就解锁判断
+  // （新增普通成就时，在此区追加一条 if 判断）
+  // ============================================================
+  if (p.drawCount >= 1) unlock("first_draw");
+  if (p.entryCount >= 330) unlock("thirty_entries");
+  if (p.shareCount >= 1) unlock("share_first");
+  if (["三国", "西游", "水浒", "红楼"].every(hasTag)) unlock("four_classics");
+  if (p.pokemonCount >= 5) unlock("pokemon_master");
+  if (p.vulgarCount >= 5) unlock("green_frog");
+
+  // ============================================================
+  // 隐藏成就解锁判断
+  // （新增隐藏成就时，在此区追加一条 if 判断）
+  // ============================================================
+  if (p.gongCount >= 3) unlock("gong_gong");
+  if (p.moCount >= 3) unlock("mo_mo");
+  if (p.cyberCount >= 1) unlock("cyberpunk_entry");
+  if (p.cyberSetHit) unlock("cyberpunk_set");
+  if (p.crashCount >= 1) unlock("crash_recovery");
+
+  return newly;
 }
 
 // =====================
@@ -88,9 +218,6 @@ exports.main = async event => {
   try {
     const openid = cloud.getWXContext().OPENID;
 
-    // =====================
-    // openid检查
-    // =====================
     if (!openid) {
       return {
         success: false,
@@ -100,34 +227,15 @@ exports.main = async event => {
       };
     }
 
-    // =====================
-    // 登录检查
-    // =====================
-    const user =
-      await db.collection("users")
-        .where({
-          openid
-        })
-        .limit(1)
-        .get();
-
-    if (!user.data.length) {
-      return {
-        success: false,
-        data: null,
-        message: "用户功能，请登录",
-        code: "LOGIN_REQUIRED"
-      };
-    }
-
+    // 游客也按 openid 记录成就（openid 不变，登录后自动关联恢复），
+    // 避免游客本地记录因清缓存丢失后云端也查不到
     const saved = await getProgress(openid);
-
     const progress = normalizeProgress(saved, openid);
 
     let newlyUnlocked = [];
 
     // =====================
-    // 记录抽卡
+    // 记录抽卡（含词条 tag 累计）
     // =====================
     if (event.action === "recordDraw") {
       const entryCount =
@@ -135,55 +243,109 @@ exports.main = async event => {
           0,
           Math.min(
             Number(event.entryCount) || 0,
-            3
+            50
           )
         );
 
       progress.inProgress.drawCount += 1;
       progress.inProgress.entryCount += entryCount;
 
-      newlyUnlocked =
-        rules
-          .filter(rule => {
-            const unlocked =
-              progress.unlockedAchievements
-                .some(item => item.id === rule.id);
+      accumulateEntries(progress, event.entries);
+      newlyUnlocked = applyRules(progress);
+    }
 
-            if (
-              progress.inProgress[rule.key] >= rule.target &&
-              !unlocked
-            ) {
-              progress.unlockedAchievements.push({
-                id: rule.id,
-                achievedAt: new Date()
-              });
-              return true;
-            }
-            return false;
-          })
-          .map(rule => rule.id);
+    // =====================
+    // 记录分享
+    // =====================
+    if (event.action === "recordShare") {
+      progress.inProgress.shareCount += 1;
+      newlyUnlocked = applyRules(progress);
+    }
 
-      const data = {
-        inProgress: progress.inProgress,
-        unlockedAchievements: progress.unlockedAchievements,
-        updateTime: new Date()
-      };
+    // =====================
+    // 同步本地成就到云端（登录后/成就页打开时，合并并持久化）
+    // =====================
+    if (event.action === "syncLocal") {
+      const localUnlocked =
+        Array.isArray(event.unlockedAchievements)
+          ? event.unlockedAchievements
+          : [];
+      const localInProgress = event.inProgress || {};
 
-      if (progress._id) {
-        await collection
-          .doc(progress._id)
-          .update({
-            data
+      // 合并解锁成就
+      const cloudIds =
+        progress.unlockedAchievements
+          .map(item => typeof item === "string" ? item : item.id);
+      localUnlocked.forEach(item => {
+        const id = typeof item === "string" ? item : item.id;
+        if (id && !cloudIds.includes(id)) {
+          progress.unlockedAchievements.push({
+            id,
+            achievedAt: new Date()
           });
-      } else {
-        await collection.add({
-          data: {
-            openid,
-            ...data,
-            createTime: new Date()
-          }
+          cloudIds.push(id);
+        }
+      });
+
+      // 合并进度：数值取较大值，数组取并集，布尔取或
+      const lp = progress.inProgress;
+      Object.keys(localInProgress).forEach(k => {
+        const v = localInProgress[k];
+        if (typeof v === "number") {
+          lp[k] = Math.max(Number(lp[k]) || 0, v);
+        } else if (Array.isArray(v)) {
+          const target = Array.isArray(lp[k]) ? lp[k] : [];
+          v.forEach(x => {
+            if (x && !target.includes(x)) target.push(x);
+          });
+          lp[k] = target;
+        } else if (typeof v === "boolean") {
+          lp[k] = lp[k] || v;
+        }
+      });
+
+      newlyUnlocked = applyRules(progress);
+    }
+
+    // =====================
+    // 同步本地首个成就（登录后上传）
+    // =====================
+    if (event.action === "syncFirstDraw") {
+      const already =
+        progress.unlockedAchievements
+          .some(item => item.id === "first_draw");
+
+      if (!already) {
+        progress.unlockedAchievements.push({
+          id: "first_draw",
+          achievedAt: new Date()
         });
+        progress.inProgress.drawCount =
+          Math.max(progress.inProgress.drawCount, 1);
       }
+    }
+
+    // =====================
+    // 存储
+    // =====================
+    const data = {
+      inProgress: progress.inProgress,
+      unlockedAchievements: progress.unlockedAchievements,
+      updateTime: new Date()
+    };
+
+    if (progress._id) {
+      await collection
+        .doc(progress._id)
+        .update({ data });
+    } else {
+      await collection.add({
+        data: {
+          openid,
+          ...data,
+          createTime: new Date()
+        }
+      });
     }
 
     // =====================
@@ -200,10 +362,7 @@ exports.main = async event => {
     };
 
   } catch (err) {
-    console.error(
-      "成就进度操作失败",
-      err
-    );
+    console.error("成就进度操作失败", err);
 
     return {
       success: false,

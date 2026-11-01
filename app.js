@@ -50,8 +50,82 @@ userVersion:"1.00.000",
 
     console.log("云开发初始化成功");
 
+    this.detectCrash();
+    this.cleanLegacyStorage();
     this.initLocalEntries();
     this.checkNetwork();
+  },
+
+  // =====================
+  // 崩溃检测（成就"门不能从这一侧打开"）：
+  // 判定规则：上次启动后，从未退过后台/正常退出过 → 判为崩溃。
+  //  - onLaunch 记录 appLastLaunch（本次启动时间）
+  //  - onHide 记录 appLastHide（最近一次退后台时间）
+  //  - App.onShow（回到前台）清除 appLastHide=0：
+  //    切后台再回前台不算崩溃，清除后前台运行中被杀才能被下次启动判出
+  //  - 本次启动若 lastHide < lastLaunch（上次启动后没有任何 onHide）→ 崩溃
+  // 首次安装启动（lastLaunch=0）不判定。每次前台崩溃都能判出。
+  // =====================
+  detectCrash() {
+    try {
+      const lastLaunch = Number(wx.getStorageSync("appLastLaunch")) || 0;
+      const lastHide = Number(wx.getStorageSync("appLastHide")) || 0;
+
+      if (lastLaunch > 0 && lastHide < lastLaunch) {
+        const count = Number(wx.getStorageSync("crashCount")) || 0;
+        wx.setStorageSync("crashCount", count + 1);
+        // 崩溃成就已解锁过就不再设 crashPending，后续崩溃不触发成就
+        if (!wx.getStorageSync("crashAchievementUnlocked")) {
+          wx.setStorageSync("crashPending", true);
+        }
+      }
+
+      wx.setStorageSync("appLastLaunch", Date.now());
+    } catch (err) {
+      console.log("[崩溃检测] 失败", err);
+    }
+  },
+
+  // 回到前台（含冷启动后）：清除"曾退后台"记录，
+  // 保证崩溃判定只针对"前台运行中被杀"，且每次前台崩溃都能判出
+  onShow() {
+    try {
+      wx.setStorageSync("appLastHide", 0);
+    } catch (err) {
+      console.log("[崩溃检测] 清除退后台记录失败", err);
+    }
+  },
+
+  onHide() {
+    try {
+      // 退后台/正常关闭：记录时间（下次启动据此判断不是前台崩溃）
+      wx.setStorageSync("appLastHide", Date.now());
+    } catch (err) {
+      console.log("[崩溃检测] 记录退后台失败", err);
+    }
+  },
+
+  // =====================
+  // 成就/登录标记版本清理：
+  // 旧版本曾把成就入口解锁标记长期残留本地，导致游客进入也显示成就按钮。
+  // 每次版本号变更清一次旧标记；登录用户由云端恢复，游客重新抽卡解锁。
+  // =====================
+  cleanLegacyStorage() {
+    const ACH_STORAGE_VERSION = "4";
+    if (wx.getStorageSync("achStorageVersion") === ACH_STORAGE_VERSION) {
+      return;
+    }
+    try {
+      wx.removeStorageSync("firstDrawAchieved");
+      wx.removeStorageSync("achievementEntryUnlocked");
+      wx.removeStorageSync("achievementFlyPlayed");
+      wx.removeStorageSync("firstDrawLoginTipShown");
+      wx.removeStorageSync("localLoggedIn");
+      wx.setStorageSync("achStorageVersion", ACH_STORAGE_VERSION);
+      console.log("[版本清理] 已清除旧版成就/登录残留标记");
+    } catch (err) {
+      console.log("[版本清理] 失败", err);
+    }
   },
 
   // =====================

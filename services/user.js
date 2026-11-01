@@ -13,17 +13,45 @@
 // =====================
 async function checkRole(page) {
   try {
+    // 本地登录标记：未登录（清缓存/新装/从未登录）或已登出 → 强制游客，
+    // 不依赖云端 users 残留记录；登录成功时写入 localLoggedIn
+    if (!wx.getStorageSync("localLoggedIn") || wx.getStorageSync("localLoggedOut")) {
+      const app = getApp();
+      page.setData({
+        role: "visitor",
+        isRegister: true,
+        userNick: "",
+        userAvatar: ""
+      });
+      if (app.updateUserStatus) {
+        app.updateUserStatus({
+          role: "visitor",
+          isRegister: true
+        });
+      }
+      return {
+        success: true,
+        data: { role: "visitor", isRegister: true, user: null }
+      };
+    }
+
     const res = await wx.cloud.callFunction({
-      name: "checkRole"
+      name: "user", data: { action: "checkRole" }
     });
 
     if (res.result && res.result.success) {
-      const role = res.result.role || "visitor";
-      const isRegister = res.result.isRegister || false;
-    
+      const role = res.result.data.role || "visitor";
+      const isRegister = res.result.data.isRegister || false;
+      const user = res.result.data.user || null;
+      const loggedIn = role !== "visitor";
+      const userNick = loggedIn && user && user.nickname ? user.nickname : "";
+      const userAvatar = loggedIn && user && user.avatar ? user.avatar : "";
+
       page.setData({
         role: role,
-        isRegister: isRegister
+        isRegister: isRegister,
+        userNick: userNick,
+        userAvatar: userAvatar
       });
     
       const app = getApp();

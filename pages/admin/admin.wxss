@@ -1,12 +1,14 @@
-/* pages/admin/admin.wxss */
+/* pages/admin/admin.wxss
+   主题：浅金杏（审核按钮黄） + 词条中心绿 + 标题栏灰蓝 */
 
 page {
-  background: #f7f7f7;
+  background: linear-gradient(180deg, #ffffff, #f7f4ea);
 }
 
 .container {
   min-height: 100vh;
   padding: 30rpx;
+  box-sizing: border-box;
 }
 
 /* =====================
@@ -14,78 +16,93 @@ page {
 ===================== */
 .header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14rpx;
   margin-bottom: 30rpx;
+  padding: 0 6rpx;
 }
 
 .title {
-  font-size: 40rpx;
-  font-weight: bold;
-  color: #222;
+  font-size: 44rpx;
+  font-weight: 800;
+  color: #5a7f92;
 }
 
-.count {
-  font-size: 26rpx;
-  color: #888;
+.count-badge {
+  padding: 8rpx 22rpx;
+  background: #f5e9c9;
+  border: 2rpx solid #ead9a8;
+  border-radius: 30rpx;
+  color: #8a7140;
+  font-size: 24rpx;
+  font-weight: 600;
 }
 
 /* =====================
    词条卡片
 ===================== */
 .entry-card {
-  background: #fff;
+  background: #ffffff;
+  border: 2rpx solid #eef0e6;
   border-radius: 24rpx;
-  padding: 28rpx;
-  margin-bottom: 24rpx;
-  box-shadow: 0 6rpx 18rpx rgba(0, 0, 0, .08);
+  padding: 20rpx 24rpx;
+  margin-bottom: 22rpx;
+  box-shadow: 0 8rpx 20rpx rgba(138, 113, 64, 0.08);
 }
 
 .entry-info {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  gap: 12rpx;
 }
 
 .entry-text {
   font-size: 34rpx;
-  font-weight: bold;
-  color: #333;
+  font-weight: 700;
+  color: #33454e;
+  line-height: 1.3;
 }
 
-.entry-category {
-  margin-top: 10rpx;
-  font-size: 26rpx;
-  color: #8b6cff;
+.category-badge {
+  padding: 6rpx 18rpx;
+  background: #eaf5ec;
+  border: 2rpx solid #d3e8d9;
+  border-radius: 22rpx;
+  color: #3f7a56;
+  font-size: 22rpx;
+  font-weight: 600;
+  line-height: 1.2;
 }
 
 .entry-desc {
   display: block;
-  margin-top: 20rpx;
-  font-size: 28rpx;
-  line-height: 1.6;
-  color: #555;
+  margin-top: 10rpx;
+  font-size: 26rpx;
+  line-height: 1.3;
+  color: #6b7066;
 }
 
 .entry-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 12rpx;
-  margin-top: 20rpx;
+  margin-top: 8rpx;
 }
 
 .tag {
-  padding: 8rpx 18rpx;
-  background: #f0eaff;
-  border-radius: 20rpx;
-  color: #8b6cff;
-  font-size: 24rpx;
+  color: #5a7f92;
+  font-size: 23rpx;
+  line-height: 1.3;
 }
 
 .entry-time {
   display: block;
-  margin-top: 20rpx;
-  font-size: 24rpx;
-  color: #999;
+  margin-top: 8rpx;
+  font-size: 23rpx;
+  color: #a89a78;
+  line-height: 1.3;
 }
 
 /* =====================
@@ -95,37 +112,47 @@ page {
   display: flex;
   justify-content: flex-end;
   gap: 14rpx;
-  margin-top: 28rpx;
+  margin-top: 26rpx;
+  padding-top: 20rpx;
+  border-top: 2rpx dashed #f0ecd9;
 }
 
 .entry-actions button {
   height: 60rpx;
   line-height: 60rpx;
-  padding: 0 24rpx;
+  padding: 0 26rpx;
   border-radius: 30rpx;
-  font-size: 24rpx;
+  font-size: 25rpx;
+  font-weight: 600;
   color: #fff;
 }
 
 .btn-edit {
-  background: #9b8de8;
+  background: #b3ccd8;
+  box-shadow: 0 4rpx 12rpx rgba(143, 179, 196, 0.25);
 }
 
 .btn-approve {
-  background: #7dbb8a;
+  background: #92c8a4;
+  box-shadow: 0 4rpx 12rpx rgba(111, 174, 131, 0.25);
 }
 
 .btn-reject {
-  background: #d98f9b;
+  background: #e2b3ba;
+  box-shadow: 0 4rpx 12rpx rgba(216, 150, 158, 0.22);
 }
 
 /* =====================
    空状态
 ===================== */
 .empty {
-  margin-top: 200rpx;
+  margin-top: 120rpx;
+  padding: 80rpx 40rpx;
   text-align: center;
-  color: #999;
+  background: #fbf8ef;
+  border: 2rpx dashed #e8dcc0;
+  border-radius: 24rpx;
+  color: #a89a78;
   font-size: 30rpx;
 }
 
@@ -147,9 +174,10 @@ page {
 
 .edit-panel {
   width: 650rpx;
-  background: #fff;
+  background: #ffffff;
   border-radius: 30rpx;
   padding: 40rpx;
+  box-sizing: border-box;
 }
 
 .edit-title {
@@ -157,7 +185,7 @@ page {
   text-align: center;
   font-size: 36rpx;
   font-weight: bold;
-  color: #222;
+  color: #5a7f92;
   margin-bottom: 30rpx;
 }
 
@@ -166,13 +194,13 @@ page {
   margin-top: 20rpx;
   margin-bottom: 10rpx;
   font-size: 26rpx;
-  color: #555;
+  color: #6b7066;
 }
 
 .edit-input {
   height: 70rpx;
   padding: 0 20rpx;
-  background: #f7f7f7;
+  background: #f7f4ea;
   border-radius: 16rpx;
   font-size: 28rpx;
 }
@@ -182,7 +210,7 @@ page {
   height: 180rpx;
   padding: 20rpx;
   box-sizing: border-box;
-  background: #f7f7f7;
+  background: #f7f4ea;
   border-radius: 16rpx;
   font-size: 28rpx;
 }
@@ -191,7 +219,7 @@ page {
   height: 70rpx;
   line-height: 70rpx;
   padding: 0 20rpx;
-  background: #f7f7f7;
+  background: #f7f4ea;
   border-radius: 16rpx;
   font-size: 28rpx;
   color: #555;
@@ -216,11 +244,12 @@ page {
 }
 
 .cancel-btn {
-  background: #ddd;
-  color: #555;
+  background: #ece7d8;
+  color: #8a7140;
 }
 
 .save-btn {
-  background: #9b8de8;
+  background: #8fb3c4;
   color: #fff;
+  box-shadow: 0 4rpx 12rpx rgba(143, 179, 196, 0.35);
 }
