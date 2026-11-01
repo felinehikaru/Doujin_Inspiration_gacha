@@ -52,7 +52,11 @@
     <!-- 搜索 -->
     <view class="search-wrap">
       <text class="search-icon">🔍</text>
+<<<<<<< HEAD
       <input class="search" placeholder="搜索词条，#标签 可按 tag 搜索" bindinput="onSearch" />
+=======
+      <input class="search" placeholder="搜索词条" bindinput="onSearch" />
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
     </view>
 
     <!-- 搜索结果 -->

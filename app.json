@@ -11,7 +11,11 @@
   ],
 
   "window": {
+<<<<<<< HEAD
     "navigationBarTitleText": "创作抽灵感随机扭蛋机",
+=======
+    "navigationBarTitleText": "同人梗扭蛋机",
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
     "navigationBarBackgroundColor": "#8bb1bf",
     "navigationBarTextStyle": "white",
     "backgroundColor": "#ffffff"

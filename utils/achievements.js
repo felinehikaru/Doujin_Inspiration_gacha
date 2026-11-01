@@ -41,16 +41,34 @@ const achievements = [
     progressKey: "fourClassicsCount"
   },
   {
+<<<<<<< HEAD
     id: "pokemon_master",
     type: "normal",
     icon: "",
     iconImage: "/assets/achievement_icon/pokemonball.jpeg",
+=======
+    id: "pokemon_newbie",
+    type: "normal",
+    icon: "",
+    iconImage: "",
+    name: "宝可梦新人",
+    description: "累计抽中一个tag含有“宝可梦”的词条",
+    target: 1,
+    progressKey: "pokemonCount"
+  },
+  {
+    id: "pokemon_master",
+    type: "normal",
+    icon: "",
+    iconImage: "",
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
     name: "宝可梦大师",
     description: "累计抽中5个不同的tag含有“宝可梦”的词条",
     target: 5,
     progressKey: "pokemonCount"
   },
   {
+<<<<<<< HEAD
     id: "green_frog",
     type: "normal",
     icon: "",
@@ -61,6 +79,8 @@ const achievements = [
     progressKey: "vulgarCount"
   },
   {
+=======
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
     id: "gong_gong",
     type: "hidden",
     icon: "",
@@ -99,6 +119,7 @@ const achievements = [
     description: "累计同时抽到“赛博朋克” + “机械改造者” + “未来都市”",
     target: 1,
     progressKey: "cyberSetHit"
+<<<<<<< HEAD
   },
   {
     id: "crash_recovery",
@@ -109,6 +130,8 @@ const achievements = [
     description: "遇到过一次小程序崩溃，只能重新加载",
     target: 1,
     progressKey: "crashCount"
+=======
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
   }
 ];
 

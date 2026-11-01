@@ -29,13 +29,21 @@
         <view class="trophy-stem"></view>
         <view class="trophy-base"></view>
       </view>
+<<<<<<< HEAD
       <text class="title">成就</text>
+=======
+      <text class="title">收藏</text>
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
     </view>
     <text class="subtitle">记录每一次灵感相遇</text>
   </view>
 
   <view class="section">
+<<<<<<< HEAD
     <text class="section-title">成就</text>
+=======
+    <text class="section-title">普通成就</text>
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
     <view wx:for="{{normalAchievements}}" wx:key="id" class="achievement-card" wx:if="{{index < 2 || !normalCollapsed}}">
       <image wx:if="{{item.iconImage}}" class="achievement-icon-img" src="{{item.iconImage}}" mode="aspectFit"></image>
       <text wx:else class="achievement-icon">{{item.icon}}</text>

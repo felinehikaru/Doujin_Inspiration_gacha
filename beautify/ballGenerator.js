@@ -65,7 +65,11 @@ function generateBalls(ballSize) {
 
     // 弹动动画参数（每球不同，避免同步）
     const delay = (Math.random() * 0.8).toFixed(3);    // 延迟 0~0.8s
+<<<<<<< HEAD
     const bounce = 40 + Math.random() * 30;             // 幅度 22~44rpx
+=======
+    const bounce = 22 + Math.random() * 22;             // 幅度 22~44rpx
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
     const dur = (0.9 + Math.random() * 0.4).toFixed(3); // 时长 0.9~1.3s
     const rot = ((Math.random() - 0.5) * 8).toFixed(2); // 旋转 -4~4度
 

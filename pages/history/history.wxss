@@ -7,7 +7,11 @@ page {
 .container {
   min-height: 100vh;
   background: #f3f7fa;
+<<<<<<< HEAD
   padding: 30rpx 30rpx calc(30rpx + env(safe-area-inset-bottom));
+=======
+  padding: 30rpx;
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
 }
 
 .header {

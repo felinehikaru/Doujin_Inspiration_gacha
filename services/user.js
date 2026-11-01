@@ -20,8 +20,12 @@ async function checkRole(page) {
       page.setData({
         role: "visitor",
         isRegister: true,
+<<<<<<< HEAD
         userNick: "",
         userAvatar: ""
+=======
+        userNick: ""
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
       });
       if (app.updateUserStatus) {
         app.updateUserStatus({
@@ -45,13 +49,20 @@ async function checkRole(page) {
       const user = res.result.data.user || null;
       const loggedIn = role !== "visitor";
       const userNick = loggedIn && user && user.nickname ? user.nickname : "";
+<<<<<<< HEAD
       const userAvatar = loggedIn && user && user.avatar ? user.avatar : "";
+=======
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
 
       page.setData({
         role: role,
         isRegister: isRegister,
+<<<<<<< HEAD
         userNick: userNick,
         userAvatar: userAvatar
+=======
+        userNick: userNick
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
       });
     
       const app = getApp();

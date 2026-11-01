@@ -2,8 +2,11 @@
 
 <view class="page-wrap">
 
+<<<<<<< HEAD
 <view class="page-scale">
 
+=======
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
 <!-- =====================
      顶部标题区
 ===================== -->
@@ -47,8 +50,12 @@
   bindtap="goLogin"
 >
 
+<<<<<<< HEAD
   <image wx:if="{{userAvatar}}" class="user-avatar user-avatar-img" src="{{userAvatar}}" mode="aspectFill"></image>
   <view wx:else class="user-avatar user-avatar-icon">
+=======
+  <view class="user-avatar user-avatar-icon">
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
     <view class="ua-head"></view>
     <view class="ua-body"></view>
   </view>
@@ -127,7 +134,11 @@
     <!-- 光效+金球画布（canvas 内部先画光效再画金球，彻底解决层级） -->
     <canvas type="2d" id="gachaFx" class="gacha-fx-canvas"></canvas>
 
+<<<<<<< HEAD
   <!-- 金球掉落+光效（DOM 版：真机上 Canvas 2D node 获取不到时自动启用） -->
+=======
+    <!-- 金球掉落+光效（DOM 版：真机上 Canvas 2D node 获取不到时自动启用） -->
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
     <view wx:if="{{dropBall}}" class="drop-fx">
       <view class="drop-glow-a"></view>
       <view class="drop-rays">
@@ -146,8 +157,11 @@
 
   </view>
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
 </view>
 
 <!-- =====================
@@ -261,10 +275,66 @@
 
 </view>
 
+<<<<<<< HEAD
 </view><!-- /page-scale -->
 
 <!-- =====================
    帮助弹窗（page-wrap 直接子元素：fixed 全屏遮罩，不参与文档流、不撑高页面）
+=======
+<!-- =====================
+   底部功能入口
+===================== -->
+
+<view class="bottom-nav">
+
+  <view
+    class="nav-item nav-history"
+    bindtap="openHistory"
+  >
+    <view class="nav-icon icon-history">
+      <view class="clock-hand clock-hand-h"></view>
+      <view class="clock-hand clock-hand-v"></view>
+    </view>
+    <text class="nav-label">历史</text>
+  </view>
+
+  <view
+    class="nav-item nav-favorite"
+    bindtap="openFavorites"
+  >
+    <view class="nav-icon icon-favorite"></view>
+    <text class="nav-label">收藏</text>
+  </view>
+
+  <view
+    class="nav-item nav-entries"
+    bindtap="openEntries"
+  >
+    <view class="nav-icon icon-entries">
+      <view class="book-page book-left"></view>
+      <view class="book-page book-right"></view>
+    </view>
+    <text class="nav-label">词条中心</text>
+  </view>
+
+  <view
+    wx:if="{{showAchievementEntry}}"
+    class="nav-item nav-achievement"
+    bindtap="openAchievements"
+  >
+    <view class="nav-icon icon-achievement">
+      <view class="trophy-cup"></view>
+      <view class="trophy-stem"></view>
+      <view class="trophy-base"></view>
+    </view>
+    <text class="nav-label">成就</text>
+  </view>
+
+</view>
+
+<!-- =====================
+   帮助弹窗
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
 ===================== -->
 
 <view
@@ -429,6 +499,7 @@
 </view>
 
 <!-- =====================
+<<<<<<< HEAD
    分享面板
 ===================== -->
 
@@ -538,6 +609,9 @@
 <!-- =====================
    成就入口解锁飞行动画（首个成就恭喜窗点掉后播放；
    位于缩放层外，fixed 相对视口定位，飞行不受缩放影响）
+=======
+   成就入口解锁飞行动画（首个成就恭喜窗点掉后播放）
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
 ===================== -->
 
 <view
@@ -574,6 +648,7 @@
 </view>
 
 <!-- =====================
+<<<<<<< HEAD
    欢迎弹窗（打开小程序时显示；位于缩放层外，遮罩始终覆盖整个屏幕）
 ===================== -->
 
@@ -616,3 +691,85 @@
 </view>
 
 </view><!-- /page-wrap -->
+=======
+   分享面板
+===================== -->
+
+<view
+  wx:if="{{showSharePanel}}"
+  class="share-mask"
+  catchtap="closeSharePanel"
+>
+
+  <view
+    class="share-panel"
+    catchtap="noop"
+  >
+
+    <text class="share-title">
+      分享扭蛋结果
+    </text>
+
+    <view
+      class="share-btn"
+      bindtap="copyShareText"
+    >
+      文字分享
+    </view>
+
+    <view
+      class="share-btn"
+      bindtap="createShareImage"
+    >
+      图片分享
+    </view>
+
+    <view
+      class="share-btn cancel"
+      bindtap="closeSharePanel"
+    >
+      取消
+    </view>
+
+  </view>
+
+</view>
+
+<!-- =====================
+   分享图片 Canvas
+===================== -->
+
+<canvas
+  type="2d"
+  id="shareCanvas"
+  style="position:absolute;width:750px;height:1100px;left:-9999px;top:0;"
+/>
+
+
+<!-- =====================
+   欢迎弹窗（打开小程序时显示）
+===================== -->
+
+<view class="welcome-modal" wx:if="{{showWelcomeModal}}">
+  <view class="welcome-mask"></view>
+  <view class="welcome-box">
+    <view class="welcome-text">
+      <view class="welcome-line">本程序<text class="welcome-red">拒绝接入</text>、</view>
+      <view class="welcome-line">程序体<text class="welcome-red">不使用</text>任何 AI，</view>
+      <view class="welcome-line">也<text class="welcome-red">不鼓励</text>以 AI 完全替代创作。</view>
+      <view class="welcome-line">提示词模板模块</view>
+      <view class="welcome-line">仅作为学习交流用途，</view>
+      <view class="welcome-line">希望能为你的创作提供灵感。</view>
+    </view>
+    <view class="welcome-confirm" bindtap="confirmWelcome">同意，确认使用</view>
+    <view class="welcome-dontshow" bindtap="toggleWelcomeDontShow">
+      <view class="welcome-checkbox {{welcomeDontShow ? 'checked' : ''}}">
+        <text wx:if="{{welcomeDontShow}}">✓</text>
+      </view>
+      <text class="welcome-dontshow-text">不再显示</text>
+    </view>
+  </view>
+</view>
+
+</view>
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e

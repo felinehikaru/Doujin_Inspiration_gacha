@@ -20,7 +20,10 @@ Page({
     role: "visitor",
     isRegister: false,
     userNick: "",
+<<<<<<< HEAD
     userAvatar: "",
+=======
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
     showAchievementEntry: false,
 
     // =========抽卡结果============
@@ -75,9 +78,12 @@ Page({
     showWelcomeModal: false,
     welcomeDontShow: false,
 
+<<<<<<< HEAD
     // =====新手指引（仅首次）=====
     showHomeGuide: false,
 
+=======
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
     // =====帮助弹窗关闭动画=====
     helpClosing: false,
 
@@ -95,7 +101,11 @@ Page({
   // =====================
   async onShow() {
     await this.checkRole();
+<<<<<<< HEAD
     this.checkCrashAchievement(); // 必须在 checkRole 之后，游客不触发崩溃成就
+=======
+    // 登录后从云端恢复成就状态（成就入口是否显示）；游客隐藏
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
     this.refreshAchievementEntry();
   },
 
@@ -116,6 +126,7 @@ Page({
       sparkles: generateHomeSparkles()  // 主页星星（beautify/sparkleGen.js）
     });
     this.initAchievementEntry();  // 恢复成就入口显示状态
+<<<<<<< HEAD
 
     // 如果欢迎弹窗不显示但已看过帮助，且指引没看过，直接显示指引
     if (wx.getStorageSync('welcomeDontShow') && !wx.getStorageSync('homeGuideV2')) {
@@ -180,6 +191,8 @@ Page({
         unlockedAchievement: achievement
       });
     }
+=======
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
   },
 
   // =====================
@@ -269,12 +282,15 @@ Page({
         showHelpModal: false,
         helpClosing: false
       });
+<<<<<<< HEAD
       // 帮助关闭后，如果是首次使用，显示首页操作指引
       if (!wx.getStorageSync('homeGuideV2')) {
         setTimeout(() => {
           this.setData({ showHomeGuide: true });
         }, 300);
       }
+=======
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
     }, 250);
   },
 
@@ -321,12 +337,26 @@ Page({
 
   // =====================
   // 扭蛋动画（调用独立模块 gachaAnimation）
+<<<<<<< HEAD
+=======
   // =====================
   startGachaAnimation(result) {
     startGachaAnimation(this, result);
   },
 
 
+// =====================
+  // 抽卡
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
+  // =====================
+  startGachaAnimation(result) {
+    startGachaAnimation(this, result);
+  },
+
+<<<<<<< HEAD
+
+=======
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
   // =====================
   // 完全随机
   // =====================
@@ -405,7 +435,12 @@ Page({
       results: resultsWithCategory
     });
 
+<<<<<<< HEAD
     app.globalData.currentResults = result;
+=======
+    app.globalData.currentResults =
+      result;
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
 
     historyService.saveHistory(
       this,
@@ -517,6 +552,17 @@ Page({
     });
   },
 
+<<<<<<< HEAD
+=======
+  clearCurrentResult() {
+    this.setData({
+      results: []
+    });
+
+    app.globalData.currentResults = [];
+  },
+
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
   // =====================
   // 收藏
   // =====================
@@ -534,6 +580,13 @@ Page({
     favoriteService.loadFavorites(
       this
     );
+<<<<<<< HEAD
+=======
+  },
+
+  showFavorites() {
+    this.openFavorites();
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
   },
 
   // =====================
@@ -548,6 +601,15 @@ Page({
   // =====================
   // 分享
   // =====================
+<<<<<<< HEAD
+=======
+  copyCurrentResult() {
+    shareService.copyCurrentResult(
+      this
+    );
+  },
+
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
   onShareAppMessage() {
     return shareService.onShareAppMessage(
       this

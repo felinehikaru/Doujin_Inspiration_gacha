@@ -34,14 +34,18 @@ function normalizeProgress(document, openid) {
     ...document,
     openid,
     inProgress: {
+<<<<<<< HEAD
       // =====================
       // 普通成就字段
       // =====================
+=======
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
       drawCount: Number(src.drawCount) || 0,
       entryCount: Number(src.entryCount) || 0,
       shareCount: Number(src.shareCount) || 0,
       fourClassicsCount: Number(src.fourClassicsCount) || 0,
       pokemonCount: Number(src.pokemonCount) || 0,
+<<<<<<< HEAD
       vulgarCount: Number(src.vulgarCount) || 0,
       collectedTags: arr("collectedTags"),
       pokemonTexts: arr("pokemonTexts"),
@@ -50,11 +54,18 @@ function normalizeProgress(document, openid) {
       // =====================
       // 隐藏成就字段
       // =====================
+=======
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
       gongCount: Number(src.gongCount) || 0,
       moCount: Number(src.moCount) || 0,
       cyberCount: Number(src.cyberCount) || 0,
       cyberSetHit: !!src.cyberSetHit,
+<<<<<<< HEAD
       crashCount: Number(src.crashCount) || 0,
+=======
+      collectedTags: arr("collectedTags"),
+      pokemonTexts: arr("pokemonTexts"),
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
       gongTexts: arr("gongTexts"),
       moTexts: arr("moTexts"),
       cyberTexts: arr("cyberTexts")
@@ -98,17 +109,22 @@ function accumulateEntries(progress, entries) {
       ? entry.tags.map(String)
       : [];
 
+<<<<<<< HEAD
     // =====================
     // 普通成就统计
     // =====================
 
     // 累计所有 tag（去重）——四大名著共用
+=======
+    // 累计所有 tag（去重）
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
     tags.forEach(t => add(p.collectedTags, t));
 
     // 宝可梦：tag 含"宝可梦"的词条（按词条名去重）
     if (tags.some(t => t.includes("宝可梦"))) {
       add(p.pokemonTexts, text);
     }
+<<<<<<< HEAD
 
     // 恶俗：tag 含"恶俗"的词条（按词条名去重）
     if (tags.some(t => t.includes("恶俗"))) {
@@ -119,6 +135,8 @@ function accumulateEntries(progress, entries) {
     // 隐藏成就统计
     // =====================
 
+=======
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
     // 公公 / 嬷嬷：tag 含关键字的词条（按词条名去重）
     if (tags.some(t => t.includes("公公"))) {
       add(p.gongTexts, text);
@@ -144,18 +162,25 @@ function accumulateEntries(progress, entries) {
     }
   });
 
+<<<<<<< HEAD
   // =====================
   // 汇总计数
   // =====================
 
   // 普通成就计数
+=======
+  // 汇总计数
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
   p.fourClassicsCount = ["三国", "西游", "水浒", "红楼"]
     .filter(t => p.collectedTags.includes(t))
     .length;
   p.pokemonCount = p.pokemonTexts.length;
+<<<<<<< HEAD
   p.vulgarCount = p.vulgarTexts.length;
 
   // 隐藏成就计数
+=======
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
   p.gongCount = p.gongTexts.length;
   p.moCount = p.moTexts.length;
   p.cyberCount = p.cyberTexts.length;
@@ -187,14 +212,19 @@ function applyRules(progress) {
   const p = progress.inProgress;
   const hasTag = t => p.collectedTags.includes(t);
 
+<<<<<<< HEAD
   // ============================================================
   // 普通成就解锁判断
   // （新增普通成就时，在此区追加一条 if 判断）
   // ============================================================
+=======
+  // ---- 普通成就 ----
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
   if (p.drawCount >= 1) unlock("first_draw");
   if (p.entryCount >= 330) unlock("thirty_entries");
   if (p.shareCount >= 1) unlock("share_first");
   if (["三国", "西游", "水浒", "红楼"].every(hasTag)) unlock("four_classics");
+<<<<<<< HEAD
   if (p.pokemonCount >= 5) unlock("pokemon_master");
   if (p.vulgarCount >= 5) unlock("green_frog");
 
@@ -202,11 +232,20 @@ function applyRules(progress) {
   // 隐藏成就解锁判断
   // （新增隐藏成就时，在此区追加一条 if 判断）
   // ============================================================
+=======
+  if (p.pokemonCount >= 1) unlock("pokemon_newbie");
+  if (p.pokemonCount >= 5) unlock("pokemon_master");
+
+  // ---- 隐藏成就 ----
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
   if (p.gongCount >= 3) unlock("gong_gong");
   if (p.moCount >= 3) unlock("mo_mo");
   if (p.cyberCount >= 1) unlock("cyberpunk_entry");
   if (p.cyberSetHit) unlock("cyberpunk_set");
+<<<<<<< HEAD
   if (p.crashCount >= 1) unlock("crash_recovery");
+=======
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
 
   return newly;
 }

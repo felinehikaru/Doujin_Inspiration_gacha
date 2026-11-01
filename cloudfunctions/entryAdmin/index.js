@@ -66,6 +66,7 @@ async function submit(openid, event) {
   }
 
   // =====================
+<<<<<<< HEAD
   // 微信内容安全检测（UGC 必检）
   // =====================
   try {
@@ -83,6 +84,8 @@ async function submit(openid, event) {
   }
 
   // =====================
+=======
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
   // 三库相似词条检测
   // entries / user_entries / pending_entries
   // =====================

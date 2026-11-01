@@ -2,7 +2,11 @@
  * gachaFx.js — 抽卡光效系统（独立封装）
  * 包含：Canvas 初始化、柔光白金光晕、浓金光晕跟随两半、光芒粒子、中心亮核、散布光点、金球绘制与裂开动画
  * 用法：
+<<<<<<< HEAD
  *   const GachaFx = require("../../beautify/gachaFx.js");
+=======
+ *   const GachaFx = require("../../utils/gachaFx.js");
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
  *   this._gachaFx = new GachaFx(this);
  *   this._gachaFx.init("#gachaFx");   // onReady
  *   this._gachaFx.play();              // 抽卡时
@@ -20,6 +24,7 @@ class GachaFx {
     this._fxRaf = null;
   }
 
+<<<<<<< HEAD
   /** 初始化 canvas（onReady 时调用；页面可能未渲染完，带重试确保就绪） */
   init(canvasId) {
     const delays = [100, 200, 400, 800, 1200, 2000];
@@ -37,6 +42,17 @@ class GachaFx {
         });
     };
     tryInit(0);
+=======
+  /** 初始化 canvas（onReady 时调用） */
+  init(canvasId) {
+    wx.createSelectorQuery()
+      .in(this.page)
+      .select(canvasId)
+      .fields({ node: true, size: true })
+      .exec((res) => {
+        if (res && res[0] && res[0].node) this._setup(res[0]);
+      });
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
   }
 
   /** 配置 canvas 尺寸和上下文 */
@@ -76,10 +92,13 @@ class GachaFx {
         if (res && res[0] && res[0].node) {
           this._setup(res[0]);
           this._run();
+<<<<<<< HEAD
           // canvas 版已接管：立即移除 DOM 兜底动画，避免双份播放/突兀光柱
           if (this.page.data && this.page.data.dropBall) {
             this.page.setData({ dropBall: false });
           }
+=======
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
         }
       });
   }
@@ -96,9 +115,18 @@ class GachaFx {
     const start = Date.now();
     const dur = 1500;
     const canvas = this._fxCanvas;
+<<<<<<< HEAD
     // 统一用 setTimeout，避免微信PC端 canvas.requestAnimationFrame 兼容问题
     const raf = (cb) => setTimeout(cb, 16);
     const caf = (id) => clearTimeout(id);
+=======
+    const raf = canvas && canvas.requestAnimationFrame
+      ? (cb) => canvas.requestAnimationFrame(cb)
+      : (cb) => setTimeout(cb, 16);
+    const caf = canvas && canvas.cancelAnimationFrame
+      ? (id) => canvas.cancelAnimationFrame(id)
+      : (id) => clearTimeout(id);
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
     const step = () => {
       const t = Date.now() - start;
       const p = Math.min(t / dur, 1);
@@ -321,8 +349,17 @@ class GachaFx {
 
   /** 停止光效并清空 canvas */
   stop() {
+<<<<<<< HEAD
     if (this._fxRaf) {
       clearTimeout(this._fxRaf);
+=======
+    const canvas = this._fxCanvas;
+    const caf = canvas && canvas.cancelAnimationFrame
+      ? (id) => canvas.cancelAnimationFrame(id)
+      : (id) => clearTimeout(id);
+    if (this._fxRaf) {
+      caf(this._fxRaf);
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
       this._fxRaf = null;
     }
     if (this._fxCtx) {

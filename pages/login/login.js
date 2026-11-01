@@ -5,10 +5,14 @@ Page({
     loading: false,
     cloudNickname: "",
     showNickModal: false,
+<<<<<<< HEAD
     nickFocus: false,
     tempAvatarUrl: "",
     tempNickName: "",
     nickHint: false
+=======
+    nickFocus: false
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
   },
 
   noop() {},
@@ -52,6 +56,7 @@ Page({
     }
   },
 
+<<<<<<< HEAD
   // 选头像：只存值
   onChooseAvatar(e) {
     const url = (e.detail && e.detail.avatarUrl) || "";
@@ -88,6 +93,44 @@ Page({
     if (!this.data.tempAvatarUrl || !nick || nick === "微信用户") return;
     wx.setStorageSync("userNick", nick);
     this.registerUser({ nickName: nick, avatarUrl: this.data.tempAvatarUrl });
+=======
+  // 微信登录
+  login() {
+    const nick = this.data.cloudNickname;
+    if (nick && nick !== "微信用户") {
+      // 云端已有真实昵称：直接登录，不再弹选择器
+      this.registerUser({
+        nickName: nick,
+        avatarUrl: ""
+      });
+      return;
+    }
+
+    // 首次登录：弹出居中确认面板，同时自动聚焦唤起底部微信昵称面板
+    this.setData({
+      showNickModal: true,
+      nickFocus: true
+    });
+  },
+
+  // 微信昵称选择器确认后：自动登录
+  onNicknameConfirm(e) {
+    const val = (e.detail.value || "").trim();
+    if (!val || val === "微信用户") {
+      wx.showToast({
+        title: "未获取到昵称，请重试",
+        icon: "none"
+      });
+      return;
+    }
+
+    wx.setStorageSync("userNick", val);
+    this.setData({ showNickModal: false, nickFocus: false });
+    this.registerUser({
+      nickName: val,
+      avatarUrl: ""
+    });
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
   },
 
   async registerUser(userInfo) {

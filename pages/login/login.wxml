@@ -9,6 +9,7 @@
     <view class="cb" style="left:55%; width:220rpx; height:220rpx;"></view>
     <view class="cb" style="left:76%; width:170rpx; height:170rpx;"></view>
     <view class="cb" style="left:90%; width:110rpx; height:110rpx;"></view>
+<<<<<<< HEAD
   </view>
 
   <!-- 标题 + 四角星装饰 -->
@@ -46,6 +47,30 @@
       placeholder="点击选择昵称"
       placeholder-class="login-nick-ph"
     />
+=======
+  </view>
+
+  <!-- 标题 + 四角星装饰 -->
+  <view class="title">
+    <view class="sparkle-deco sparkle-1"></view>
+    <view class="sparkle-deco sparkle-2"></view>
+    <view class="sparkle-deco sparkle-3"></view>
+    <view class="title-with-icon">
+      <view class="page-icon icon-user">
+        <view class="user-head"></view>
+        <view class="user-body"></view>
+      </view>
+      <text class="title-text">用户中心</text>
+    </view>
+  </view>
+
+  <!-- 未登录 -->
+  <view wx:if="{{role==='visitor'}}" class="user-card">
+    <text class="status">当前未登录</text>
+    <view class="login-btn-wrap">
+      <button class="login-btn" bindtap="login">微信登录</button>
+    </view>
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
   </view>
 
   <!-- 已登录 -->
@@ -53,5 +78,23 @@
     <text class="status">当前身份：{{role === 'visitor' ? '游客' : role === 'maintainer' ? '维护者' : role === 'admin' ? '管理员' : '用户'}}</text>
     <button class="logout-btn" bindtap="logout">登出</button>
     <button class="delete-btn" bindtap="deleteAccount">账户注销</button>
+  </view>
+
+  <!-- 首次登录：居中昵称确认面板（自动唤起底部微信昵称面板） -->
+  <view wx:if="{{showNickModal}}" class="nick-mask" bindtap="closeNickModal">
+    <view class="nick-panel" catchtap="noop">
+      <text class="nick-title">确认微信昵称</text>
+      <text class="nick-desc">点击底部弹窗，确认用户名</text>
+      <input
+        type="nickname"
+        class="nick-hidden-input"
+        focus="{{nickFocus}}"
+        bindchange="onNicknameConfirm"
+        placeholder=""
+      />
+      <view class="nick-actions">
+        <button class="nick-cancel" bindtap="closeNickModal">取消</button>
+      </view>
+    </view>
   </view>
 </view>

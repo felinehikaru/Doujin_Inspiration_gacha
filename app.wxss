@@ -1,5 +1,9 @@
 page {
+<<<<<<< HEAD
   background: linear-gradient(135deg, #d8d4e2 0%, #e0d4d8 20%, #e4d8cc 40%, #dddcc8 60%, #cdd8cf 80%, #ccd6e0 100%);
+=======
+  background: linear-gradient(135deg, #c9c3e0 0%, #e3cdd4 20%, #ecd9c8 40%, #e6e0c6 60%, #cbd8cd 80%, #c6d3de 100%);
+>>>>>>> 28e4723b9f75b3be41e65a22c0a034d3bb7e042e
   min-height: 100vh;
   font-family: -apple-system, "Microsoft YaHei", sans-serif;
 }
